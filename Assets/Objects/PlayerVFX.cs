@@ -4,18 +4,56 @@ using UnityEngine;
 
 public class PlayerVFX : MonoBehaviour
 {
-    [SerializeField] private ParticleSystem _jumpVFX;
-    [SerializeField] private PlayerMovement _playerMovement;
+    [SerializeField] private ParticleSystem dashVFX;
+    [SerializeField] private PlayerMovement playerMovement;
 
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private AfterImage afterImagePrefab;
+    [SerializeField] private float spawnInterval = 0.05f;
+    [SerializeField] private float lifetime = 0.3f;
+    [SerializeField] private float speedThreshold = 10f;
+    [SerializeField] private Color tint = new Color(1,1,1,0.8f);
+
+    private float timer;
+
+    private SpriteRenderer playerSprite;
+
+    void Awake()
     {
-        
+        playerSprite = GetComponent<SpriteRenderer>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        float speed = playerMovement.Speed;
+
+        if (speed > speedThreshold)
+        {
+            timer += Time.deltaTime;
+
+            if (timer >= spawnInterval)
+            {
+                SpawnAfterImage();
+                timer = 0f;
+            }
+        }
+        else
+        {
+            timer = 0f;
+        }
     }
+
+    void SpawnAfterImage()
+    {
+        var img = Instantiate(afterImagePrefab);
+
+        img.Init(
+            playerSprite.sprite,
+            transform.position,
+            transform.rotation,
+            transform.localScale,
+            tint,
+            lifetime
+        );
+    }
+
 }

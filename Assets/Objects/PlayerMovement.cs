@@ -67,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
         velocity = Vector2.zero;
     }
 
+    public float Speed      => velocity.magnitude;
+
 void Update()
 {
     float dt = Time.deltaTime;
