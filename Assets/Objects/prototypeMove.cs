@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class a : MonoBehaviour
 {
     // --- Movement ---
     [SerializeField] private float moveSpeed      = 9f;
@@ -56,203 +56,20 @@ public class PlayerMovement : MonoBehaviour
     private float   coyoteTimer;
     private float   jumpBufferTimer;
 
+    // Wall state
+    private int     wallDir;         // -1, 0, +1
+    private int     lastWallDir;
+    private float   wallCoyoteTimer;
 
     // -------------------------------------------------------------------------
-    // Timers
-    // -------------------------------------------------------------------------
-
-    void UpdateTimers(float dt)
+    void Start()
     {
-        //register jump input, count down if not used this frame
-        if (Input.GetKeyDown(KeyCode.Space))
-            jumpBufferTimer = jumpBufferTime;
-        else
-            jumpBufferTimer -= dt;
-
-        // Refresh coyote while grounded, count down when airborne
-        if (onGround){
-            coyoteTimer = coyoteTime;
-            dashUsed = false;
-        }  
-        else
-            coyoteTimer -= dt;
-
-        //dash decay
-        if (isDashing){
-            dashTimer -= dt;
-            if (dashTimer <= 0f)
-                EndDash();
-        }
+        velocity = Vector2.zero;
     }
 
-    // -------------------------------------------------------------------------
-    // Dash
-    // -------------------------------------------------------------------------
+    public float Speed      => velocity.magnitude;
+    public bool IsDashing   => isDashing;
 
-    void TryDash()
-    {
-        if (!Input.GetMouseButtonDown(0) || isDashing || dashUsed) return;
-
-        //dash direction
-        Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 dir        = mouseWorld - (Vector2)transform.position;
-        if (dir.sqrMagnitude < 0.001f) return;
-        velocity  = dir.normalized * dashSpeed;
-
-        isDashing = true;
-        dashUsed  = true;
-        dashTimer = dashDuration;
-        isJumping = false;
-    }
-
-    void EndDash()
-    {
-        isDashing = false;
-
-        //cap horizontal speed
-        velocity.x = Mathf.Clamp(velocity.x, -dashEndHCap, dashEndHCap);
-
-        // Kill upward velocity so you don't float after an upward dash,
-        // but preserve downward so diagonal-down dashes keep their arc.
-        if (velocity.y > 0f) velocity.y = 0f;
-    }
-
-    // -------------------------------------------------------------------------
-    // Horizontal
-    // -------------------------------------------------------------------------
-
-    void ApplyHorizontal(float dt)
-    {
-        if (isDashing) return;  //ignores current horizontal input while dashing
-
-        float input = 0f;
-        if (Input.GetKey(KeyCode.A)) input -= 1f;
-        if (Input.GetKey(KeyCode.D)) input += 1f;
-
-        if (input != 0f)
-        {
-            //accelerates towards target
-            float accel  = onGround ? groundAccel : airAccel;
-            float target = input * moveSpeed;
-            velocity.x = Mathf.MoveTowards(velocity.x, target, accel * dt);
-        }
-        else
-        {
-            //applies friction when acceleration is not present
-            float friction = onGround ? groundFriction : airFriction;
-            velocity.x     = Mathf.MoveTowards(velocity.x, 0f, friction * dt);
-        }
-    }
-
-    void ApplyVertical(float dt)
-    {
-        if (isDashing && !onGround) return;
-
-        if (jumpBufferTimer > 0f)
-        {
-            // Normal jump
-            if (coyoteTimer > 0f)
-            {
-                velocity.y      = jumpForce;
-
-                // Reset timers and flags so that you can hold jump and have it cut off at the right height, 
-                // and so that you can buffer another jump immediately after this one if you want to chain them.
-                jumpBufferTimer = 0f;
-                coyoteTimer     = 0f;
-                isJumping       = true;
-            }
-        }
-
-        // Variable jump height
-        if (isJumping && Input.GetKeyUp(KeyCode.Space) && velocity.y > 0f)
-        {
-            velocity.y *= jumpCutMultiplier;
-            isJumping   = false;
-        }
-
-        // Gravity
-        bool fastFall  = Input.GetKey(KeyCode.S) && velocity.y < 0f;
-        float grav     = fastFall ? fastFallGravity : gravity;
-        float cap      = fastFall ? maxFastFall     : maxFallSpeed;
-
-        velocity.y -= grav * dt;
-        if (velocity.y < -cap) velocity.y = -cap;
-    }
-
-    // -------------------------------------------------------------------------
-    // Move & collide
-    // -------------------------------------------------------------------------
-
-    void MoveAndCollide(float dt)
-    {
-        Vector2 pos = transform.position;
-
-        MoveX(ref pos, velocity.x * dt);
-        MoveY(ref pos, velocity.y * dt);
-
-        //Landing resets vertical velocity and state
-        //horizontal is kept intact
-        // this allows for things like wavedash where you retain horizontal speed after a dash when you land.
-        bool wasOnGround = onGround;
-        onGround = CheckGround(pos);
-        if (onGround && velocity.y < 0f)
-        {
-            //if (isDashing) EndDash();
-            velocity.y = 0f;
-            isJumping  = false;
-
-    if (isDashing)
-    {
-        EndDash();
-        dashUsed = false;  // refund so you can dash again after the jump
-    }
-        }
-
-        // applies coyote if we walked off a ledge this frame
-        if (wasOnGround && !onGround && !isDashing)
-            coyoteTimer = coyoteTime;
-
-        transform.position = pos;
-    }
-
-    void MoveX(ref Vector2 pos, float amount)
-    {
-        if (amount == 0f) return;
-        pos.x += amount;
-        if (!Overlaps(pos)) return;
-
-        //cancels movement on collision
-        pos.x      -= amount;
-        velocity.x  = 0f;
-
-        //WrapPosition(); //warp on world borders
-    }
-
-void MoveY(ref Vector2 pos, float amount)
-{
-    if (amount == 0f) return;
-    pos.y += amount;
-    if (!Overlaps(pos)) return;
-
-    // Binary search for the exact edge — no sudden snap
-    float sign = Mathf.Sign(amount);
-    float step = Mathf.Abs(amount);
-    pos.y -= amount;  // step back fully first
-
-    // Walk forward in smaller increments until we're just at the surface
-    for (int i = 0; i < 8; i++)
-    {
-        step *= 0.5f;
-        pos.y += sign * step;
-        if (Overlaps(pos))
-            pos.y -= sign * step;
-    }
-
-    velocity.y = 0f;
-}
-    // -------------------------------------------------------------------------
-    // Frame setup
-    // -------------------------------------------------------------------------
     void Update()
     {
         float dt = Time.deltaTime;
@@ -267,22 +84,10 @@ void MoveY(ref Vector2 pos, float amount)
         MoveAndCollide(dt);    // landing updates onGround for next frame
     }
 
-    void Start()
-    {
-        velocity = Vector2.zero;
-    }
-
-
-    // -------------------------------------------------------------------------
-    // Public data
-    // -------------------------------------------------------------------------
-    public float Speed      => velocity.magnitude;
-    public bool IsDashing   => isDashing;
-
-
     // -------------------------------------------------------------------------
     // Collision helpers
     // -------------------------------------------------------------------------
+
     bool Overlaps(Vector2 pos)
     {
         return Physics2D.OverlapBox(pos, colliderSize, 0f, groundLayer) != null;
@@ -318,5 +123,252 @@ void MoveY(ref Vector2 pos, float amount)
             pos.x = right;
 
         transform.position = pos;
+    }
+
+    // -------------------------------------------------------------------------
+    // Timers
+    // -------------------------------------------------------------------------
+
+    void UpdateTimers(float dt)
+    {
+        //register jump input, count down if not used this frame
+        if (Input.GetKeyDown(KeyCode.Space))
+            jumpBufferTimer = jumpBufferTime;
+        else
+            jumpBufferTimer -= dt;
+
+        // Refresh coyote while grounded, count down when airborne
+        if (onGround)
+            coyoteTimer = coyoteTime;
+        else
+            coyoteTimer -= dt;
+
+        if (onGround)
+            dashUsed = false;
+
+        if (wallDir != 0)
+        {
+            wallCoyoteTimer = wallCoyoteTime;
+            lastWallDir     = wallDir;
+        }
+        else
+        {
+            wallCoyoteTimer -= dt;
+        }
+
+        if (isDashing)
+        {
+            dashTimer -= dt;
+            if (dashTimer <= 0f)
+                EndDash();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Dash
+    // -------------------------------------------------------------------------
+
+    void TryDash()
+    {
+        if (!Input.GetMouseButtonDown(0) || isDashing || dashUsed) return;
+
+        Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 dir        = mouseWorld - (Vector2)transform.position;
+        if (dir.sqrMagnitude < 0.001f) return;
+
+        velocity  = dir.normalized * dashSpeed;
+        isDashing = true;
+        dashUsed  = true;
+        dashTimer = dashDuration;
+        isJumping = false;
+    }
+
+    void EndDash()
+    {
+        isDashing = false;
+
+        // Cap horizontal speed but don't zero it — retained speed is what
+        // makes wavedash/hyperdash emerge on landing.
+        velocity.x = Mathf.Clamp(velocity.x, -dashEndHCap, dashEndHCap);
+
+        // Kill upward velocity so you don't float after an upward dash,
+        // but preserve downward so diagonal-down dashes keep their arc.
+        if (velocity.y > 0f) velocity.y = 0f;
+    }
+
+    // -------------------------------------------------------------------------
+    // Horizontal
+    // -------------------------------------------------------------------------
+
+    void ApplyHorizontal(float dt)
+    {
+        if (isDashing) return;
+
+        float input = 0f;
+        if (Input.GetKey(KeyCode.A)) input -= 1f;
+        if (Input.GetKey(KeyCode.D)) input += 1f;
+
+        if (input != 0f)
+        {
+            float accel  = onGround ? groundAccel : airAccel;
+            float target = input * moveSpeed;
+
+
+            //if we're moving faster than our target in the same direction, apply friction instead of acceleration to avoid overshooting and oscillating around the target speed
+            // if (Mathf.Sign(velocity.x) == Mathf.Sign(input) && Mathf.Abs(velocity.x) > Mathf.Abs(target))
+            //     velocity.x = Mathf.MoveTowards(velocity.x, target, (onGround ? groundFriction : airFriction) * dt);
+            // else
+                velocity.x = Mathf.MoveTowards(velocity.x, target, accel * dt);
+        }
+        else
+        {
+            float friction = onGround ? groundFriction : airFriction;
+
+            // Apply friction toward zero when there's no input
+            // enabling things like wavedash by dashing, then holding opposite direction to slow down quickly on landing.
+            velocity.x     = Mathf.MoveTowards(velocity.x, 0f, friction * dt);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Vertical — wall jump lives here, no special state needed
+    // -------------------------------------------------------------------------
+
+    void ApplyVertical(float dt)
+    {
+        if (isDashing) return;
+
+        if (jumpBufferTimer > 0f)
+        {
+            // Wall jump — airborne, near a wall, not on ground
+            // bool nearWall = wallDir != 0 || wallCoyoteTimer > 0f;
+            // if (!onGround && nearWall)
+            // {
+            //     int pushDir    = wallDir != 0 ? -wallDir : -lastWallDir;
+            //     velocity.x     += pushDir * wallJumpHSpeed;
+            //     velocity.y     += wallJumpVSpeed;
+            //     jumpBufferTimer = 0f;
+            //     wallCoyoteTimer = 0f;
+            //     isJumping       = true;
+            //     // Refund dash — in Celeste wall jumps refund your dash
+            //     dashUsed        = false;
+            //     return;
+            // }
+
+            // Normal jump
+            if (coyoteTimer > 0f)
+            {
+                velocity.y      += jumpForce;
+
+                // Reset timers and flags so that you can hold jump and have it cut off at the right height, 
+                // and so that you can buffer another jump immediately after this one if you want to chain them.
+                jumpBufferTimer = 0f;
+                coyoteTimer     = 0f;
+                isJumping       = true;
+            }
+        }
+
+        // Variable jump height
+        if (isJumping && Input.GetKeyUp(KeyCode.Space) && velocity.y > 0f)
+        {
+            velocity.y *= jumpCutMultiplier;
+            isJumping   = false;
+        }
+
+        // Gravity
+        bool fastFall  = Input.GetKey(KeyCode.S) && velocity.y < 0f;
+        float grav     = fastFall ? fastFallGravity : gravity;
+        float cap      = fastFall ? maxFastFall     : maxFallSpeed;
+
+        velocity.y -= grav * dt;
+        if (velocity.y < -cap) velocity.y = -cap;
+    }
+
+    // -------------------------------------------------------------------------
+    // Move & collide
+    // -------------------------------------------------------------------------
+
+    void MoveAndCollide(float dt)
+    {
+        Vector2 pos = transform.position;
+
+        // Don't reset onGround here — it's needed by ApplyHorizontal/ApplyVertical
+        // earlier in the frame. Instead just re-derive it after moving.
+        //wallDir = 0;
+
+        MoveX(ref pos, velocity.x * dt);
+        MoveY(ref pos, velocity.y * dt);
+
+        bool wasOnGround = onGround;
+        onGround = CheckGround(pos);
+        //wallDir  = CheckWall(pos);
+
+        // Landing resets vertical velocity and state, but doesn't zero horizontal 
+        // this allows for things like wavedash where you retain horizontal speed after a dash when you land.
+        if (onGround && velocity.y < 0f)
+        {
+            //if (isDashing) EndDash();
+            velocity.y = 0f;
+            isJumping  = false;
+    // immediately allow jump this frame
+    if (jumpBufferTimer > 0f)
+    {
+        velocity.y = jumpForce;
+        jumpBufferTimer = 0f;
+    }
+
+    // This is the only thing missing:
+    // if (isDashing)
+    // {
+    //     EndDash();
+    //     dashUsed = false;   // refund so the next dash is available mid-air after the jump
+    // }
+        }
+
+        // If we walked off a ledge this frame, start coyote from here
+        if (wasOnGround && !onGround && !isDashing)
+            coyoteTimer = coyoteTime;
+
+        transform.position = pos;
+    }
+
+    void MoveX(ref Vector2 pos, float amount)
+    {
+        if (amount == 0f) return;
+        pos.x += amount;
+        if (!Overlaps(pos)) return;
+
+        // bool resolved = false;
+        // float stepInc = stepHeight / 5f;
+
+        // If we hit a horizontal obstacle, try stepping up in increments to see if we can "climb" it.
+        // for (float offset = stepInc; offset <= stepHeight; offset += stepInc)
+        // {
+        //     if (!Overlaps(pos + Vector2.up * offset))
+        //     {
+        //         pos.y   += offset;
+        //         resolved = true;
+        //         break;
+        //     }
+        // }
+
+        // // If we couldn't resolve the collision by stepping up, step back and zero horizontal velocity.
+        // if (!resolved)
+        // {
+            pos.x      -= amount;
+            velocity.x  = 0f;
+        //}
+
+        WrapPosition(); //warp on world borders
+    }
+
+    void MoveY(ref Vector2 pos, float amount)
+    {
+        if (amount == 0f) return;
+        pos.y += amount;
+        if (!Overlaps(pos)) return;
+
+        pos.y      -= amount;
+        velocity.y  = 0f;
     }
 }
