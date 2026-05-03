@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float stepHeight  = 0.15f;
     [SerializeField] private float groundProbe = 0.08f;
+    [SerializeField] private bool collided = false;
 
     // --- State ---
     private Vector2 velocity;
@@ -55,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
     private float   dashTimer;
     private float   coyoteTimer;
     private float   jumpBufferTimer;
+    public event Action  onHighCollision;
 
 
     // -------------------------------------------------------------------------
@@ -201,11 +204,11 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = 0f;
             isJumping  = false;
 
-    if (isDashing)
-    {
-        EndDash();
-        dashUsed = false;  // refund so you can dash again after the jump
-    }
+            if (isDashing)
+            {
+                EndDash();
+                dashUsed = false;  // refund so you can dash again after the jump
+            }
         }
 
         // applies coyote if we walked off a ledge this frame
@@ -265,6 +268,12 @@ void MoveY(ref Vector2 pos, float amount)
         ApplyHorizontal(dt);   // friction runs here using last frame's onGround
         ApplyVertical(dt);     // jump fires here — before this frame's landing
         MoveAndCollide(dt);    // landing updates onGround for next frame
+
+        if (Speed > 15.0f && collided)
+        {
+            onHighCollision?.Invoke();
+            collided = false;
+        }
     }
 
     void Start()

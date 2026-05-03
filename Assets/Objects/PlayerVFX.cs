@@ -27,7 +27,7 @@ public class PlayerVFX : MonoBehaviour
         float speed = playerMovement.Speed;
         bool isDash = playerMovement.IsDashing;
 
-        if (isDash)//speed > speedThreshold)
+        if (speed > speedThreshold)
         {
             timer += Time.deltaTime;
 
