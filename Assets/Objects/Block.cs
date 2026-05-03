@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    public SpriteRenderer sr ;
+    
     [SerializeField] private float groundAccel    = 100f;
     [SerializeField] private float airAccel       = 65f;
     [SerializeField] private float groundFriction = 80f;
@@ -111,6 +114,11 @@ public class Block : MonoBehaviour
     // -------------------------------------------------------------------------
     // Frame setup
     // -------------------------------------------------------------------------
+    private void Awake()
+    {
+        sr =  gameObject.GetComponent<SpriteRenderer>();
+    }
+
     void Update()
     {
         float dt = Time.deltaTime;
@@ -122,11 +130,17 @@ public class Block : MonoBehaviour
         //ApplyHorizontal(dt);   // friction runs here using last frame's onGround
         ApplyVertical(dt);     // jump fires here — before this frame's landing
         MoveAndCollide(dt);    // landing updates onGround for next frame
+        
+        if (transform.position.y < -10.0f)
+        {
+            Destroy(gameObject); // replace with pooling later
+        }
     }
 
     void Start()
     {
         velocity = Vector2.zero;
+        
     }
 
 

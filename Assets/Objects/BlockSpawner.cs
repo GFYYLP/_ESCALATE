@@ -6,38 +6,35 @@ public class BlockSpawner : MonoBehaviour
 {
     [SerializeField] private PlayerMovement player;
 
-    [SerializeField] private AfterImage afterImagePrefab;
-    
+    [SerializeField] private Block blockPrefab;
+
     [SerializeField] private List<Sprite> sprites;
-    
-    private SpriteRenderer sr;
-    
+
+
     // Start is called before the first frame update
     void Start()
     {
         player.onHighCollision += spawnBlock;
-        sr = GetComponent<SpriteRenderer>();
     }
-    
+
     void spawnBlock()
     {
-        
-        var ball = Instantiate(afterImagePrefab, transform.position, Quaternion.identity);
-        var img = Instantiate(afterImagePrefab);
 
-        // img.Init(
-        //     playerSprite.sprite,
-        //     transform.position,
-        //     transform.rotation,
-        //     transform.localScale,
-        //     tint,
-        //     lifetime
-        // );
+        // var ball = Instantiate(afterImagePrefab, transform.position, Quaternion.identity);
+        // var img = Instantiate(afterImagePrefab);
+
+        var block = Instantiate(
+            blockPrefab,
+            new Vector3(player.CollisionPos, transform.position.y, 0f),
+            Quaternion.identity
+        );
+
+        block.sr.sprite = sprites[Random.Range(0, sprites.Count)];
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

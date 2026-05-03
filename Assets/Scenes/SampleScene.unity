@@ -566,6 +566,7 @@ MonoBehaviour:
     m_Bits: 8
   stepHeight: 0.15
   groundProbe: 0.08
+  highCollideVal: 5
 --- !u!50 &539382193
 Rigidbody2D:
   serializedVersion: 4
@@ -738,6 +739,55 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.9515, y: -2.52, z: 0}
   m_LocalScale: {x: 3.9169, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1305470832
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1305470834}
+  - component: {fileID: 1305470833}
+  m_Layer: 0
+  m_Name: Block Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1305470833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305470832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45a8d19381056a843a7bb845e97e1ac4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 539382192}
+  blockPrefab: {fileID: 400819145235546773, guid: 6042f6853effa5c40b6b6cd8772c9194, type: 3}
+  sprites:
+  - {fileID: 21300000, guid: 3d8a687d1e8b24348809160e81340095, type: 3}
+  - {fileID: 21300000, guid: 60b6633e2d540f946880ed126c07b1aa, type: 3}
+--- !u!4 &1305470834
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305470832}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.28, y: 9.15, z: -0.021928305}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1012,3 +1062,4 @@ SceneRoots:
   - {fileID: 727257762}
   - {fileID: 125097117}
   - {fileID: 1458628522}
+  - {fileID: 1305470834}

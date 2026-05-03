@@ -46,7 +46,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float stepHeight  = 0.15f;
     [SerializeField] private float groundProbe = 0.08f;
-    [SerializeField] private bool collided = false;
+    [SerializeField] private float highCollideVal = 5.0f;
+    private bool collided = false;
+    private float collisionPos = 0.0f;  //horizontal collision point
+    public event Action  onHighCollision;
 
     // --- State ---
     private Vector2 velocity;
@@ -57,7 +60,6 @@ public class PlayerMovement : MonoBehaviour
     private float   dashTimer;
     private float   coyoteTimer;
     private float   jumpBufferTimer;
-    public event Action  onHighCollision;
 
 
     // -------------------------------------------------------------------------
@@ -228,6 +230,9 @@ public class PlayerMovement : MonoBehaviour
         pos.x      -= amount;
         velocity.x  = 0f;
 
+        collided = true;
+        collisionPos = transform.position.y;
+
         //WrapPosition(); //warp on world borders
     }
 
@@ -248,7 +253,12 @@ void MoveY(ref Vector2 pos, float amount)
         step *= 0.5f;
         pos.y += sign * step;
         if (Overlaps(pos))
+        {
             pos.y -= sign * step;
+            
+            collided = true;
+            collisionPos = transform.position.y;
+        }
     }
 
     velocity.y = 0f;
@@ -269,9 +279,13 @@ void MoveY(ref Vector2 pos, float amount)
         ApplyVertical(dt);     // jump fires here — before this frame's landing
         MoveAndCollide(dt);    // landing updates onGround for next frame
 
-        if (Speed > 15.0f && collided)
+        if (Speed > highCollideVal && collided)
         {
             onHighCollision?.Invoke();
+            collided = false;
+        }
+        else
+        {
             collided = false;
         }
     }
@@ -287,7 +301,7 @@ void MoveY(ref Vector2 pos, float amount)
     // -------------------------------------------------------------------------
     public float Speed      => velocity.magnitude;
     public bool IsDashing   => isDashing;
-
+    public float CollisionPos => collisionPos;
 
     // -------------------------------------------------------------------------
     // Collision helpers
