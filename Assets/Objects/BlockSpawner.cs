@@ -25,7 +25,7 @@ public class BlockSpawner : MonoBehaviour
             Quaternion.identity
         );
         block.gameObject.layer = LayerMask.NameToLayer("Ground");
-        block.sr.sprite = sprites[Random.Range(0, sprites.Count)];
+        block.sr.sprite = sprites[0];//Random.Range(0, sprites.Count)];
     }
 
     // Update is called once per frame

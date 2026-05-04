@@ -217,6 +217,7 @@ public class PlayerMovement : MonoBehaviour
         if (wasOnGround && !onGround && !isDashing)
             coyoteTimer = coyoteTime;
 
+        WrapPosition(ref pos);
         transform.position = pos;
     }
 
@@ -232,8 +233,6 @@ public class PlayerMovement : MonoBehaviour
 
         collided = true;
         collisionPos = transform.position.y;
-
-        //WrapPosition(); //warp on world borders
     }
 
 void MoveY(ref Vector2 pos, float amount)
@@ -323,23 +322,14 @@ void MoveY(ref Vector2 pos, float amount)
         return 0;
     }
 
-    void WrapPosition()
+    void WrapPosition(ref Vector2 pos)
     {
         Camera cam = Camera.main;
+        float width = cam.orthographicSize * 2f * cam.aspect;
+        float halfW = width * 0.5f;
+        float camX  = cam.transform.position.x;
 
-        float height = cam.orthographicSize * 2f;  //*2 to get full height from orthographicSize, which is half-height
-        float width = height * cam.aspect;  // width is derived from height and aspect ratio to maintain correct proportions regardless of screen size
-
-        Vector2 center = cam.transform.position;
-        float left = center.x - width / 2f;
-        float right = center.x + width / 2f;
-
-        Vector3 pos = transform.position;
-        if (pos.x > right)
-            pos.x = left;
-        else if (pos.x < left)
-            pos.x = right;
-
-        transform.position = pos;
+        if (pos.x > camX + halfW) pos.x -= width;
+        else if (pos.x < camX - halfW) pos.x += width;
     }
 }
