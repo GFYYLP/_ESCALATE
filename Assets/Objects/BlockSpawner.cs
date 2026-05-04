@@ -19,16 +19,12 @@ public class BlockSpawner : MonoBehaviour
 
     void spawnBlock()
     {
-
-        // var ball = Instantiate(afterImagePrefab, transform.position, Quaternion.identity);
-        // var img = Instantiate(afterImagePrefab);
-
         var block = Instantiate(
             blockPrefab,
             new Vector3(player.CollisionPos, transform.position.y, 0f),
             Quaternion.identity
         );
-
+        block.gameObject.layer = LayerMask.NameToLayer("Ground");
         block.sr.sprite = sprites[Random.Range(0, sprites.Count)];
     }
 

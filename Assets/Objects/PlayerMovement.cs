@@ -257,7 +257,7 @@ void MoveY(ref Vector2 pos, float amount)
             pos.y -= sign * step;
             
             collided = true;
-            collisionPos = transform.position.y;
+            collisionPos = transform.position.x;
         }
     }
 

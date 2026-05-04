@@ -155,12 +155,20 @@ public class Block : MonoBehaviour
     // -------------------------------------------------------------------------
     bool Overlaps(Vector2 pos)
     {
-        return Physics2D.OverlapBox(pos, colliderSize, 0f, groundLayer) != null;
+        Collider2D[] hits = Physics2D.OverlapBoxAll(pos, colliderSize, 0f, groundLayer);
+        foreach (var hit in hits)
+            if (hit != null && hit.gameObject != gameObject)
+                return true;
+        return false;
     }
 
     bool CheckGround(Vector2 pos)
     {
-        return Physics2D.OverlapBox(pos + Vector2.down * groundProbe, colliderSize, 0f, groundLayer) != null;
+        Collider2D[] hits = Physics2D.OverlapBoxAll(pos + Vector2.down * groundProbe, colliderSize, 0f, groundLayer);
+        foreach (var hit in hits)
+            if (hit != null && hit.gameObject != gameObject)
+                return true;
+        return false;
     }
 
     int CheckWall(Vector2 pos)
