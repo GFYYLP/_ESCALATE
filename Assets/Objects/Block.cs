@@ -6,6 +6,7 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     public SpriteRenderer sr ;
+    private Collider2D ownCollider;  //to avoid self-collision
     
     [SerializeField] private float groundAccel    = 100f;
     [SerializeField] private float airAccel       = 65f;
@@ -117,6 +118,7 @@ public class Block : MonoBehaviour
     private void Awake()
     {
         sr =  gameObject.GetComponent<SpriteRenderer>();
+        ownCollider = gameObject.GetComponent<Collider2D>();
     }
 
     void Update()
@@ -157,7 +159,7 @@ public class Block : MonoBehaviour
     {
         Collider2D[] hits = Physics2D.OverlapBoxAll(pos, colliderSize, 0f, groundLayer);
         foreach (var hit in hits)
-            if (hit != null && hit.gameObject != gameObject)
+            if (hit != null && hit != ownCollider)
                 return true;
         return false;
     }
@@ -166,7 +168,7 @@ public class Block : MonoBehaviour
     {
         Collider2D[] hits = Physics2D.OverlapBoxAll(pos + Vector2.down * groundProbe, colliderSize, 0f, groundLayer);
         foreach (var hit in hits)
-            if (hit != null && hit.gameObject != gameObject)
+            if (hit != null && hit != ownCollider)
                 return true;
         return false;
     }
