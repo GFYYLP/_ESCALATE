@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class PlayerMovement : PhysicsBody
+public class Player : PhysicsBody
 {
     // --- Movement ---
     [SerializeField] private float moveSpeed      = 9f;
@@ -46,6 +46,7 @@ public class PlayerMovement : PhysicsBody
     private float dashTimer;
     private float coyoteTimer;
     private float jumpBufferTimer;
+    private float lastDir = 1f;  // default facing right
 
     protected override void Awake()
     {
@@ -74,7 +75,7 @@ public class PlayerMovement : PhysicsBody
 
     void UpdateTimers(float dt)
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Z))
             jumpBufferTimer = jumpBufferTime;
         else
             jumpBufferTimer -= dt;
@@ -101,13 +102,25 @@ public class PlayerMovement : PhysicsBody
 
     void TryDash()
     {
-        if (!Input.GetMouseButtonDown(0) || isDashing || dashUsed) return;
+        if (!Input.GetKeyDown(KeyCode.X) || isDashing || dashUsed) return;
 
-        Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 dir        = mouseWorld - (Vector2)transform.position;
-        if (dir.sqrMagnitude < 0.001f) return;
+        // Read 8-directional input from arrow keys or WASD
+        float x = 0f, y = 0f;
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) x += 1f;
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))  x -= 1f;
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))    y += 1f;
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))  y -= 1f;
 
-        velocity  = dir.normalized * dashSpeed;
+        // Default to last horizontal direction if no input
+        if (x == 0f && y == 0f)
+            x = lastDir;
+
+        Vector2 dir = new Vector2(x, y).normalized;
+
+        // Skew diagonal to favour horizontal
+        dir.y   *= 0.75f;
+        velocity = dir.normalized * dashSpeed;
+
         isDashing = true;
         dashUsed  = true;
         dashTimer = dashDuration;
@@ -130,11 +143,12 @@ public class PlayerMovement : PhysicsBody
         if (isDashing) return;
 
         float input = 0f;
-        if (Input.GetKey(KeyCode.A)) input -= 1f;
-        if (Input.GetKey(KeyCode.D)) input += 1f;
+        if (Input.GetKey(KeyCode.LeftArrow)) input -= 1f;
+        if (Input.GetKey(KeyCode.RightArrow)) input += 1f;
 
         if (input != 0f)
         {
+            lastDir    = Mathf.Sign(input);
             float accel  = onGround ? groundAccel : airAccel;
             velocity.x   = Mathf.MoveTowards(velocity.x, input * moveSpeed, accel * dt);
         }
@@ -161,13 +175,13 @@ public class PlayerMovement : PhysicsBody
             isJumping       = true;
         }
 
-        if (isJumping && Input.GetKeyUp(KeyCode.Space) && velocity.y > 0f)
+        if (isJumping && Input.GetKeyUp(KeyCode.Z) && velocity.y > 0f)
         {
             velocity.y *= jumpCutMultiplier;
             isJumping   = false;
         }
 
-        bool  fastFall = Input.GetKey(KeyCode.S) && velocity.y < 0f;
+        bool  fastFall = Input.GetKey(KeyCode.DownArrow) && velocity.y < 0f;
         float grav     = fastFall ? fastFallGravity : gravity;
         float cap      = fastFall ? maxFastFall     : maxFallSpeed;
 
@@ -228,11 +242,4 @@ public class PlayerMovement : PhysicsBody
     // Public data
     // -------------------------------------------------------------------------
     public bool IsDashing => isDashing;
-
-    int CheckWall(Vector2 pos)
-    {
-        if (Physics2D.OverlapBox(pos + Vector2.right * wallCheckDist, colliderSize, 0f, groundLayer) != null) return  1;
-        if (Physics2D.OverlapBox(pos + Vector2.left  * wallCheckDist, colliderSize, 0f, groundLayer) != null) return -1;
-        return 0;
-    }
 }

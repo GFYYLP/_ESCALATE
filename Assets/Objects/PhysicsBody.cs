@@ -4,7 +4,6 @@ using UnityEngine;
 
 public abstract class PhysicsBody : MonoBehaviour
 {
-    // --- Shared serialized fields ---
     [SerializeField] protected Vector2 colliderSize = new Vector2(0.9f, 1.8f);
     [SerializeField] public    LayerMask groundLayer;
     [SerializeField] protected float groundProbe  = 0.08f;
@@ -19,8 +18,7 @@ public abstract class PhysicsBody : MonoBehaviour
     {
         ownCollider = GetComponent<Collider2D>();
     }
-
-    // --- Shared collision helpers ---
+    
     protected Collider2D GetFirstOverlap(Vector2 pos)
     {
         Collider2D[] hits = Physics2D.OverlapBoxAll(pos, colliderSize, 0f, groundLayer);
@@ -57,12 +55,16 @@ public abstract class PhysicsBody : MonoBehaviour
 
             OnImpact(impactSpeed, other);
         }
-        else
+    else
+    {
+        float s = Vector2.Dot(velocity, normal);
+        if (s > 0f)
         {
-            // Static geometry
-            float s = Vector2.Dot(velocity, normal);
-            if (s > 0f) velocity -= normal * s;
+            float impactSpeed = Mathf.Abs(s);
+            velocity -= normal * s;
+            OnImpact(impactSpeed, other);  // fire even for static geometry
         }
+    }
     }
 
     // Override in subclasses to react to impacts

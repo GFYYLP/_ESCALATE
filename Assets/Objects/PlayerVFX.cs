@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerVFX : MonoBehaviour
 {
     [SerializeField] private ParticleSystem dashVFX;
-    [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private Player player;
 
     [SerializeField] private AfterImage afterImagePrefab;
     [SerializeField] private float spawnInterval = 0.05f;
@@ -24,8 +24,8 @@ public class PlayerVFX : MonoBehaviour
 
     void Update()
     {
-        float speed = playerMovement.Speed;
-        bool isDash = playerMovement.IsDashing;
+        float speed = player.Speed;
+        bool isDash = player.IsDashing;
 
         if (speed > speedThreshold)
         {

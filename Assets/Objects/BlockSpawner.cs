@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BlockSpawner : MonoBehaviour
 {
-    [SerializeField] private PlayerMovement player;
+    [SerializeField] private Player player;
 
     [SerializeField] private Block blockPrefab;
 
