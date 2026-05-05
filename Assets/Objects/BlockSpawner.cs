@@ -17,11 +17,11 @@ public class BlockSpawner : MonoBehaviour
         player.onHighCollision += spawnBlock;
     }
 
-    void spawnBlock()
+    void spawnBlock(Vector2 pos)
     {
         var block = Instantiate(
             blockPrefab,
-            new Vector3(player.CollisionPos, transform.position.y, 0f),
+            new Vector3(pos.x, transform.position.y, 0f),
             Quaternion.identity
         );
         block.gameObject.layer = LayerMask.NameToLayer("Ground");
