@@ -359,6 +359,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b1f52a978f8008469be30055619fff1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  colliderSize: {x: 0.5, y: 0.5}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundProbe: 0.08
+  gravity: 50.2
+  maxFallSpeed: 87.2
   moveSpeed: 3.22
   groundAccel: 100
   airAccel: 57.5
@@ -372,20 +379,12 @@ MonoBehaviour:
   wallJumpVSpeed: 11
   wallCheckDist: 0.08
   wallCoyoteTime: 0.1
-  gravity: 50.2
-  maxFallSpeed: 87.2
   fastFallGravity: 40
   maxFastFall: 24
-  dashSpeed: 10
+  dashSpeed: 12.9
   dashDuration: 0.27
   dashEndHCap: 20
-  colliderSize: {x: 0.5, y: 0.5}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  stepHeight: 0.15
-  groundProbe: 0.08
-  highCollideVal: 5
+  highCollideVal: 0
 --- !u!50 &539382193
 Rigidbody2D:
   serializedVersion: 4
@@ -426,7 +425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashVFX: {fileID: 0}
-  playerMovement: {fileID: 539382192}
+  player: {fileID: 539382192}
   afterImagePrefab: {fileID: 7985264341178807462, guid: 13e55965b5b6dca4f9c539ed8d6f6abc, type: 3}
   spawnInterval: 0.01
   lifetime: 0.49
@@ -605,7 +604,7 @@ Transform:
   m_GameObject: {fileID: 1305470832}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.35, y: 6.53, z: -0.021928305}
+  m_LocalPosition: {x: -0.32, y: 5.11, z: -0.021928305}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -820,7 +819,7 @@ Transform:
   m_GameObject: {fileID: 2068004430}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.27, y: -3.72, z: 0}
+  m_LocalPosition: {x: 0.39, y: -3.73, z: 0}
   m_LocalScale: {x: 24.014261, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
