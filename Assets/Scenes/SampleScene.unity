@@ -122,6 +122,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &303124849
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 303124851}
+  - component: {fileID: 303124850}
+  m_Layer: 0
+  m_Name: Physics Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &303124850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 303124849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0451281f328707a46b5012c2e2c5e575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &303124851
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 303124849}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.191335, y: 1.9524026, z: -0.07479083}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,13 +403,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b1f52a978f8008469be30055619fff1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colliderSize: {x: 0.5, y: 0.5}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundProbe: 0.08
-  gravity: 50.2
-  maxFallSpeed: 87.2
+  candidatePos: {x: 0, y: 0}
+  velocity: {x: 0, y: 0}
+  onGround: 0
+  isKinematic: 0
   moveSpeed: 3.22
   groundAccel: 100
   airAccel: 57.5
@@ -381,6 +422,8 @@ MonoBehaviour:
   wallCoyoteTime: 0.1
   fastFallGravity: 40
   maxFastFall: 24
+  gravity: 50.2
+  maxFallSpeed: 87.2
   dashSpeed: 12.9
   dashDuration: 0.27
   dashEndHCap: 20
@@ -880,3 +923,4 @@ SceneRoots:
   - {fileID: 727257762}
   - {fileID: 1458628522}
   - {fileID: 1305470834}
+  - {fileID: 303124851}

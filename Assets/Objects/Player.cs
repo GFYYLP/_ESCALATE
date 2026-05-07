@@ -56,7 +56,11 @@ public class Player : PhysicsBody
         TryDash();
         ApplyHorizontal(dt);
         ApplyVertical(dt);
-        // No MoveAndCollide here — manager handles movement
+        
+        if (Input.GetKey(KeyCode.R))
+        {
+            candidatePos = new Vector2(0f, 3f);
+        }
     }
 
     public override void OnImpact(float impactSpeed, PhysicsBody other)
