@@ -5,36 +5,23 @@ using UnityEngine;
 
 public class Block : PhysicsBody
 {
+    [SerializeField] private float gravity     = 28f;
+    [SerializeField] private float maxFallSpeed = 16f;
     public SpriteRenderer sr;
 
-    protected override void Awake()
+    protected override void OnEnable()
     {
-        base.Awake();
+        base.OnEnable();
         sr = GetComponent<SpriteRenderer>();
     }
 
-    void Start()
+    public override void UpdateVelocity(float dt)
     {
-        velocity = Vector2.zero;
-    }
-
-    void Update()
-    {
-        float dt = Time.deltaTime;
-        velocity.y -= gravity * dt;
-        if (velocity.y < -maxFallSpeed) velocity.y = -maxFallSpeed;
-
-        Vector2 pos = transform.position;
-        MoveX(ref pos, velocity.x * dt);
-        MoveY(ref pos, velocity.y * dt);
-
-        bool wasOnGround = onGround;
-        onGround = CheckGround(pos);
-        if (onGround && velocity.y < 0f)
-            velocity.y = 0f;
-
-        WrapPosition(ref pos);
-        transform.position = pos;
+        if (!isKinematic)
+        {
+            velocity.y -= gravity * dt;
+            velocity.y  = Mathf.Max(velocity.y, -maxFallSpeed);
+        }
 
         if (transform.position.y < -10f)
             Destroy(gameObject);

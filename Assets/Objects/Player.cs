@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class Player : PhysicsBody
 {
+
     // --- Movement ---
     [SerializeField] private float moveSpeed      = 9f;
     [SerializeField] private float groundAccel    = 100f;
@@ -29,6 +29,8 @@ public class Player : PhysicsBody
     // gravity and maxFallSpeed inherited from PhysicsBody
     [SerializeField] private float fastFallGravity = 40f;
     [SerializeField] private float maxFastFall     = 24f;
+    [SerializeField] private float gravity     = 28f;
+    [SerializeField] private float maxFallSpeed = 16f;
 
     // --- Dash ---
     [SerializeField] private float dashSpeed    = 24f;
@@ -48,25 +50,25 @@ public class Player : PhysicsBody
     private float jumpBufferTimer;
     private float lastDir = 1f;  // default facing right
 
-    protected override void Awake()
+    public override void UpdateVelocity(float dt)
     {
-        base.Awake();
-    }
-
-    void Start()
-    {
-        velocity = Vector2.zero;
-    }
-
-    void Update()
-    {
-        float dt = Time.deltaTime;
-
         UpdateTimers(dt);
         TryDash();
         ApplyHorizontal(dt);
         ApplyVertical(dt);
-        MoveAndCollide(dt);
+        // No MoveAndCollide here — manager handles movement
+    }
+
+    public override void OnImpact(float impactSpeed, PhysicsBody other)
+    {
+        if (impactSpeed > highCollideVal)
+            onHighCollision?.Invoke(candidatePos);
+    }
+
+    public override void ApplyImpulse(Vector2 impulse)
+    {
+        base.ApplyImpulse(impulse);
+        isJumping = false;
     }
 
     // -------------------------------------------------------------------------
@@ -133,11 +135,6 @@ public class Player : PhysicsBody
         velocity.x = Mathf.Clamp(velocity.x, -dashEndHCap, dashEndHCap);
         if (velocity.y > 0f) velocity.y = 0f;
     }
-
-    // -------------------------------------------------------------------------
-    // Horizontal
-    // -------------------------------------------------------------------------
-
     void ApplyHorizontal(float dt)
     {
         if (isDashing) return;
@@ -188,56 +185,7 @@ public class Player : PhysicsBody
         velocity.y -= grav * dt;
         if (velocity.y < -cap) velocity.y = -cap;
     }
-
-    // -------------------------------------------------------------------------
-    // Move & collide
-    // -------------------------------------------------------------------------
-
-    void MoveAndCollide(float dt)
-    {
-        Vector2 pos = transform.position;
-
-        MoveX(ref pos, velocity.x * dt);
-        MoveY(ref pos, velocity.y * dt);
-
-        bool wasOnGround = onGround;
-        onGround = CheckGround(pos);
-
-        if (onGround && velocity.y < 0f)
-        {
-            velocity.y = 0f;
-            isJumping  = false;
-
-            if (isDashing)
-            {
-                EndDash();
-                dashUsed = false;
-            }
-        }
-
-        if (wasOnGround && !onGround && !isDashing)
-            coyoteTimer = coyoteTime;
-
-        WrapPosition(ref pos);
-        transform.position = pos;
-    }
-
-    // -------------------------------------------------------------------------
-    // Impact callback from base class
-    // -------------------------------------------------------------------------
-
-    protected override void OnImpact(float impactSpeed, Collider2D other)
-    {
-        if (impactSpeed > highCollideVal)
-            onHighCollision?.Invoke(transform.position);
-    }
-
-    public override void ApplyImpulse(Vector2 impulse)
-    {
-        base.ApplyImpulse(impulse);
-        isJumping = false;
-    }
-
+    
     // -------------------------------------------------------------------------
     // Public data
     // -------------------------------------------------------------------------
