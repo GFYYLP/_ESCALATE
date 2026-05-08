@@ -23,7 +23,6 @@ public class Block : PhysicsBody
             velocity.y  = Mathf.Max(velocity.y, -maxFallSpeed);
         }
 
-        if (transform.position.y < -10f)
-            Destroy(gameObject);
+        if (transform.position.y < -10f) pendingDestroy = true;
     }
 }

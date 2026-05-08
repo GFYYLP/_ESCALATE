@@ -8,7 +8,8 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public Vector2 velocity;
     [HideInInspector] public bool    onGround;
     [HideInInspector] public bool    isKinematic;  // true = immovable (your starting platform)
-
+    [HideInInspector] public bool    pendingDestroy;
+    
     private BoxCollider2D collider;
     public Vector2 size;
 

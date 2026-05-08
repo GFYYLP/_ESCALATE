@@ -43,6 +43,17 @@ public class PhysicsManager : MonoBehaviour
             WrapPosition(b); //wrap around screen edges
             b.transform.position = b.candidatePos;
         }
+        
+        //commit deletion
+        bodies.RemoveAll(b =>
+        {
+            if (b.pendingDestroy)
+            {
+                Destroy(b.gameObject);
+                return true;
+            }
+            return false;
+        });
     }
 
     bool AABBOverlap(PhysicsBody a, PhysicsBody b)
