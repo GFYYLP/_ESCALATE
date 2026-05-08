@@ -16,33 +16,31 @@ public class PhysicsManager : MonoBehaviour
     {
         float dt = Time.fixedDeltaTime;
 
-        // 1. Let each body update its own velocity (input, gravity, dash etc.)
-        foreach (var b in bodies)
-            b.UpdateVelocity(dt);
+        //let each body update its own velocity THEN move candidate positions
+        foreach (var b in bodies) b.UpdateVelocity(dt);
+        foreach (var b in bodies) b.candidatePos = b.candidatePos + b.velocity * dt;
 
-        // 2. Integrate — move candidate positions
-        foreach (var b in bodies)
-            b.candidatePos = b.candidatePos + b.velocity * dt;
-
-        // 3. Broad phase — collect overlapping pairs
+        //broad phase to collect overlapping pairs
         var pairs = new List<(PhysicsBody, PhysicsBody)>();
         for (int i = 0; i < bodies.Count; i++)
             for (int j = i + 1; j < bodies.Count; j++)
                 if (AABBOverlap(bodies[i], bodies[j]))
                     pairs.Add((bodies[i], bodies[j]));
 
-        // 4. Narrow phase + resolve — iterate a few times for stability
+        //narrow phase + resolve (iterate a few times for stability)
         for (int iter = 0; iter < 3; iter++)
         {
             foreach (var (a, b) in pairs)
                 ResolveOverlap(a, b);
         }
 
-        // 5. Commit positions, update onGround
+        //commit position
         foreach (var b in bodies)
         {
             b.UpdateGroundState(bodies);
-            WrapPosition(b);
+            if (b.onGround && b.velocity.y < 0f) b.velocity.y = 0f;
+            
+            WrapPosition(b); //wrap around screen edges
             b.transform.position = b.candidatePos;
         }
     }
@@ -50,8 +48,11 @@ public class PhysicsManager : MonoBehaviour
     bool AABBOverlap(PhysicsBody a, PhysicsBody b)
     {
         Vector2 delta = a.candidatePos - b.candidatePos;
+        
+        //  Calculate the overlap along each axis by subtracting the absolute distance from the sum of half-sizes
         float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
+        
         return overlapX > 0f && overlapY > 0f;
     }
 

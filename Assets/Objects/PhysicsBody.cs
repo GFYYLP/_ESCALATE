@@ -9,7 +9,18 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool    onGround;
     [HideInInspector] public bool    isKinematic;  // true = immovable (your starting platform)
 
-    public Vector2   size => GetComponent<BoxCollider2D>().size;
+    private BoxCollider2D collider;
+    public Vector2 size;
+
+    protected virtual void Awake()
+    {
+        collider    = GetComponent<BoxCollider2D>();
+        size  = new Vector2(
+            collider.size.x * transform.localScale.x,
+            collider.size.y * transform.localScale.y
+        );
+    }
+    
     public float     Speed => velocity.magnitude;
 
     protected virtual void OnEnable()
