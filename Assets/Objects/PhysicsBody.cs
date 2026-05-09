@@ -55,8 +55,15 @@ public abstract class PhysicsBody : MonoBehaviour
             float overlapY   = (size.y + other.size.y) * 0.5f - Mathf.Abs(delta.y);
             if (overlapX > 0f && overlapY > 0f)
             {
-                onGround = true;
-                return;
+                // Only grounded if the other body is meaningfully below us
+                // and we're sitting on its top face specifically
+                bool otherIsBelow = delta.y > 0f;
+                bool restingOnTop = overlapX > overlapY;  // vertical contact
+                if (otherIsBelow && restingOnTop)
+                {
+                    onGround = true;
+                    return;
+                }
             }
         }
     }
