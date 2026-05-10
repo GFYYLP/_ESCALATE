@@ -10,6 +10,7 @@ public class BlockSpawner : MonoBehaviour
     
     [SerializeField] private float spawnCooldown = 0.5f; // Cooldown duration in seconds
     private float lastSpawnTime = -Mathf.Infinity;
+    private int spawnCounter = 0;
 
     private bool isFirstSpawn = true;
 
@@ -35,13 +36,17 @@ public class BlockSpawner : MonoBehaviour
 
     void DoSpawn(Vector2 pos)
     {
+        ++spawnCounter;
+        
         var block = Instantiate(
             blockPrefab,
             new Vector3(pos.x, isFirstSpawn ? pos.y : transform.position.y, 0f),
-            Quaternion.identity
+            Quaternion.identity,
+            transform
         );
         block.gameObject.layer = LayerMask.NameToLayer("Ground");
         block.sr.sprite = sprites[0];
+        block.name = "Block [" + spawnCounter + "]";
         block.isKinematic = isFirstSpawn;
     }
 
