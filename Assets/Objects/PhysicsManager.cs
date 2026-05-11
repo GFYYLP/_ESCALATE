@@ -5,86 +5,80 @@ using UnityEngine;
 public class PhysicsManager : MonoBehaviour
 {
     public static PhysicsManager Instance;
-    private List<Block> blocks = new List<Block>();
-    private Player player;
+    private List<PhysicsBody> bodies = new List<PhysicsBody>();
 
     void Awake() => Instance = this;
 
-    public void RegisterBlock(Block b)   => blocks.Add(b);
-    public void UnregisterBlock(Block b) => blocks.Remove(b);
-    public void RegisterPlayer(Player p) => player = p;
+    public void Register(PhysicsBody b)   => bodies.Add(b);
+    public void Unregister(PhysicsBody b) => bodies.Remove(b);
 
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
 
-        // Step blocks independently
-        foreach (var b in blocks) b.Step(dt);
+        //let each body update its own velocity THEN move candidate positions
+        foreach (var b in bodies) b.UpdateVelocity(dt);
+        foreach (var b in bodies) b.candidatePos = b.candidatePos + b.velocity * dt;
 
-        // Step player
-        player.Step(dt);
+        //broad phase to collect overlapping pairs
+        var pairs = new List<(PhysicsBody, PhysicsBody)>();
+        for (int i = 0; i < bodies.Count; i++)
+            //starts at i+1 to avoid double-checking pairs and self-collision
+            for (int j = i + 1; j < bodies.Count; j++)
+                if (AABBOverlap(bodies[i], bodies[j]))
+                    pairs.Add((bodies[i], bodies[j]));
 
-        // Resolve player against each block
-        foreach (var b in blocks)
-            if (AABBOverlap(player, b))
-                ResolvePlayerBlock(player, b);
+        //narrow phase + resolve (iterate a few times for stability)
+        for (int iter = 0; iter < 3; iter++)
+        {
+            foreach (var (a, b) in pairs)
+                ResolveOverlap(a, b);
+        }
 
-        // Ground state — check player against all blocks
-        player.onGround = false;
-        foreach (var b in blocks)
-            if (IsGroundedOn(player, b))
-            {
-                player.onGround = true;
-                break;
-            }
+        //commit position
+        foreach (var b in bodies)
+        {
+            b.UpdateGroundState(bodies);
+            if (b.onGround && b.velocity.y < 0f) b.velocity.y = 0f;
+            
+            WrapPosition(b); //wrap around screen edges
+            b.transform.position = b.candidatePos;
+        }
+        
+        //commit deletion
+        var toDestroy = bodies.FindAll(b => b.pendingDestroy);
 
-        // Zero downward velocity if grounded and not just bounced
-        if (player.onGround && player.velocity.y < 0f && !player.receivedImpulseThisFrame)
-            player.velocity.y = 0f;
+        // Remove from list before destroying
+        foreach (var b in toDestroy)
+            bodies.Remove(b);
 
-        player.receivedImpulseThisFrame = false;
-
-        // Inherit block velocity on sustained contact
-        foreach (var b in blocks)
-            HandleSustainedContact(player, b);
-
-        // Commit positions
-        foreach (var b in blocks) b.Commit();
-        player.Commit();
-
-        // Cleanup
-        blocks.RemoveAll(b => {
-            if (b.pendingDestroy) { Destroy(b.gameObject); return true; }
-            return false;
-        });
+        // Now destroy safely, OnDisable fires but list is already clean
+        foreach (var b in toDestroy)
+            Destroy(b.gameObject);
     }
 
     bool AABBOverlap(PhysicsBody a, PhysicsBody b)
     {
-        Vector2 delta    = a.candidatePos - b.candidatePos;
-        float overlapX   = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
-        float overlapY   = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
+        //distance between bodies' centers 
+        Vector2 delta = a.candidatePos - b.candidatePos;
+        
+        //combined half-widths  minus actual center distance
+        float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
+        float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
+        
+        //if combined widths exceed separation, overlap occurs
         return overlapX > 0f && overlapY > 0f;
     }
 
-    bool IsGroundedOn(PhysicsBody a, PhysicsBody b)
+    void ResolveOverlap(PhysicsBody a, PhysicsBody b)
     {
-        const float probe = 0.08f;
-        Vector2 delta    = (a.candidatePos + Vector2.down * probe) - b.candidatePos;
+        Vector2 delta    = a.candidatePos - b.candidatePos;
         float overlapX   = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY   = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
-        // Only grounded if contact is on top face and mostly horizontal overlap
-        return overlapX > 0f && overlapY > 0f && delta.y > 0f;
-    }
 
-    void ResolvePlayerBlock(Player player, Block block)
-    {
-        Vector2 delta    = player.candidatePos - block.candidatePos;
-        float overlapX   = (player.size.x + block.size.x) * 0.5f - Mathf.Abs(delta.x);
-        float overlapY   = (player.size.y + block.size.y) * 0.5f - Mathf.Abs(delta.y);
-
+        // Resolve normal along axis of least penetration
         Vector2 normal;
-        float   penetration;
+        float   penetration;  //penetration is 
         if (overlapX < overlapY)
         {
             normal      = new Vector2(Mathf.Sign(delta.x), 0f);
@@ -96,53 +90,41 @@ public class PhysicsManager : MonoBehaviour
             penetration = overlapY;
         }
 
-        // Separate positions
-        player.candidatePos += normal * penetration * 0.5f;
-        block.candidatePos  -= normal * penetration * 0.5f;
+        // Push apart by half each (equal mass assumption)
+        // Kinematic bodies (immovable) get zero push share
+        float totalInvMass = (a.isKinematic ? 0f : 1f) + (b.isKinematic ? 0f : 1f);
+        if (totalInvMass == 0f) return;
 
-        // Velocity exchange
-        float playerSpeed = Vector2.Dot(player.velocity, normal);
-        float blockSpeed  = Vector2.Dot(block.velocity,  normal);
-        float approachSpeed = playerSpeed - blockSpeed;
+        float aShare = a.isKinematic ? 0f : 1f / totalInvMass;
+        float bShare = b.isKinematic ? 0f : 1f / totalInvMass;
 
-        if (approachSpeed <= 0f) return;  // already separating
+        //position correction for immediate geometric fix
+        a.candidatePos += normal *  penetration * aShare;
+        b.candidatePos -= normal *  penetration * bShare;
 
-        if (approachSpeed > player.bounceThreshold)
-        {
-            // Hard impact — wallbounce
-            float restitution = 0.6f;
-            player.velocity    -= normal * approachSpeed * (1f + restitution) * 0.5f;
-            block.ApplyImpulse(normal  * approachSpeed * (1f + restitution) * 0.5f);
-            player.receivedImpulseThisFrame = true;
-        }
-        else
-        {
-            // Soft contact — will be handled by sustained contact velocity inheritance
-            player.velocity   -= normal * approachSpeed * 0.5f;
-            block.ApplyImpulse(normal  * approachSpeed * 0.5f);
-        }
+        // Velocity exchange along normal
+        float aSpeed = Vector2.Dot(a.velocity, normal);
+        float bSpeed = Vector2.Dot(b.velocity, normal);
+        if (aSpeed - bSpeed <= 0f) return;  // already separating
 
-        player.OnImpact(approachSpeed, block);
+        float impactSpeed = aSpeed - bSpeed;
+
+        if (!a.isKinematic) a.velocity -= normal * impactSpeed * aShare;
+        if (!b.isKinematic) b.velocity += normal * impactSpeed * bShare;
+
+        // Notify both sides
+        a.OnImpact(impactSpeed, b);
+        b.OnImpact(impactSpeed, a);
     }
 
-    void HandleSustainedContact(Player player, Block block)
+    void WrapPosition(PhysicsBody b)
     {
-        if (!AABBOverlap(player, block)) return;
+        Camera cam   = Camera.main;
+        float width  = cam.orthographicSize * 2f * cam.aspect;
+        float halfW  = width * 0.5f;
+        float camX   = cam.transform.position.x;
 
-        Vector2 delta  = player.candidatePos - block.candidatePos;
-        float overlapX = (player.size.x + block.size.x) * 0.5f - Mathf.Abs(delta.x);
-        float overlapY = (player.size.y + block.size.y) * 0.5f - Mathf.Abs(delta.y));
-
-        // Determine contact face
-        if (overlapX < overlapY)
-        {
-            // Side contact — inherit vertical velocity
-            player.velocity.y = Mathf.Lerp(player.velocity.y, block.velocity.y, 0.3f);
-        }
-        else
-        {
-            // Top/bottom contact — inherit horizontal velocity
-            player.velocity.x = Mathf.Lerp(player.velocity.x, block.velocity.x, 0.3f);
-        }
+        if (b.candidatePos.x > camX + halfW) b.candidatePos.x -= width;
+        else if (b.candidatePos.x < camX - halfW) b.candidatePos.x += width;
     }
 }

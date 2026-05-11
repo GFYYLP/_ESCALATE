@@ -39,7 +39,6 @@ public class Player : PhysicsBody
 
     // --- Collision trigger ---
     [SerializeField] private float highCollideVal = 5f;
-    [SerializeField] public  float bounceThreshold = 8f;
     public event Action<Vector2> onHighCollision;
 
     // --- State ---
@@ -50,7 +49,6 @@ public class Player : PhysicsBody
     private float coyoteTimer;
     private float jumpBufferTimer;
     private float lastDir = 1f;  // default facing right
-    private HashSet<Block> currentContacts = new HashSet<Block>();
 
     public override void UpdateVelocity(float dt)
     {
@@ -63,46 +61,23 @@ public class Player : PhysicsBody
         {
             candidatePos = new Vector2(0f, 3f);
         }
-    }
-    
-    protected override void Awake()
-    {
-        base.Awake();
-        PhysicsManager.Instance.RegisterPlayer(this);
-    }
-
-    public void Step(float dt)
-    {
-        currentContacts.Clear();
-        UpdateTimers(dt);
-        TryDash();
-        ApplyHorizontal(dt);
-        ApplyVertical(dt);
-        candidatePos += velocity * dt;
-
-        // Wrap
-        Camera cam  = Camera.main;
-        float width = cam.orthographicSize * 2f * cam.aspect;
-        float halfW = width * 0.5f;
-        float camX  = cam.transform.position.x;
-        if (candidatePos.x > camX + halfW) candidatePos.x -= width;
-        else if (candidatePos.x < camX - halfW) candidatePos.x += width;
-    }
-
-    public override void OnImpact(float impactSpeed, Block other)
-    {
-        if (impactSpeed > highCollideVal && !currentContacts.Contains(other))
+        
+        if (Input.GetKey(KeyCode.S))
         {
             onHighCollision?.Invoke(candidatePos);
-            currentContacts.Add(other);
         }
+    }
+
+    public override void OnImpact(float impactSpeed, PhysicsBody other)
+    {
+        if (impactSpeed > highCollideVal)
+            onHighCollision?.Invoke(candidatePos);
     }
 
     public override void ApplyImpulse(Vector2 impulse)
     {
-        velocity += impulse;
-        receivedImpulseThisFrame = true;
-        if (impulse.y < 0f) isJumping = false;
+        base.ApplyImpulse(impulse);
+        isJumping = false;
     }
 
     // -------------------------------------------------------------------------

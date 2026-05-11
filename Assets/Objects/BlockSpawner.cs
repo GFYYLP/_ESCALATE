@@ -11,7 +11,7 @@ public class BlockSpawner : MonoBehaviour
     [SerializeField] private float spawnCooldown = 0.5f; // Cooldown duration in seconds
     private float lastSpawnTime = -Mathf.Infinity;
     private int spawnCounter = 0;
-
+    
     private bool isFirstSpawn = true;
 
     void Start()
@@ -52,5 +52,9 @@ public class BlockSpawner : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKey(KeyCode.S))
+        {
+            
+        }
     }
 }

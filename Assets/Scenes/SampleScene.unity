@@ -419,15 +419,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   candidatePos: {x: 0, y: 0}
   velocity: {x: 0, y: 0}
-  onGround: 0
   isKinematic: 0
-  pendingDestroy: 0
-  size: {x: 0, y: 0}
-  moveSpeed: 3.22
-  groundAccel: 100
-  airAccel: 57.5
-  groundFriction: 11.5
-  airFriction: 7.5
+  onGround: 0
+  receivedImpulseThisFrame: 0
+  moveSpeed: 2.67
+  groundAccel: 86.5
+  airAccel: 54.1
+  groundFriction: 19.8
+  airFriction: 9.86
   jumpForce: 12.25
   jumpCutMultiplier: 0.5
   coyoteTime: 0.15
@@ -438,12 +437,13 @@ MonoBehaviour:
   wallCoyoteTime: 0.1
   fastFallGravity: 40
   maxFastFall: 24
-  gravity: 50.2
+  gravity: 35.2
   maxFallSpeed: 87.2
   dashSpeed: 12.9
   dashDuration: 0.27
   dashEndHCap: 20
   highCollideVal: 0.43
+  bounceThreshold: 8
 --- !u!50 &539382193
 Rigidbody2D:
   serializedVersion: 4

@@ -5,27 +5,24 @@ using UnityEngine;
 
 public class Block : PhysicsBody
 {
-    [SerializeField] private float gravity      = 28f;
+    [SerializeField] private float gravity     = 28f;
     [SerializeField] private float maxFallSpeed = 16f;
     public SpriteRenderer sr;
-    public bool pendingDestroy;
 
-    protected override void Awake()
+    protected override void OnEnable()
     {
-        base.Awake();
+        base.OnEnable();
         sr = GetComponent<SpriteRenderer>();
     }
 
-    void OnEnable() => PhysicsManager.Instance.RegisterBlock(this);
-    void OnDisable() => PhysicsManager.Instance?.UnregisterBlock(this);
-
-    public void Step(float dt)
+    public override void UpdateVelocity(float dt)
     {
-        velocity.y   -= gravity * dt;
-        velocity.y    = Mathf.Max(velocity.y, -maxFallSpeed);
-        candidatePos += velocity * dt;
+        if (!isKinematic)
+        {
+            velocity.y -= gravity * dt;
+            velocity.y  = Mathf.Max(velocity.y, -maxFallSpeed);
+        }
 
-        if (candidatePos.y < -10f)
-            pendingDestroy = true;
+        if (candidatePos.y < -10f && velocity.y <= maxFallSpeed) pendingDestroy = true;
     }
 }
