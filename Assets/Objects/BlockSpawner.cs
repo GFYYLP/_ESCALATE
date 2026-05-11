@@ -52,9 +52,6 @@ public class BlockSpawner : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.S))
-        {
-            
-        }
+        transform.position = new Vector3(0, Camera.main.transform.position.y + 6f, 0f);
     }
 }
