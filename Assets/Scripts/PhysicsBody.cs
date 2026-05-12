@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,11 +8,14 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public Vector2 candidatePos;
     [HideInInspector] public Vector2 velocity;
     [HideInInspector] public bool    onGround;
-    [HideInInspector] public bool    isKinematic;  // true = immovable (your starting platform)
+    [HideInInspector] public bool    isKinematic;  // true = immovable
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
     
+    [SerializeField] private RippleManager rippleManager;
     private BoxCollider2D collider;
+    [SerializeField] private float highCollideVal = 5f;
+    public event Action<Vector2> onHighCollision;
     public Vector2 size;
 
     protected virtual void Awake()
@@ -33,14 +37,16 @@ public abstract class PhysicsBody : MonoBehaviour
 
     protected virtual void OnDisable() =>
         PhysicsManager.Instance.Unregister(this);
-
-    // Each subclass implements its own velocity update (input, gravity, dash)
+    
     public abstract void UpdateVelocity(float dt);
 
-    public virtual void ApplyImpulse(Vector2 impulse) =>
-        velocity += impulse;
-
-    public virtual void OnImpact(float impactSpeed, PhysicsBody other) { }
+    public virtual void OnImpact(float impactSpeed, PhysicsBody other)
+    {
+        if (impactSpeed > highCollideVal)
+            onHighCollision?.Invoke(candidatePos);
+        
+        // rippleManager.AddRipple(, impactSpeed);
+    }
 
     public void UpdateGroundState(List<PhysicsBody> bodies)
     {
@@ -67,5 +73,25 @@ public abstract class PhysicsBody : MonoBehaviour
                 }
             }
         }
+        
+        WrapPosition(); //wrap around screen edges
+    }
+
+    public void Update()
+    {
+        if (Input.GetKey(KeyCode.S))
+        {
+            onHighCollision?.Invoke(candidatePos);
+        }
+    }
+    void WrapPosition()
+    {
+        Camera cam   = Camera.main;
+        float width  = cam.orthographicSize * 2f * cam.aspect;
+        float halfW  = width * 0.5f;
+        float camX   = cam.transform.position.x;
+
+        if (candidatePos.x > camX + halfW) candidatePos.x -= width;
+        else if (candidatePos.x < camX - halfW) candidatePos.x += width;
     }
 }

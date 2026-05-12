@@ -5,50 +5,44 @@ using UnityEngine;
 
 public class Player : PhysicsBody
 {
-
-    // --- Movement ---
+    //movement
     [SerializeField] private float moveSpeed      = 9f;
     [SerializeField] private float groundAccel    = 100f;
     [SerializeField] private float airAccel       = 65f;
     [SerializeField] private float groundFriction = 80f;
     [SerializeField] private float airFriction    = 40f;
 
-    // --- Jump ---
+    //jump 
     [SerializeField] private float jumpForce         = 11f;
     [SerializeField] private float jumpCutMultiplier = 0.5f;
     [SerializeField] private float coyoteTime        = 0.15f;
     [SerializeField] private float jumpBufferTime    = 0.2f;
-
-    // --- Wall jump ---
+    
     [SerializeField] private float wallJumpHSpeed = 13f;
     [SerializeField] private float wallJumpVSpeed = 11f;
     [SerializeField] private float wallCheckDist  = 0.08f;
     [SerializeField] private float wallCoyoteTime = 0.1f;
 
-    // --- Gravity ---
+    //gravity
     // gravity and maxFallSpeed inherited from PhysicsBody
     [SerializeField] private float fastFallGravity = 40f;
     [SerializeField] private float maxFastFall     = 24f;
     [SerializeField] private float gravity     = 28f;
     [SerializeField] private float maxFallSpeed = 16f;
 
-    // --- Dash ---
+    //dash
     [SerializeField] private float dashSpeed    = 24f;
     [SerializeField] private float dashDuration = 0.25f;
     [SerializeField] private float dashEndHCap  = 20f;
-
-    // --- Collision trigger ---
-    [SerializeField] private float highCollideVal = 5f;
-    public event Action<Vector2> onHighCollision;
-
-    // --- State ---
+    
+    //state 
     private bool  isDashing;
     private bool  dashUsed;
     private bool  isJumping;
     private float dashTimer;
     private float coyoteTimer;
     private float jumpBufferTimer;
-    private float lastDir = 1f;  // default facing right
+    private float lastDir = 1f;
 
     public override void UpdateVelocity(float dt)
     {
@@ -61,28 +55,8 @@ public class Player : PhysicsBody
         {
             candidatePos = new Vector2(0f, 3f);
         }
-        
-        if (Input.GetKey(KeyCode.S))
-        {
-            onHighCollision?.Invoke(candidatePos);
-        }
     }
-
-    public override void OnImpact(float impactSpeed, PhysicsBody other)
-    {
-        if (impactSpeed > highCollideVal)
-            onHighCollision?.Invoke(candidatePos);
-    }
-
-    public override void ApplyImpulse(Vector2 impulse)
-    {
-        base.ApplyImpulse(impulse);
-        isJumping = false;
-    }
-
-    // -------------------------------------------------------------------------
-    // Timers
-    // -------------------------------------------------------------------------
+    
 
     void UpdateTimers(float dt)
     {
@@ -106,10 +80,7 @@ public class Player : PhysicsBody
                 EndDash();
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Dash
-    // -------------------------------------------------------------------------
+    
 
     void TryDash()
     {
@@ -164,10 +135,7 @@ public class Player : PhysicsBody
             velocity.x     = Mathf.MoveTowards(velocity.x, 0f, friction * dt);
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Vertical
-    // -------------------------------------------------------------------------
+    
 
     void ApplyVertical(float dt)
     {
@@ -195,8 +163,6 @@ public class Player : PhysicsBody
         if (velocity.y < -cap) velocity.y = -cap;
     }
     
-    // -------------------------------------------------------------------------
     // Public data
-    // -------------------------------------------------------------------------
     public bool IsDashing => isDashing;
 }

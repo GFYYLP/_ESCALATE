@@ -40,8 +40,6 @@ public class PhysicsManager : MonoBehaviour
         {
             b.UpdateGroundState(bodies);
             if (b.onGround && b.velocity.y < 0f) b.velocity.y = 0f;
-            
-            WrapPosition(b); //wrap around screen edges
             b.transform.position = b.candidatePos;
         }
         
@@ -115,16 +113,5 @@ public class PhysicsManager : MonoBehaviour
         // Notify both sides
         a.OnImpact(impactSpeed, b);
         b.OnImpact(impactSpeed, a);
-    }
-
-    void WrapPosition(PhysicsBody b)
-    {
-        Camera cam   = Camera.main;
-        float width  = cam.orthographicSize * 2f * cam.aspect;
-        float halfW  = width * 0.5f;
-        float camX   = cam.transform.position.x;
-
-        if (b.candidatePos.x > camX + halfW) b.candidatePos.x -= width;
-        else if (b.candidatePos.x < camX - halfW) b.candidatePos.x += width;
     }
 }
