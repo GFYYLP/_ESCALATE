@@ -179,6 +179,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52f384a2b45af0f45a8330c677785dfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gridMaterial: {fileID: 2100000, guid: 3ff59146e8e829f4f90d1fa82ffaf599, type: 2}
+  maxRipples: 16
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -436,6 +438,8 @@ MonoBehaviour:
   isKinematic: 0
   pendingDestroy: 0
   prevPos: {x: 0, y: 0}
+  rippleManager: {fileID: 303124852}
+  highCollideVal: 0.43
   size: {x: 0, y: 0}
   moveSpeed: 2.67
   groundAccel: 86.5
@@ -457,7 +461,6 @@ MonoBehaviour:
   dashSpeed: 12.9
   dashDuration: 0.27
   dashEndHCap: 20
-  highCollideVal: 0.43
 --- !u!50 &539382193
 Rigidbody2D:
   serializedVersion: 4

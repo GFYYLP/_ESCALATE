@@ -14,7 +14,7 @@ public abstract class PhysicsBody : MonoBehaviour
     
     [SerializeField] private RippleManager rippleManager;
     private BoxCollider2D collider;
-    [SerializeField] private float highCollideVal = 5f;
+    private float highCollideVal = 5f;
     public event Action<Vector2> onHighCollision;
     public Vector2 size;
 
@@ -25,6 +25,8 @@ public abstract class PhysicsBody : MonoBehaviour
             collider.size.x * transform.localScale.x,
             collider.size.y * transform.localScale.y
         );
+        
+        rippleManager = FindObjectOfType<RippleManager>();
     }
     
     public float     Speed => velocity.magnitude;
@@ -40,12 +42,10 @@ public abstract class PhysicsBody : MonoBehaviour
     
     public abstract void UpdateVelocity(float dt);
 
-    public virtual void OnImpact(float impactSpeed, PhysicsBody other)
+    public void OnImpact(float impactSpeed, PhysicsBody other)
     {
         if (impactSpeed > highCollideVal)
             onHighCollision?.Invoke(candidatePos);
-        
-        // rippleManager.AddRipple(, impactSpeed);
     }
 
     public void UpdateGroundState(List<PhysicsBody> bodies)
@@ -79,11 +79,15 @@ public abstract class PhysicsBody : MonoBehaviour
 
     public void Update()
     {
+        rippleManager.AddRipple(candidatePos, Speed);
+        
+        
         if (Input.GetKey(KeyCode.S))
         {
             onHighCollision?.Invoke(candidatePos);
         }
     }
+    
     void WrapPosition()
     {
         Camera cam   = Camera.main;
