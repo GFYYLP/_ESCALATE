@@ -17,11 +17,6 @@ public class Player : PhysicsBody
     [SerializeField] private float jumpCutMultiplier = 0.5f;
     [SerializeField] private float coyoteTime        = 0.15f;
     [SerializeField] private float jumpBufferTime    = 0.2f;
-    
-    [SerializeField] private float wallJumpHSpeed = 13f;
-    [SerializeField] private float wallJumpVSpeed = 11f;
-    [SerializeField] private float wallCheckDist  = 0.08f;
-    [SerializeField] private float wallCoyoteTime = 0.1f;
 
     //gravity
     // gravity and maxFallSpeed inherited from PhysicsBody
@@ -34,6 +29,10 @@ public class Player : PhysicsBody
     [SerializeField] private float dashSpeed    = 24f;
     [SerializeField] private float dashDuration = 0.25f;
     [SerializeField] private float dashEndHCap  = 20f;
+    [SerializeField] private float reflectSensitivity    = 0.3f;
+    
+    //restitution response
+    
     
     //state 
     private bool  isDashing;
@@ -42,6 +41,7 @@ public class Player : PhysicsBody
     private float dashTimer;
     private float coyoteTimer;
     private float jumpBufferTimer;
+    private float reflectVal=0f;
     private float lastDir = 1f;
 
     public override void UpdateVelocity(float dt)
@@ -55,6 +55,11 @@ public class Player : PhysicsBody
         {
             candidatePos = new Vector2(0f, 3f);
         }
+    }
+
+    public override void UpdateProximity(float proximity)
+    {
+        reflectVal = proximity * Speed * reflectSensitivity;
     }
     
 
@@ -165,4 +170,5 @@ public class Player : PhysicsBody
     
     // Public data
     public bool IsDashing => isDashing;
+    public float ReflectVal => reflectVal;
 }

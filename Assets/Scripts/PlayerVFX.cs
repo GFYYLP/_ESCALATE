@@ -41,6 +41,10 @@ public class PlayerVFX : MonoBehaviour
         {
             timer = 0f;
         }
+        
+        
+        //update tint on reflection value
+        playerSprite.color = new Color(tint.r, tint.g, tint.b*(1f - player.ReflectVal), 1f);
     }
 
     void SpawnAfterImage()

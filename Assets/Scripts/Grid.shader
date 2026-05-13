@@ -36,9 +36,13 @@ Shader "Unlit/Grid"
 
             v2f vert(appdata v)
             {
+                float4 world = mul(unity_ObjectToWorld, v.vertex);
+                world.y += _WorldSpaceCameraPos.y;
+                
                 v2f o;
-                o.pos      = UnityObjectToClipPos(v.vertex);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xy;
+                o.pos = mul(UNITY_MATRIX_VP, world);
+                o.worldPos = world.xy;
+                
                 return o;
             }
 

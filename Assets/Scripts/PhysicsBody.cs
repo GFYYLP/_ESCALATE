@@ -11,10 +11,12 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool    isKinematic;  // true = immovable
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
+    [HideInInspector] public float restitution = 0.5f;
     
-    [SerializeField] private RippleManager rippleManager;
+    [SerializeField]  private float highCollideVal = 0.1f;
+    
+    private RippleManager rippleManager;
     private BoxCollider2D collider;
-    private float highCollideVal = 5f;
     public event Action<Vector2> onHighCollision;
     public Vector2 size;
 
@@ -42,8 +44,15 @@ public abstract class PhysicsBody : MonoBehaviour
     
     public abstract void UpdateVelocity(float dt);
 
+    public virtual void UpdateProximity(float proximity)
+    {
+        
+    }
+
     public void OnImpact(float impactSpeed, PhysicsBody other)
     {
+        //velocity.y = 0;
+        
         if (impactSpeed > highCollideVal)
             onHighCollision?.Invoke(candidatePos);
     }
@@ -79,8 +88,7 @@ public abstract class PhysicsBody : MonoBehaviour
 
     public void Update()
     {
-        rippleManager.AddRipple(candidatePos, Speed);
-        
+        if (Speed > 0.2)  rippleManager.AddRipple(candidatePos, Speed);
         
         if (Input.GetKey(KeyCode.S))
         {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Block : PhysicsBody
 {
-    [SerializeField] private float gravity     = 28f;
+    [SerializeField] private float gravity     = 10f;
     [SerializeField] private float maxFallSpeed = 16f;
     public SpriteRenderer sr;
 

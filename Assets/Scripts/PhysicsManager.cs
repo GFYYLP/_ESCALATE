@@ -46,11 +46,11 @@ public class PhysicsManager : MonoBehaviour
         //commit deletion
         var toDestroy = bodies.FindAll(b => b.pendingDestroy);
 
-        // Remove from list before destroying
+        //remove from list before destroying
         foreach (var b in toDestroy)
             bodies.Remove(b);
 
-        // Now destroy safely, OnDisable fires but list is already clean
+        //now destroy safely, OnDisable fires but list is already clean
         foreach (var b in toDestroy)
             Destroy(b.gameObject);
     }
@@ -63,6 +63,13 @@ public class PhysicsManager : MonoBehaviour
         //combined half-widths  minus actual center distance
         float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
+
+        if (overlapX > -0.3f && overlapY > -0.3f )
+        {
+            float proximity = (overlapX > overlapY)? Mathf.Abs(overlapX) : Mathf.Abs(overlapY);
+            a.UpdateProximity(proximity);
+            b.UpdateProximity(proximity);
+        }
         
         //if combined widths exceed separation, overlap occurs
         return overlapX > 0f && overlapY > 0f;
@@ -74,9 +81,9 @@ public class PhysicsManager : MonoBehaviour
         float overlapX   = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY   = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
 
-        // Resolve normal along axis of least penetration
+        //resolve normal along axis of least penetration
         Vector2 normal;
-        float   penetration;  //penetration is 
+        float   penetration;
         if (overlapX < overlapY)
         {
             normal      = new Vector2(Mathf.Sign(delta.x), 0f);
@@ -103,12 +110,25 @@ public class PhysicsManager : MonoBehaviour
         // Velocity exchange along normal
         float aSpeed = Vector2.Dot(a.velocity, normal);
         float bSpeed = Vector2.Dot(b.velocity, normal);
-        if (aSpeed - bSpeed <= 0f) return;  // already separating
 
         float impactSpeed = aSpeed - bSpeed;
+        if (impactSpeed <= 0f) return;  // already separating
+        
+        //TODO: leverage gravity temporarily upon collision
+        a.velocity.y = 0;
+        b.velocity.y = 0;
 
-        if (!a.isKinematic) a.velocity -= normal * impactSpeed * aShare;
-        if (!b.isKinematic) b.velocity += normal * impactSpeed * bShare;
+        if (!a.isKinematic) a.velocity -= normal * impactSpeed * (1.0f + a.restitution) * aShare;
+        if (!b.isKinematic) b.velocity += normal * impactSpeed * (1.0f + b.restitution) * bShare;
+        
+        //does being simply too close to the block cause pushing(with constant momentum)?
+        
+        //TODO: block latching
+        
+        //TODO: implement bounciness to boost velocity beyond inherent transfer upon collision
+        
+        //wallbounce
+        
 
         // Notify both sides
         a.OnImpact(impactSpeed, b);
