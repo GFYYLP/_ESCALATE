@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class RippleManager : MonoBehaviour
@@ -7,6 +8,7 @@ public class RippleManager : MonoBehaviour
     [SerializeField] private Material gridMaterial;
     [SerializeField] private int      maxRipples = 16;
 
+    [StructLayout(LayoutKind.Sequential)]
     private struct Ripple
     {
         public Vector2 position;

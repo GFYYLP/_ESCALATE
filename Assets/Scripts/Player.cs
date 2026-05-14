@@ -47,10 +47,11 @@ public class Player : PhysicsBody
 
     public override void UpdateVelocity(float dt)
     {
-        nearBlock = false;  // reset each frame, AABBOverlap sets it if close
-        
-        float reflectCondition = ((nearBlock) ? 0.5f : 0f);
+        float reflectCondition = ((nearBlock) ? 0.3f : 0f)
+            + ((isDashing) ? 0.7f : 0f);
         reflectVal = reflectCondition;
+        
+        nearBlock = false;  // reset each frame, AABBOverlap sets it if close
         
         UpdateTimers(dt);
         TryDash();
@@ -58,9 +59,15 @@ public class Player : PhysicsBody
         ApplyHorizontal(dt);
         ApplyVertical(dt);
         
+        //cap velocity
+        const float maxVelocity = 40f;
+        velocity.x = Mathf.Clamp(velocity.x, -maxVelocity, maxVelocity);
+        velocity.y = Mathf.Clamp(velocity.y, -maxVelocity*0.5f, maxVelocity*0.5f);  //less vertical freedom
+        
         if (Input.GetKey(KeyCode.R))
         {
-            candidatePos = new Vector2(0f, 3f);
+            velocity = new Vector2();
+            candidatePos = new Vector2(0f, 2.5f);
         }
     }
 
@@ -68,7 +75,7 @@ public class Player : PhysicsBody
     {
         float proximity = (overlapX > overlapY)? Mathf.Abs(overlapX) : Mathf.Abs(overlapY);
         float reflectCondition = (isDashing) ? 1f : 0f;
-        reflectVal = proximity * reflectSensitivity * reflectCondition;
+        reflectVal = reflectCondition; //proximity * reflectSensitivity * ;
         
         reflectDir = new Vector2(-overlapX, overlapY).normalized;
     }
@@ -154,13 +161,13 @@ public class Player : PhysicsBody
     
     void TryReflect()
     {
-        // Wallbounce: dashing near a wall, press jump
-        if (reflectVal > 0.8f) return;
+        //reflect trigger conditions
+        if (reflectVal > 0.9f) return;
         if (!Input.GetKeyDown(KeyCode.Z)) return;
 
         // Reflect dash velocity off the contact normal
         Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
-        velocity          = reflected * 3.0f;  // slight speed loss on bounce
+        velocity          *= 3.0f;  
         isDashing         = false;
         dashUsed          = false;  // refund dash
         nearBlock         = false;

@@ -44,7 +44,9 @@ public class PlayerVFX : MonoBehaviour
         
         
         //update tint on reflection value
-        playerSprite.color = new Color(tint.r, tint.g, tint.b*(1f - player.ReflectVal), 1f);
+        playerSprite.color = new Color((!player.IsDashing)? tint.r : 0f, 
+                                      (!player.IsDashing)? tint.g : 0f, 
+                                      tint.b*(1f - player.ReflectVal), 1f);
     }
 
     void SpawnAfterImage()

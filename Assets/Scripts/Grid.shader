@@ -28,8 +28,6 @@ Shader "Unlit/Grid"
             // x,y = world position, z = strength, w = age
             float4 _Ripples[16];
             int    _RippleCount;
-            
-            
 
             struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
             struct v2f    { float4 pos : SV_POSITION; float2 worldPos : TEXCOORD0; };
