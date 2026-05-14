@@ -57,21 +57,27 @@ public class PhysicsManager : MonoBehaviour
 
     bool AABBOverlap(PhysicsBody a, PhysicsBody b)
     {
-        //distance between bodies' centers 
-        Vector2 delta = a.candidatePos - b.candidatePos;
-        
-        //combined half-widths  minus actual center distance
+        Vector2 delta  = a.candidatePos - b.candidatePos;
         float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
 
-        if (overlapX > -0.3f && overlapY > -0.3f )
+        // Proximity window — within 5 pixels (0.3 units at your scale)
+        float proximityThreshold = 0.3f;
+        if (overlapX > -proximityThreshold && overlapY > -proximityThreshold)
         {
-            float proximity = (overlapX > overlapY)? Mathf.Abs(overlapX) : Mathf.Abs(overlapY);
-            a.UpdateProximity(proximity);
-            b.UpdateProximity(proximity);
+            // Derive actual contact normal from overlap axes
+            Vector2 normal;
+            if (Mathf.Abs(overlapX) < Mathf.Abs(overlapY))
+                normal = new Vector2(Mathf.Sign(delta.x), 0f);
+            else
+                normal = new Vector2(0f, Mathf.Sign(delta.y));
+
+            a.nearBlock  = true;
+            a.nearNormal = normal;
+            b.nearBlock  = true;
+            b.nearNormal = -normal;
         }
-        
-        //if combined widths exceed separation, overlap occurs
+
         return overlapX > 0f && overlapY > 0f;
     }
 

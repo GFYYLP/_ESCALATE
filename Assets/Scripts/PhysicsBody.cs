@@ -15,6 +15,9 @@ public abstract class PhysicsBody : MonoBehaviour
     
     [SerializeField]  private float highCollideVal = 0.1f;
     
+    public bool nearBlock;
+    public Vector2 nearNormal; 
+    
     private RippleManager rippleManager;
     private BoxCollider2D collider;
     public event Action<Vector2> onHighCollision;
@@ -44,7 +47,7 @@ public abstract class PhysicsBody : MonoBehaviour
     
     public abstract void UpdateVelocity(float dt);
 
-    public virtual void UpdateProximity(float proximity)
+    public virtual void UpdateProximity(float overlapX, float overlapY)
     {
         
     }

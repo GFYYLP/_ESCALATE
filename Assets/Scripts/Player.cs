@@ -42,12 +42,19 @@ public class Player : PhysicsBody
     private float coyoteTimer;
     private float jumpBufferTimer;
     private float reflectVal=0f;
+    private Vector2 reflectDir = default;
     private float lastDir = 1f;
 
     public override void UpdateVelocity(float dt)
     {
+        nearBlock = false;  // reset each frame, AABBOverlap sets it if close
+        
+        float reflectCondition = ((nearBlock) ? 0.5f : 0f);
+        reflectVal = reflectCondition;
+        
         UpdateTimers(dt);
         TryDash();
+        TryReflect(); 
         ApplyHorizontal(dt);
         ApplyVertical(dt);
         
@@ -57,9 +64,13 @@ public class Player : PhysicsBody
         }
     }
 
-    public override void UpdateProximity(float proximity)
+    public override void UpdateProximity(float overlapX, float overlapY)
     {
-        reflectVal = proximity * Speed * reflectSensitivity;
+        float proximity = (overlapX > overlapY)? Mathf.Abs(overlapX) : Mathf.Abs(overlapY);
+        float reflectCondition = (isDashing) ? 1f : 0f;
+        reflectVal = proximity * reflectSensitivity * reflectCondition;
+        
+        reflectDir = new Vector2(-overlapX, overlapY).normalized;
     }
     
 
@@ -141,11 +152,27 @@ public class Player : PhysicsBody
         }
     }
     
+    void TryReflect()
+    {
+        // Wallbounce: dashing near a wall, press jump
+        if (reflectVal > 0.8f) return;
+        if (!Input.GetKeyDown(KeyCode.Z)) return;
+
+        // Reflect dash velocity off the contact normal
+        Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
+        velocity          = reflected * 3.0f;  // slight speed loss on bounce
+        isDashing         = false;
+        dashUsed          = false;  // refund dash
+        nearBlock         = false;
+        isJumping         = true;
+    }
+    
 
     void ApplyVertical(float dt)
     {
         if (isDashing && !onGround) return;
 
+        //jumping window
         if (jumpBufferTimer > 0f && coyoteTimer > 0f)
         {
             velocity.y      = jumpForce;
@@ -154,12 +181,18 @@ public class Player : PhysicsBody
             isJumping       = true;
         }
 
+        //apply jump
         if (isJumping && Input.GetKeyUp(KeyCode.Z) && velocity.y > 0f)
         {
             velocity.y *= jumpCutMultiplier;
             isJumping   = false;
+        } else if (reflectVal > 0.2f && Input.GetKeyUp(KeyCode.Z) && velocity.y > 0f)
+        {
+            velocity += reflectDir;
+            isJumping   = false;
         }
 
+        //apply gravity
         bool  fastFall = Input.GetKey(KeyCode.DownArrow) && velocity.y < 0f;
         float grav     = fastFall ? fastFallGravity : gravity;
         float cap      = fastFall ? maxFastFall     : maxFallSpeed;
