@@ -11,14 +11,15 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool    isKinematic;  // true = immovable
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
-    [HideInInspector] public float restitution = 0.5f;
+    public virtual float Weight { get; set; }
     
     [SerializeField]  private float highCollideVal = 0.1f;
     
     public bool nearBlock;
     public Vector2 nearNormal; 
     
-    private RippleManager rippleManager;
+    protected RippleManager rippleManager;
+    
     private BoxCollider2D collider;
     public event Action<Vector2> onHighCollision;
     public Vector2 size;
@@ -48,6 +49,11 @@ public abstract class PhysicsBody : MonoBehaviour
     public abstract void UpdateVelocity(float dt);
 
     public virtual void UpdateProximity(float overlapX, float overlapY)
+    {
+        
+    }
+
+    public virtual void TryLatch(PhysicsBody collidedBody, bool isSide)
     {
         
     }
@@ -91,7 +97,8 @@ public abstract class PhysicsBody : MonoBehaviour
 
     public void Update()
     {
-        if (Speed > 0.2)  rippleManager.AddRipple(candidatePos, Speed);
+        Vector2 moveDir = new Vector2(prevPos.x - transform.position.x, prevPos.y - transform.position.y);
+        rippleManager.AddDirRipple(candidatePos, Speed * 0.5f, velocity);
         
         if (Input.GetKey(KeyCode.S))
         {

@@ -23,10 +23,20 @@ Shader "Unlit/Grid"
             float  _LineWidth;
             float4 _GridColor;
             float4 _BgColor;
+            
+            struct Ripple
+            {
+                float2 position;
+                float2 dir;
+                float strength;
+                float age;
+                int type;
+        
+                float padding;
+            };
+            StructuredBuffer<Ripple> _Ripples;
 
-            // Ripple sources passed from C#
-            // x,y = world position, z = strength, w = age
-            float4 _Ripples[16];
+
             int    _RippleCount;
 
             struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; };
@@ -47,20 +57,42 @@ Shader "Unlit/Grid"
             float4 frag(v2f i) : SV_Target
             {
                 float2 uv = i.worldPos;
+                float4 tint = float4(1.0, 1.0, 1.0, 1.0);
 
                 //accumulate displacement from all ripples
                 float2 displacement = float2(0, 0);
                 for (int r = 0; r < _RippleCount; r++)
                 {
-                    float2 toRipple = uv - _Ripples[r].xy;
+                    float2 toRipple = uv - _Ripples[r].position;
+                    float2 dir = _Ripples[r].dir;
                     
                     float  dist     = length(toRipple);
-                    float  age      = _Ripples[r].w;
-                    float  falloff  = exp(-dist * 2.0) * exp(-age * 3.0);  
+                    float  age      = _Ripples[r].age;
+                    float  falloff  = exp(-dist * 2.0) * exp(-age * 3.0); 
+                    float  strength = _Ripples[r].strength;
                     
-                    float  strength = _Ripples[r].z;
+                    switch (_Ripples[r].type)
+                    {
+                    case 0: //point ripple
+                        {
+                            displacement   += normalize(toRipple) * strength * falloff;
+                            
+                            //tint.xyz *= 2.0;
+                            break;
+                        }
+                    // case 1: //trailing ripple
+                    //     {
+                    //         float2 velocityDir = normalize(dir);
+                    //         float streak = dot(normalize(toRipple), velocityDir);
+                    //
+                    //         displacement += velocityDir
+                    //                       * streak
+                    //                       * falloff
+                    //                       * strength;
+                    //         break;
+                    //     }
+                    }
                     
-                    displacement   += normalize(toRipple) * strength * falloff;
                 }
 
                 //displace grid sampling position
@@ -72,7 +104,7 @@ Shader "Unlit/Grid"
                 
                 float  onLine   = step(lineDist.x, _LineWidth) + 
                                   step(lineDist.y, _LineWidth);
-                return lerp(_BgColor, _GridColor, saturate(onLine)); //lerp as a binary check to avoid branching
+                return lerp(_BgColor * tint, _GridColor, saturate(onLine)); //lerp as a binary check to avoid branching
             }
             ENDHLSL
         }

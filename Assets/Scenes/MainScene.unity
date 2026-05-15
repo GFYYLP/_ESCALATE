@@ -439,27 +439,26 @@ MonoBehaviour:
   pendingDestroy: 0
   prevPos: {x: 0, y: 0}
   highCollideVal: 5
+  nearBlock: 0
+  nearNormal: {x: 0, y: 0}
   size: {x: 0, y: 0}
   moveSpeed: 2.01
   groundAccel: 80.7
   airAccel: 51.9
   groundFriction: 26.2
   airFriction: 11.44
-  jumpForce: 6.3
+  jumpForce: 8.88
   jumpCutMultiplier: 0.5
   coyoteTime: 0.15
   jumpBufferTime: 0.35
-  wallJumpHSpeed: 13
-  wallJumpVSpeed: 11
-  wallCheckDist: 0.08
-  wallCoyoteTime: 0.1
   fastFallGravity: 40
   maxFastFall: 24
-  gravity: 35.2
+  gravity: 32.6
   maxFallSpeed: 87.2
-  dashSpeed: 10.72
-  dashDuration: 0.27
+  dashSpeed: 10.99
+  dashDuration: 0.35
   dashEndHCap: 20
+  reflectSensitivity: 0.3
 --- !u!50 &539382193
 Rigidbody2D:
   serializedVersion: 4
@@ -504,7 +503,7 @@ MonoBehaviour:
   afterImagePrefab: {fileID: 7985264341178807462, guid: 13e55965b5b6dca4f9c539ed8d6f6abc, type: 3}
   spawnInterval: 0.01
   lifetime: 0.49
-  speedThreshold: 12.5
+  speedThreshold: 9.4
   tint: {r: 0.7584905, g: 0.7584905, b: 0.7584905, a: 0.8}
 --- !u!1 &1305470832
 GameObject:
@@ -635,7 +634,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.08, y: -0.06, z: 0}
-  m_LocalScale: {x: 19.481812, y: 10.9725895, z: 1}
+  m_LocalScale: {x: 19.481812, y: 10.9725895, z: -12.36}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

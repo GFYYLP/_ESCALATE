@@ -51,13 +51,15 @@ public class Player : PhysicsBody
             + ((isDashing) ? 0.7f : 0f);
         reflectVal = reflectCondition;
         
-        nearBlock = false;  // reset each frame, AABBOverlap sets it if close
+        
         
         UpdateTimers(dt);
         TryDash();
-        TryReflect(); 
+        TryReflect();
         ApplyHorizontal(dt);
         ApplyVertical(dt);
+        
+        nearBlock = false;  // reset each frame, AABBOverlap sets it if close
         
         //cap velocity
         const float maxVelocity = 40f;
@@ -129,8 +131,12 @@ public class Player : PhysicsBody
         isDashing = true;
         dashUsed  = true;
         dashTimer = dashDuration;
-        isJumping = false;
+         //isJumping = false;
+        
+        //apply dash vfx
+        rippleManager.AddPointRipple(candidatePos, Speed);
     }
+    
 
     void EndDash()
     {
@@ -138,6 +144,33 @@ public class Player : PhysicsBody
         velocity.x = Mathf.Clamp(velocity.x, -dashEndHCap, dashEndHCap);
         if (velocity.y > 0f) velocity.y = 0f;
     }
+    
+    public override void TryLatch(PhysicsBody collidedBody, bool isSide)
+    {
+        Block block = collidedBody as Block;
+        if (block == null) return;
+
+        if (isSide)
+        {
+            // Side contact — hold direction required
+            float inputX = Input.GetKey(KeyCode.RightArrow) ?  1f :
+                Input.GetKey(KeyCode.LeftArrow)  ? -1f : 0f;
+            Vector2 delta  = candidatePos - block.candidatePos;
+            bool holding = Mathf.Sign(inputX) == -Mathf.Sign(delta.x);
+
+            if (holding)
+                // Match block's vertical movement — ride it up or down
+                velocity.y = block.velocity.y;
+
+        }
+        else
+        {
+            // Top contact — automatic, match horizontal
+            velocity.x += block.velocity.x;
+        }
+    }
+    
+    
     void ApplyHorizontal(float dt)
     {
         if (isDashing) return;
@@ -162,7 +195,7 @@ public class Player : PhysicsBody
     void TryReflect()
     {
         //reflect trigger conditions
-        if (reflectVal > 0.9f) return;
+        //if (!nearBlock || !isDashing) return;
         if (!Input.GetKeyDown(KeyCode.Z)) return;
 
         // Reflect dash velocity off the contact normal
@@ -172,6 +205,12 @@ public class Player : PhysicsBody
         dashUsed          = false;  // refund dash
         nearBlock         = false;
         isJumping         = true;
+        
+        //print working signal
+        Debug.Log("Reflect triggered");     
+        
+        //apply grid vfx
+        rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
     }
     
 
@@ -211,4 +250,9 @@ public class Player : PhysicsBody
     // Public data
     public bool IsDashing => isDashing;
     public float ReflectVal => reflectVal;
+    
+    public override float Weight
+    {
+        set => base.Weight = 0.3f;
+    }
 }

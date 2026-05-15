@@ -78,7 +78,18 @@ public class PhysicsManager : MonoBehaviour
             b.nearNormal = -normal;
         }
 
-        return overlapX > 0f && overlapY > 0f;
+        bool result = overlapX > 0f && overlapY > 0f;
+        
+        //check if either PhysicsBodies is Player
+        if (result == true)
+        {
+            bool  isSide   = overlapX < overlapY;
+            if (a is Player) a.TryLatch(b, isSide);
+            else if (b is Player) b.TryLatch(a, isSide);
+        }
+
+
+        return result;
     }
 
     void ResolveOverlap(PhysicsBody a, PhysicsBody b)
@@ -124,16 +135,8 @@ public class PhysicsManager : MonoBehaviour
         a.velocity.y = 0;
         b.velocity.y = 0;
 
-        if (!a.isKinematic) a.velocity -= normal * impactSpeed * (1.0f + a.restitution) * aShare;
-        if (!b.isKinematic) b.velocity += normal * impactSpeed * (1.0f + b.restitution) * bShare;
-        
-        //does being simply too close to the block cause pushing(with constant momentum)?
-        
-        //TODO: block latching
-        
-        //TODO: implement bounciness to boost velocity beyond inherent transfer upon collision
-        
-        //wallbounce
+        if (!a.isKinematic) a.velocity -= normal * impactSpeed * (1.0f + a.Weight) * aShare;
+        if (!b.isKinematic) b.velocity += normal * impactSpeed * (1.0f + b.Weight) * bShare;
         
 
         // Notify both sides

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -12,20 +13,38 @@ public class RippleManager : MonoBehaviour
     private struct Ripple
     {
         public Vector2 position;
+        public Vector2 dir;
         public float   strength;
         public float   age;
+        public int type;
+        
+        public float padding;
     }
 
     private List<Ripple> ripples = new List<Ripple>();
-    private Vector4[]    rippleBuffer;
+    private GraphicsBuffer    rippleBuffer;
 
-    void Awake() => rippleBuffer = new Vector4[maxRipples];
+    private void Start()
+    {
+        rippleBuffer = new GraphicsBuffer(
+            GraphicsBuffer.Target.Structured,
+            16,
+            Marshal.SizeOf<Ripple>()
+        );
+    }
 
-    public void AddRipple(Vector2 pos, float strength)
+    public void AddPointRipple(Vector2 pos, float strength)
     {
         if (ripples.Count >= maxRipples) return;
-        ripples.Add(new Ripple { position = pos, strength = strength, age = 0f });
+        ripples.Add(new Ripple { position = pos, dir = new Vector2(), strength = strength, age = 0f, type = 0 });
     }
+    
+    public void AddDirRipple(Vector2 pos, float strength, Vector2 dir)
+    {
+        if (ripples.Count >= maxRipples) return;
+        ripples.Add(new Ripple { position = pos, dir = dir, strength = strength, age = 0f, type = 1 });
+    }
+    
 
     void Update()
     {
@@ -39,17 +58,15 @@ public class RippleManager : MonoBehaviour
             else
                 ripples[i] = r;
         }
+        
+        rippleBuffer.SetData(ripples);
 
-        //pack into Vector4 array for shader
-        for (int i = 0; i < ripples.Count; i++)
-            rippleBuffer[i] = new Vector4(
-                ripples[i].position.x,
-                ripples[i].position.y,
-                ripples[i].strength,
-                ripples[i].age
-            );
-
-        gridMaterial.SetVectorArray("_Ripples",    rippleBuffer);
-        gridMaterial.SetInt        ("_RippleCount", ripples.Count);
+        gridMaterial.SetBuffer("_Ripples", rippleBuffer);
+        gridMaterial.SetInt("_RippleCount", ripples.Count);
+    }
+    
+    void OnDestroy()
+    {
+        rippleBuffer?.Release();  //free gpu memory, independent of gc
     }
 }

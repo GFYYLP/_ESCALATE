@@ -55,7 +55,7 @@ public class PlayerVFX : MonoBehaviour
 
         img.Init(
             playerSprite.sprite,
-            transform.position,
+            new Vector3(transform.position.x, transform.position.y, transform.position.z - 1f),
             transform.rotation,
             transform.localScale,
             tint,
