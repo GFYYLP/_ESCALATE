@@ -125,20 +125,20 @@ public class PhysicsManager : MonoBehaviour
         b.candidatePos -= normal *  penetration * bShare;
 
         // Velocity exchange along normal
-        float aSpeed = Vector2.Dot(a.velocity, normal);
-        float bSpeed = Vector2.Dot(b.velocity, normal);
-
+        float aSpeed      = Vector2.Dot(a.velocity, normal);
+        float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
-        if (impactSpeed <= 0f) return;  // already separating
-        
-        //TODO: leverage gravity temporarily upon collision
-        a.velocity.y = 0;
-        b.velocity.y = 0;
 
-        if (!a.isKinematic) a.velocity -= normal * impactSpeed * (1.0f + a.Weight) * aShare;
-        if (!b.isKinematic) b.velocity += normal * impactSpeed * (1.0f + b.Weight) * bShare;
+        // aSpeed - bSpeed > 0 means a moving away from b along normal
+        // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
+        if (impactSpeed >= 0f) return;
         
+        if (!a.isKinematic) a.velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;   // push a away from b
+        if (!b.isKinematic) b.velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare;   // push b away from a
 
+        a.OnImpact(Mathf.Abs(impactSpeed), b);
+        b.OnImpact(Mathf.Abs(impactSpeed), a);
+        
         // Notify both sides
         a.OnImpact(impactSpeed, b);
         b.OnImpact(impactSpeed, a);

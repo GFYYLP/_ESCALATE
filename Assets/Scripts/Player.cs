@@ -163,7 +163,7 @@ public class Player : PhysicsBody
                 velocity.y = block.velocity.y;
 
         }
-        else
+        else if (onGround)
         {
             // Top contact — automatic, match horizontal
             velocity.x += block.velocity.x;
@@ -195,7 +195,7 @@ public class Player : PhysicsBody
     void TryReflect()
     {
         //reflect trigger conditions
-        //if (!nearBlock || !isDashing) return;
+        if (!nearBlock || !isDashing) return;
         if (!Input.GetKeyDown(KeyCode.Z)) return;
 
         // Reflect dash velocity off the contact normal
@@ -250,9 +250,4 @@ public class Player : PhysicsBody
     // Public data
     public bool IsDashing => isDashing;
     public float ReflectVal => reflectVal;
-    
-    public override float Weight
-    {
-        set => base.Weight = 0.3f;
-    }
 }

@@ -14,11 +14,7 @@ public class Block : PhysicsBody
         base.OnEnable();
         sr = GetComponent<SpriteRenderer>();
     }
-
-    public override float Weight
-    {
-        set => base.Weight = 0.5f;
-    }
+    
 
     public override void UpdateVelocity(float dt)
     {

@@ -11,7 +11,7 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool    isKinematic;  // true = immovable
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
-    public virtual float Weight { get; set; }
+    [HideInInspector] public float   weight=0.01f;
     
     [SerializeField]  private float highCollideVal = 0.1f;
     

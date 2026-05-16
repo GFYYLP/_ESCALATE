@@ -455,7 +455,7 @@ MonoBehaviour:
   maxFastFall: 24
   gravity: 32.6
   maxFallSpeed: 87.2
-  dashSpeed: 10.99
+  dashSpeed: 9.84
   dashDuration: 0.35
   dashEndHCap: 20
   reflectSensitivity: 0.3
