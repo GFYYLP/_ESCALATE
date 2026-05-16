@@ -129,7 +129,7 @@ public class PhysicsManager : MonoBehaviour
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
 
-        // aSpeed - bSpeed > 0 means a moving away from b along normal
+        // aSpeed - bSpeed > 0 means a and b moves in opposite directions
         // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
         if (impactSpeed >= 0f) return;
         

@@ -206,9 +206,6 @@ public class Player : PhysicsBody
         nearBlock         = false;
         isJumping         = true;
         
-        //print working signal
-        Debug.Log("Reflect triggered");     
-        
         //apply grid vfx
         rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
     }

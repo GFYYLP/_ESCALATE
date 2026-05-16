@@ -73,24 +73,30 @@ Shader "Unlit/Grid"
                     
                     switch (_Ripples[r].type)
                     {
-                    case 0: //point ripple
+                    case 0: //point ripple (on objects abrupt speedup)
                         {
                             displacement   += normalize(toRipple) * strength * falloff;
                             
-                            //tint.xyz *= 2.0;
+                            tint.xyz *= 2.0;
                             break;
                         }
-                    // case 1: //trailing ripple
-                    //     {
-                    //         float2 velocityDir = normalize(dir);
-                    //         float streak = dot(normalize(toRipple), velocityDir);
-                    //
-                    //         displacement += velocityDir
-                    //                       * streak
-                    //                       * falloff
-                    //                       * strength;
-                    //         break;
-                    //     }
+                    case 1: //directional ripple (follow along high-velocity objects)
+                        {
+                            float  along    = dot(toRipple, dir);         // signed projection onto travel axis
+                            float  perp     = dot(toRipple, float2(-dir.y, dir.x));
+                            
+                            // falloff that elongates behind the object, sharp ahead
+                            float  axialFalloff = exp(-max(along, 0.0) * 1.5) *  // weak ahead
+                                                  exp(-max(-along, 0.0) * 0.3) *  // long tail behind
+                                                  exp(-abs(perp) * 3.0)         *  // narrow band
+                                                  exp(-age * 2.0);
+                            
+                            // shear perpendicular to travel — grid lines "drag"
+                            displacement += dir * along * strength * axialFalloff * 0.3;
+                            displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
+                            break;
+                        }
+
                     }
                     
                 }
@@ -104,7 +110,13 @@ Shader "Unlit/Grid"
                 
                 float  onLine   = step(lineDist.x, _LineWidth) + 
                                   step(lineDist.y, _LineWidth);
+                
                 return lerp(_BgColor * tint, _GridColor, saturate(onLine)); //lerp as a binary check to avoid branching
+                
+                
+                //TODO: apply chromatic seperation vfx on the rippling grid lines on strong ripples
+                
+                
             }
             ENDHLSL
         }

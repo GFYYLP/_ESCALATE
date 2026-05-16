@@ -98,7 +98,7 @@ public abstract class PhysicsBody : MonoBehaviour
     public void Update()
     {
         Vector2 moveDir = new Vector2(prevPos.x - transform.position.x, prevPos.y - transform.position.y);
-        rippleManager.AddDirRipple(candidatePos, Speed * 0.5f, velocity);
+        rippleManager.AddDirRipple(candidatePos, Speed * 2.5f, velocity);
         
         if (Input.GetKey(KeyCode.S))
         {
