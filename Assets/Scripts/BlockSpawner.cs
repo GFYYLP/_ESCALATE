@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BlockSpawner : MonoBehaviour
 {
-    [SerializeField] private Player player;
+    [SerializeField] private PhysicsManager physicsManager;
     [SerializeField] private Block blockPrefab;
     [SerializeField] private List<Sprite> sprites;
     
@@ -16,8 +16,8 @@ public class BlockSpawner : MonoBehaviour
 
     void Start()
     {
-        player.onHighCollision += SpawnBlock;
-        DoSpawn(new Vector2(player.transform.position.x, -2.0f));
+        physicsManager.onHighCollision  += SpawnBlock;
+        DoSpawn(new Vector2(0f, -2.0f));
         isFirstSpawn = false;
         lastSpawnTime = Time.time; 
     }

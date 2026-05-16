@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,9 @@ public class PhysicsManager : MonoBehaviour
 {
     public static PhysicsManager Instance;
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
-
+    public event Action<Vector2> onHighCollision;
+    [SerializeField]  private float highCollideVal = 0.1f;
+    
     void Awake() => Instance = this;
 
     public void Register(PhysicsBody b)   => bodies.Add(b);
@@ -128,19 +131,18 @@ public class PhysicsManager : MonoBehaviour
         float aSpeed      = Vector2.Dot(a.velocity, normal);
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
+        
+        
+        //high collision handling
+        if (Mathf.Abs(impactSpeed) > highCollideVal)
+            onHighCollision?.Invoke(a.candidatePos);  //either a or b should work given collision proximity
 
+        
         // aSpeed - bSpeed > 0 means a and b moves in opposite directions
         // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
         if (impactSpeed >= 0f) return;
         
         if (!a.isKinematic) a.velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;   // push a away from b
         if (!b.isKinematic) b.velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare;   // push b away from a
-
-        a.OnImpact(Mathf.Abs(impactSpeed), b);
-        b.OnImpact(Mathf.Abs(impactSpeed), a);
-        
-        // Notify both sides
-        a.OnImpact(impactSpeed, b);
-        b.OnImpact(impactSpeed, a);
     }
 }

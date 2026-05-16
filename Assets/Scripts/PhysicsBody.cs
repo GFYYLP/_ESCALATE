@@ -11,9 +11,7 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool    isKinematic;  // true = immovable
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
-    [HideInInspector] public float   weight=0.01f;
-    
-    [SerializeField]  private float highCollideVal = 0.1f;
+    [HideInInspector] public float   weight=0.55f;
     
     public bool nearBlock;
     public Vector2 nearNormal; 
@@ -21,7 +19,6 @@ public abstract class PhysicsBody : MonoBehaviour
     protected RippleManager rippleManager;
     
     private BoxCollider2D collider;
-    public event Action<Vector2> onHighCollision;
     public Vector2 size;
 
     protected virtual void Awake()
@@ -58,14 +55,6 @@ public abstract class PhysicsBody : MonoBehaviour
         
     }
 
-    public void OnImpact(float impactSpeed, PhysicsBody other)
-    {
-        //velocity.y = 0;
-        
-        if (impactSpeed > highCollideVal)
-            onHighCollision?.Invoke(candidatePos);
-    }
-
     public void UpdateGroundState(List<PhysicsBody> bodies)
     {
         onGround = false;
@@ -98,12 +87,9 @@ public abstract class PhysicsBody : MonoBehaviour
     public void Update()
     {
         Vector2 moveDir = new Vector2(prevPos.x - transform.position.x, prevPos.y - transform.position.y);
-        rippleManager.AddDirRipple(candidatePos, Speed * 2.5f, velocity);
+        if (Speed > 5.0f) rippleManager.AddDirRipple(candidatePos, Speed * 2.5f, velocity);
         
-        if (Input.GetKey(KeyCode.S))
-        {
-            onHighCollision?.Invoke(candidatePos);
-        }
+
     }
     
     void WrapPosition()
