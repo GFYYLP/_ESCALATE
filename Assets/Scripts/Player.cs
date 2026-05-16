@@ -72,15 +72,6 @@ public class Player : PhysicsBody
             candidatePos = new Vector2(0f, 2.5f);
         }
     }
-
-    public override void UpdateProximity(float overlapX, float overlapY)
-    {
-        float proximity = (overlapX > overlapY)? Mathf.Abs(overlapX) : Mathf.Abs(overlapY);
-        float reflectCondition = (isDashing) ? 1f : 0f;
-        reflectVal = reflectCondition; //proximity * reflectSensitivity * ;
-        
-        reflectDir = new Vector2(-overlapX, overlapY).normalized;
-    }
     
 
     void UpdateTimers(float dt)
@@ -134,7 +125,7 @@ public class Player : PhysicsBody
          //isJumping = false;
         
         //apply dash vfx
-        rippleManager.AddPointRipple(candidatePos, Speed);
+        //rippleManager.AddPointRipple(candidatePos, Speed);
     }
     
 
@@ -207,7 +198,7 @@ public class Player : PhysicsBody
         isJumping         = true;
         
         //apply grid vfx
-        rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
+        //rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
     }
     
 

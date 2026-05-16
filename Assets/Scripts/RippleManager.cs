@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class RippleManager : MonoBehaviour
 {
+    public static RippleManager Instance;
+    
     [SerializeField] private Material gridMaterial;
     [SerializeField] private int      maxRipples = 16;
 
@@ -23,6 +25,9 @@ public class RippleManager : MonoBehaviour
 
     private List<Ripple> ripples = new List<Ripple>();
     private GraphicsBuffer    rippleBuffer;
+    
+    void Awake() => Instance = this;
+
 
     private void Start()
     {

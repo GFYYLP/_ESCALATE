@@ -6,11 +6,19 @@ using UnityEngine;
 public class PhysicsManager : MonoBehaviour
 {
     public static PhysicsManager Instance;
-    private List<PhysicsBody> bodies = new List<PhysicsBody>();
     public event Action<Vector2> onHighCollision;
-    [SerializeField]  private float highCollideVal = 0.1f;
     
-    void Awake() => Instance = this;
+    private RippleManager rippleManager;
+    private List<PhysicsBody> bodies = new List<PhysicsBody>();
+    [SerializeField] private float highCollideVal = 0.1f;
+
+    [SerializeField]
+
+    void Awake()
+    {
+        Instance = this;
+        rippleManager = GetComponent<RippleManager>();
+    }
 
     public void Register(PhysicsBody b)   => bodies.Add(b);
     public void Unregister(PhysicsBody b) => bodies.Remove(b);
@@ -56,6 +64,16 @@ public class PhysicsManager : MonoBehaviour
         //now destroy safely, OnDisable fires but list is already clean
         foreach (var b in toDestroy)
             Destroy(b.gameObject);
+    }
+
+
+    void Update()
+    {
+        //ripple manipulation
+        foreach (var b in bodies)
+        {
+            if (b.Speed > 5.0f) rippleManager.AddDirRipple(b.candidatePos, b.Speed * 2.5f, b.velocity);
+        }
     }
 
     bool AABBOverlap(PhysicsBody a, PhysicsBody b)

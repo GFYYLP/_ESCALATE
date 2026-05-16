@@ -16,7 +16,7 @@ public abstract class PhysicsBody : MonoBehaviour
     public bool nearBlock;
     public Vector2 nearNormal; 
     
-    protected RippleManager rippleManager;
+    
     
     private BoxCollider2D collider;
     public Vector2 size;
@@ -29,7 +29,7 @@ public abstract class PhysicsBody : MonoBehaviour
             collider.size.y * transform.localScale.y
         );
         
-        rippleManager = FindObjectOfType<RippleManager>();
+        //rippleManager = FindObjectOfType<RippleManager>();
     }
     
     public float     Speed => velocity.magnitude;
@@ -44,11 +44,6 @@ public abstract class PhysicsBody : MonoBehaviour
         PhysicsManager.Instance.Unregister(this);
     
     public abstract void UpdateVelocity(float dt);
-
-    public virtual void UpdateProximity(float overlapX, float overlapY)
-    {
-        
-    }
 
     public virtual void TryLatch(PhysicsBody collidedBody, bool isSide)
     {
@@ -87,7 +82,7 @@ public abstract class PhysicsBody : MonoBehaviour
     public void Update()
     {
         Vector2 moveDir = new Vector2(prevPos.x - transform.position.x, prevPos.y - transform.position.y);
-        if (Speed > 5.0f) rippleManager.AddDirRipple(candidatePos, Speed * 2.5f, velocity);
+        //if (Speed > 5.0f) rippleManager.AddDirRipple(candidatePos, Speed * 2.5f, velocity);
         
 
     }
