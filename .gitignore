@@ -8,6 +8,7 @@
 UserSettings/
 External/
 Build/
+TextMesh Pro/
 
 # ========== Memory Captures ==========
 MemoryCaptures/
@@ -59,3 +60,4 @@ Thumbs.db
 
 # ========== Addressables / Cache ==========
 ServerData/
+Assets/TextMesh Pro.meta

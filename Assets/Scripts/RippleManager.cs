@@ -43,7 +43,7 @@ public class RippleManager : MonoBehaviour
     {
         rippleBuffer = new GraphicsBuffer(
             GraphicsBuffer.Target.Structured,
-            16,
+            maxRipples,
             Marshal.SizeOf<Ripple>()
         );
     }
@@ -91,6 +91,6 @@ public class RippleManager : MonoBehaviour
     
     void OnDestroy()
     {
-        rippleBuffer?.Release();  //free gpu memory, independent of gc
+        rippleBuffer?.Release();  //free gpu memory, independent of GC
     }
 }
