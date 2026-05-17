@@ -7,17 +7,29 @@ public abstract class PhysicsBody : MonoBehaviour
 {
     [HideInInspector] public Vector2 candidatePos;
     [HideInInspector] public Vector2 velocity;
+    [HideInInspector] public Vector2 prevVelocity=Vector2.zero;
+    [HideInInspector] public float   accel;
     [HideInInspector] public bool    onGround;
     [HideInInspector] public bool    isKinematic;  // true = immovable
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
+    
     [HideInInspector] public float   weight=0.55f;
     
     public bool nearBlock;
-    public Vector2 nearNormal; 
-    
-    
-    
+    public Vector2 nearNormal;
+
+    public Vector2 Velocity
+    {
+        get => velocity;
+        set
+        {
+            //accel = value.magnitude - velocity.magnitude;
+            velocity = value;
+        } 
+    }
+
+
     private BoxCollider2D collider;
     public Vector2 size;
 

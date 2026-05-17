@@ -12,8 +12,6 @@ public class PhysicsManager : MonoBehaviour
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
     [SerializeField] private float highCollideVal = 0.1f;
 
-    [SerializeField]
-
     void Awake()
     {
         Instance = this;
@@ -50,6 +48,9 @@ public class PhysicsManager : MonoBehaviour
         foreach (var b in bodies)
         {
             b.UpdateGroundState(bodies);
+            b.accel = b.prevVelocity.magnitude - b.velocity.magnitude;
+            b.prevVelocity = b.velocity;
+            
             if (b.onGround && b.velocity.y < 0f) b.velocity.y = 0f;
             b.transform.position = b.candidatePos;
         }
@@ -72,7 +73,7 @@ public class PhysicsManager : MonoBehaviour
         //ripple manipulation
         foreach (var b in bodies)
         {
-            if (b.Speed > 5.0f) rippleManager.AddDirRipple(b.candidatePos, b.Speed * 2.5f, b.velocity);
+            rippleManager.RespondToBody(b);
         }
     }
 
@@ -160,7 +161,7 @@ public class PhysicsManager : MonoBehaviour
         // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
         if (impactSpeed >= 0f) return;
         
-        if (!a.isKinematic) a.velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;   // push a away from b
-        if (!b.isKinematic) b.velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare;   // push b away from a
+        if (!a.isKinematic) a.Velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;   // push a away from b
+        if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare;   // push b away from aa
     }
 }

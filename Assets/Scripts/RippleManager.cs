@@ -10,7 +10,9 @@ public class RippleManager : MonoBehaviour
     
     [SerializeField] private Material gridMaterial;
     [SerializeField] private int      maxRipples = 16;
-
+    [SerializeField] private float    directionTriggerVal = 0.5f;
+    [SerializeField] private float    pointTriggerVal = 0.5f;
+    
     [StructLayout(LayoutKind.Sequential)]
     private struct Ripple
     {
@@ -27,6 +29,14 @@ public class RippleManager : MonoBehaviour
     private GraphicsBuffer    rippleBuffer;
     
     void Awake() => Instance = this;
+
+
+    public void RespondToBody(PhysicsBody body)
+    {
+        if (body.Speed > directionTriggerVal) AddDirRipple(body.candidatePos, body.Speed * 2.5f, body.velocity);
+            
+        if (body.accel > pointTriggerVal) AddPointRipple(body.candidatePos, body.Speed*4.0f);  
+    }
 
 
     private void Start()
