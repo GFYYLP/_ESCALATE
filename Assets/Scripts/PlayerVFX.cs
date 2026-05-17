@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerVFX : MonoBehaviour
 {
     [SerializeField] private ParticleSystem dashVFX;
-    [SerializeField] private Player player;
+    [SerializeField] private PhysicsBody body;
 
     [SerializeField] private AfterImage afterImagePrefab;
     [SerializeField] private float spawnInterval = 0.05f;
@@ -24,29 +24,29 @@ public class PlayerVFX : MonoBehaviour
 
     void Update()
     {
-        float speed = player.Speed;
-        bool isDash = player.IsDashing;
-
-        if (speed > speedThreshold)
-        {
-            timer += Time.deltaTime;
-
-            if (timer >= spawnInterval)
-            {
-                SpawnAfterImage();
-                timer = 0f;
-            }
-        }
-        else
-        {
-            timer = 0f;
-        }
+        // float speed = body.Speed;
+        // //bool isDash = player.IsDashing;
+        //
+        // if (speed > speedThreshold)
+        // {
+        //     timer += Time.deltaTime;
+        //
+        //     if (timer >= spawnInterval)
+        //     {
+        //         SpawnAfterImage();
+        //         timer = 0f;
+        //     }
+        // }
+        // else
+        // {
+        //     timer = 0f;
+        // }
         
         
         //update tint on reflection value
-        playerSprite.color = new Color((!player.IsDashing)? tint.r : 0f, 
-                                      (!player.IsDashing)? tint.g : 0f, 
-                                      tint.b*(1f - player.ReflectVal), 1f);
+        // playerSprite.color = new Color((!player.IsDashing)? tint.r : 0f, 
+        //                               (!player.IsDashing)? tint.g : 0f, 
+        //                               tint.b*(1f - player.ReflectVal), 1f);
     }
 
     void SpawnAfterImage()

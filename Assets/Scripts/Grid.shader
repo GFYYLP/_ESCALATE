@@ -58,6 +58,7 @@ Shader "Unlit/Grid"
             {
                 float2 uv = i.worldPos;
                 float4 tint = float4(1.0, 1.0, 1.0, 1.0);
+                float4 scanlineColor = float4(0, 0, 0, 0);
 
                 //accumulate displacement from all ripples
                 float2 displacement = float2(0, 0);
@@ -96,43 +97,52 @@ Shader "Unlit/Grid"
                             displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
                             break;
                         }
-case 2:
-{
-    float2 toImpact     = uv - _Ripples[r].position;
-    float  proximity    = 1.0 - age;
-    
-    float  blockHalfWidth = 1.0;
-    float  inColumn     = step(abs(toImpact.x), blockHalfWidth);
-    float  spreadHeight = lerp(200.0, 10.0, proximity);
-    float  aboveImpact  = step(0.0, toImpact.y);
-    float  inSpread     = step(abs(toImpact.y), spreadHeight);
-    float  spreadT      = saturate(abs(toImpact.y) / max(spreadHeight, 0.001));
+                    case 2:
+                        {
+                            float2 toImpact     = uv - _Ripples[r].position;
+                            float  proximity    = 1.0 - age;
+                            
+                            float  blockHalfWidth = 1.0;
+                            float  inColumn     = step(abs(toImpact.x), blockHalfWidth);
+                            float  spreadHeight = lerp(200.0, 10.0, proximity);
+                            float  inSpread     = step(abs(toImpact.y), spreadHeight);
+                            float  spreadT      = saturate(abs(toImpact.y) / max(spreadHeight, 0.001));
 
-    // --- scanline width: pixel-scale, not grid-scale ---
-    float  lineWidth    = 0.04;                          // world units, tune to taste — should be thin
-    float  scanSpacing  = 0.05;                          // gap between lines, also sub-grid
-    
-    // which scanline index is this pixel on
-    float  scanIndex    = floor(uv.x / scanSpacing);
-    float  scanLocal    = fmod(abs(uv.x), scanSpacing);  // position within one scanline period
-    float  onScanline   = step(scanLocal, lineWidth);     // 1 if on a line, 0 if in gap
-    
-    // per-line color — same hash but now per thin-line index, not per grid column
-    float  scanHash     = frac(sin(scanIndex * 127.1) * 43758.5);
-    float3 scanColor;
-    scanColor.r = saturate(sin(scanHash * 6.283 + 0.0)   * 0.5 + 0.5);
-    scanColor.g = saturate(sin(scanHash * 6.283 + 2.094) * 0.5 + 0.5);
-    scanColor.b = saturate(sin(scanHash * 6.283 + 4.189) * 0.5 + 0.5);
+                            // --- scanline width: pixel-scale, not grid-scale ---
+                            float  lineWidth    = 0.04;                          // world units, tune to taste — should be thin
+                            float  scanSpacing  = 0.05;                          // gap between lines, also sub-grid
+                            
+                            // which scanline index is this pixel on
+                            float  scanIndex    = floor(uv.x / scanSpacing);
+                            float  scanLocal    = fmod(abs(uv.x), scanSpacing);  // position within one scanline period
+                            float  onScanline   = step(scanLocal, lineWidth);     // 1 if on a line, 0 if in gap
+                            
+                            // per-line color: same hash but now per thin-line index, not per grid column
+                            float  scanHash  = frac(sin(scanIndex * 127.1) * 43758.5);
+                            float  shuffled  = fmod(abs(floor(scanHash * 6.0) + scanIndex * 1.618), 6.0);
 
-    float  withinSilhouette = step(abs(toImpact.x), blockHalfWidth * proximity);
-    float  scanOpacity  = proximity * (1.0 - spreadT * 0.7) 
-                        * inSpread * inColumn * onScanline
-                        * lerp(1.0, withinSilhouette, proximity);
+                            float3 scanColor;
+                            if      (shuffled < 1.0) scanColor = float3(1.0, 0.0, 0.2);
+                            else if (shuffled < 2.0) scanColor = float3(1.0, 0.3, 0.0);
+                            else if (shuffled < 3.0) scanColor = float3(0.0, 1.0, 0.2);
+                            else if (shuffled < 4.0) scanColor = float3(0.0, 0.8, 1.0);
+                            else if (shuffled < 5.0) scanColor = float3(0.6, 0.0, 1.0);
+                            else                      scanColor = float3(1.0, 0.0, 0.8);
 
-    tint.rgb += scanColor*1.5 * scanOpacity * 2.0;
-    
-    break;
-}
+                            float  withinSilhouette = step(abs(toImpact.x), blockHalfWidth * proximity);
+                            float  scanOpacity  = proximity * (1.0 - spreadT * 0.7) 
+                                                * inSpread * inColumn * onScanline
+                                                * lerp(1.0, withinSilhouette, proximity);
+                                                    
+                            float  flicker  = frac(sin(scanIndex * 91.3 + floor(_Time.y * 24.0) * 127.1) * 43758.5);
+                            float  onOff    = step(0.35, flicker);   // ~65% of lines visible at any frame, different each frame
+
+                            scanOpacity *= onOff;
+
+                            scanlineColor = float4(scanColor * scanOpacity, 0.0);
+                            
+                            break;
+                        }
 
                     }
                     
@@ -168,7 +178,7 @@ case 2:
                 col.g = lerp(col.g, _GridColor.g, GRID_LINE(uvG));
                 col.b = lerp(col.b, _GridColor.b, GRID_LINE(uvB));
 
-                return col;
+                return col + scanlineColor;
                 
             }
             ENDHLSL

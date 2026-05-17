@@ -16,6 +16,16 @@ public abstract class PhysicsBody : MonoBehaviour
     
     [HideInInspector] public float   weight=0.55f;
     
+    //afterimage
+    [SerializeField] private AfterImage afterImagePrefab;
+    [SerializeField] private float imgSpawnInterval = 0.05f;
+    [SerializeField] private float imgLifetime = 0.3f;
+    [SerializeField] private float imgSpeedThreshold = 10f;
+    [SerializeField] private Color imgTint = new Color(1,1,1,0.8f);
+    private float imgTimer;
+    private SpriteRenderer bodySprite;
+    
+    //edge collision handling
     public bool nearBlock;
     public Vector2 nearNormal;
 
@@ -41,7 +51,7 @@ public abstract class PhysicsBody : MonoBehaviour
             collider.size.y * transform.localScale.y
         );
         
-        //rippleManager = FindObjectOfType<RippleManager>();
+        bodySprite = GetComponent<SpriteRenderer>();
     }
     
     public float     Speed => velocity.magnitude;
@@ -93,10 +103,34 @@ public abstract class PhysicsBody : MonoBehaviour
 
     public void Update()
     {
-        Vector2 moveDir = new Vector2(prevPos.x - transform.position.x, prevPos.y - transform.position.y);
-        //if (Speed > 5.0f) rippleManager.AddDirRipple(candidatePos, Speed * 2.5f, velocity);
-        
+        if (Speed > imgSpeedThreshold)
+        {
+            imgTimer += Time.deltaTime;
 
+            if (imgTimer >= imgSpawnInterval)
+            {
+                SpawnAfterImage();
+                imgTimer = 0f;
+            }
+        }
+        else
+        {
+            imgTimer = 0f;
+        }
+    }
+    
+    void SpawnAfterImage()
+    {
+        var img = Instantiate(afterImagePrefab);
+
+        img.Init(
+            bodySprite.sprite,
+            new Vector3(transform.position.x, transform.position.y, transform.position.z - 1f),
+            transform.rotation,
+            transform.localScale,
+            imgTint,
+            imgLifetime
+        );
     }
     
     void WrapPosition()
