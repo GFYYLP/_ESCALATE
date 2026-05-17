@@ -18,6 +18,11 @@ public class PhysicsManager : MonoBehaviour
         rippleManager = GetComponent<RippleManager>();
     }
 
+    void Start()
+    {
+        onHighCollision += rippleManager.AddScanlineRipple;
+    }
+
     public void Register(PhysicsBody b)   => bodies.Add(b);
     public void Unregister(PhysicsBody b) => bodies.Remove(b);
 

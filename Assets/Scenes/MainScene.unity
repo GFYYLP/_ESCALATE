@@ -182,6 +182,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridMaterial: {fileID: 2100000, guid: 3ff59146e8e829f4f90d1fa82ffaf599, type: 2}
   maxRipples: 16
+  directionTriggerVal: 0.5
+  pointTriggerVal: 0.5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,6 +437,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   candidatePos: {x: 0, y: 0}
   velocity: {x: 0, y: 0}
+  prevVelocity: {x: 0, y: 0}
+  accel: 0
   onGround: 0
   isKinematic: 0
   pendingDestroy: 0
@@ -550,7 +554,7 @@ Transform:
   m_GameObject: {fileID: 1305470832}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.32, y: 5.11, z: -0.021928305}
+  m_LocalPosition: {x: -0.15, y: 7.24, z: -0.021928305}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

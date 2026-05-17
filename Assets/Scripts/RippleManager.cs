@@ -51,13 +51,19 @@ public class RippleManager : MonoBehaviour
     public void AddPointRipple(Vector2 pos, float strength)
     {
         if (ripples.Count >= maxRipples) return;
-        ripples.Add(new Ripple { position = pos, dir = new Vector2(), strength = strength, age = 0f, type = 0 });
+        //ripples.Add(new Ripple { position = pos, dir = new Vector2(), strength = strength, age = 0f, type = 0 });
     }
     
     public void AddDirRipple(Vector2 pos, float strength, Vector2 dir)
     {
         if (ripples.Count >= maxRipples) return;
         ripples.Add(new Ripple { position = pos, dir = dir, strength = strength, age = 0f, type = 1 });
+    }
+    
+    public void AddScanlineRipple(Vector2 pos)
+    {
+        if (ripples.Count >= maxRipples) return;
+        ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 0f, age = 0f, type = 2 });
     }
     
 
@@ -67,7 +73,10 @@ public class RippleManager : MonoBehaviour
         for (int i = ripples.Count - 1; i >= 0; i--)
         {
             var r = ripples[i];
+            
+            //if (r.type == 2) r.age += Time.deltaTime * 0.1f;
             r.age += Time.deltaTime;
+            
             if (r.age > 2f)  // ripple lifetime
                 ripples.RemoveAt(i); //safe removal with reverse iterating 
             else

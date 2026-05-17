@@ -77,7 +77,7 @@ Shader "Unlit/Grid"
                         {
                             displacement   += normalize(toRipple) * strength * falloff;
                             
-                            tint.xyz *= 2.0;
+                            //tint.xyz *= 2.0;
                             break;
                         }
                     case 1: //directional ripple (follow along high-velocity objects)
@@ -96,59 +96,42 @@ Shader "Unlit/Grid"
                             displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
                             break;
                         }
-                        case 2: // inversion artifact — falling block warning
-                        {
-                            float2 toImpact = uv - _Ripples[r].position;
-                            
-                            // --- core: which pixel columns are "infected" ---
-                            // age drives spread radius outward from impact X
-                            // strength encodes how far the block still is (CPU sets 1.0 = just spawned, 0.0 = arrived)
-                            float  spreadWidth  = (1.0 - strength) * 12.0 * _GridSpacing; // widens as block descends
-                            float  inSpread     = step(abs(toImpact.x), spreadWidth);
-                            
-                            // column identity for chessboard / inversion pattern
-                            float  colIndex     = floor(uv.x / _GridSpacing);
-                            float  rowIndex     = floor(uv.y / _GridSpacing);
-                            
-                            // --- chessboard inversion: alternating cells flip color channels ---
-                            float  chess        = fmod(abs(colIndex + rowIndex), 2.0); // 0 or 1, alternating
-                            
-                            // inversion strength fades with distance from impact X, and with age jitter
-                            float  distFalloff  = exp(-abs(toImpact.x) / max(spreadWidth, 0.001));
-                            float  invStrength  = inSpread * distFalloff * exp(-age * 0.4); // slow decay — it lingers
-                            
-                            // --- voltage inversion: UV rows get flipped within their cell ---
-                            // this is the actual LCD artifact — pixel rows read inverted charge
-                            float  cellY        = fmod(abs(uv.y), _GridSpacing);
-                            float  invertedCellY = _GridSpacing - cellY;
-                            float  corruptY     = lerp(cellY, invertedCellY, chess * invStrength);
-                            
-                            // reconstruct displaced UV — only Y rows invert, X stays (inversion is row-based)
-                            float  baseY        = floor(abs(uv.y) / _GridSpacing) * _GridSpacing;
-                            displacement.y     += (corruptY - cellY) * inSpread * distFalloff;
-                            
-                            // --- scanline: the leading edge column tears hardest ---
-                            // sharp vertical line at the current spread boundary
-                            float  edgeDist     = abs(abs(toImpact.x) - spreadWidth);
-                            float  edgeLine     = exp(-edgeDist * 8.0 / _GridSpacing);       // tight falloff at boundary
-                            displacement.x     += edgeLine * invStrength * _GridSpacing * 0.6; // columns shear at the tear
-                            
-                            // --- chromatic: purple/green cast on inverted cells ---
-                            // encode into tint — handled separately in the chromatic pass below
-                            // store invStrength * chess into a signal the color pass can read
-                            // since we can't return two values, bake it into tint here
-                            float  greenBias    = chess * invStrength * inSpread;
-                            float  purpleBias   = (1.0 - chess) * invStrength * inSpread;
-                            
-                            tint.r += purpleBias * 0.6;
-                            tint.g += greenBias  * 0.5;
-                            tint.b += purpleBias * 0.6;
-                            
-                            // --- proximity flash: as block approaches (strength -> 0), edge brightens ---
-                            float  proximityPulse = (1.0 - strength) * edgeLine * 1.5;
-                            tint.xyz             += proximityPulse;
-                            
-                            break;
+case 2:
+{
+    float2 toImpact     = uv - _Ripples[r].position;
+    float  proximity    = 1.0 - age;
+    
+    float  blockHalfWidth = 1.0;
+    float  inColumn     = step(abs(toImpact.x), blockHalfWidth);
+    float  spreadHeight = lerp(200.0, 10.0, proximity);
+    float  aboveImpact  = step(0.0, toImpact.y);
+    float  inSpread     = step(abs(toImpact.y), spreadHeight);
+    float  spreadT      = saturate(abs(toImpact.y) / max(spreadHeight, 0.001));
+
+    // --- scanline width: pixel-scale, not grid-scale ---
+    float  lineWidth    = 0.04;                          // world units, tune to taste — should be thin
+    float  scanSpacing  = 0.05;                          // gap between lines, also sub-grid
+    
+    // which scanline index is this pixel on
+    float  scanIndex    = floor(uv.x / scanSpacing);
+    float  scanLocal    = fmod(abs(uv.x), scanSpacing);  // position within one scanline period
+    float  onScanline   = step(scanLocal, lineWidth);     // 1 if on a line, 0 if in gap
+    
+    // per-line color — same hash but now per thin-line index, not per grid column
+    float  scanHash     = frac(sin(scanIndex * 127.1) * 43758.5);
+    float3 scanColor;
+    scanColor.r = saturate(sin(scanHash * 6.283 + 0.0)   * 0.5 + 0.5);
+    scanColor.g = saturate(sin(scanHash * 6.283 + 2.094) * 0.5 + 0.5);
+    scanColor.b = saturate(sin(scanHash * 6.283 + 4.189) * 0.5 + 0.5);
+
+    float  withinSilhouette = step(abs(toImpact.x), blockHalfWidth * proximity);
+    float  scanOpacity  = proximity * (1.0 - spreadT * 0.7) 
+                        * inSpread * inColumn * onScanline
+                        * lerp(1.0, withinSilhouette, proximity);
+
+    tint.rgb += scanColor*1.5 * scanOpacity * 2.0;
+    
+    break;
 }
 
                     }
@@ -158,34 +141,34 @@ Shader "Unlit/Grid"
                 //displace grid sampling position
                 float2 gridUV = uv + displacement;
 
-// after accumulating displacement:
-float  dispMag    = length(displacement);
-float2 dispDir    = dispMag > 0.001 ? displacement / dispMag : float2(0, 0);
+                // after accumulating displacement:
+                float  dispMag    = length(displacement);
+                float2 dispDir    = dispMag > 0.001 ? displacement / dispMag : float2(0, 0);
 
-// aberration follows displacement direction, not perpendicular to it
-float  aberrStr   = smoothstep(0.08, 0.5, dispMag) * 0.05;
+                // aberration follows displacement direction, not perpendicular to it
+                float  aberrStr   = smoothstep(0.08, 0.5, dispMag) * 0.05;
 
-// stronger separation on the dominant axis
-float2 aberrVec   = dispDir * aberrStr;
-// extra: vertical hits get stronger vertical chromatic sep
-aberrVec.y       *= 1.5;
+                // stronger separation on the dominant axis
+                float2 aberrVec   = dispDir * aberrStr;
+                // extra: vertical hits get stronger vertical chromatic sep
+                aberrVec.y       *= 1.5;
 
-float2 uvR = gridUV + aberrVec;
-float2 uvG = gridUV;
-float2 uvB = gridUV - aberrVec;
+                float2 uvR = gridUV + aberrVec;
+                float2 uvG = gridUV;
+                float2 uvB = gridUV - aberrVec;
 
-#define GRID_LINE(guv) saturate( \
-    step(min(fmod(abs(guv), _GridSpacing), \
-             _GridSpacing - fmod(abs(guv), _GridSpacing)).x, _LineWidth) + \
-    step(min(fmod(abs(guv), _GridSpacing), \
-             _GridSpacing - fmod(abs(guv), _GridSpacing)).y, _LineWidth))
+                #define GRID_LINE(guv) saturate( \
+                    step(min(fmod(abs(guv), _GridSpacing), \
+                             _GridSpacing - fmod(abs(guv), _GridSpacing)).x, _LineWidth) + \
+                    step(min(fmod(abs(guv), _GridSpacing), \
+                             _GridSpacing - fmod(abs(guv), _GridSpacing)).y, _LineWidth))
 
-float4 col = _BgColor * tint;
-col.r = lerp(col.r, _GridColor.r, GRID_LINE(uvR));
-col.g = lerp(col.g, _GridColor.g, GRID_LINE(uvG));
-col.b = lerp(col.b, _GridColor.b, GRID_LINE(uvB));
+                float4 col = _BgColor * tint;
+                col.r = lerp(col.r, _GridColor.r, GRID_LINE(uvR));
+                col.g = lerp(col.g, _GridColor.g, GRID_LINE(uvG));
+                col.b = lerp(col.b, _GridColor.b, GRID_LINE(uvB));
 
-return col;
+                return col;
                 
             }
             ENDHLSL
