@@ -10,8 +10,10 @@ public class PhysicsManager : MonoBehaviour
     
     private RippleManager rippleManager;
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
-    [SerializeField] private float highCollideVal = 0.1f;
-
+    [SerializeField] public float highCollideVal = 0.1f;
+    
+    public float highestImpactSpeed = 0.1f;
+    
     void Awake()
     {
         Instance = this;
@@ -124,9 +126,6 @@ public class PhysicsManager : MonoBehaviour
 
     void ResolveOverlap(PhysicsBody a, PhysicsBody b)
     {
-        if (a.isKinematic && b is Block) return;
-        if (b.isKinematic && a is Block) return ;
-        
         Vector2 delta    = a.candidatePos - b.candidatePos;
         float overlapX   = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY   = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
@@ -152,15 +151,20 @@ public class PhysicsManager : MonoBehaviour
 
         float aShare = a.isKinematic ? 0f : 1f / totalInvMass;
         float bShare = b.isKinematic ? 0f : 1f / totalInvMass;
-
-        //position correction for immediate geometric fix
-        a.candidatePos += normal *  penetration * aShare;
-        b.candidatePos -= normal *  penetration * bShare;
+        
 
         // Velocity exchange along normal
         float aSpeed      = Vector2.Dot(a.velocity, normal);
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
+        if (impactSpeed > highestImpactSpeed) highestImpactSpeed = impactSpeed;
+        
+        if (a.isKinematic && b is Block) return;
+        if (b.isKinematic && a is Block) return;
+        
+        //position correction for immediate geometric fix
+        a.candidatePos += normal *  penetration * aShare;
+        b.candidatePos -= normal *  penetration * bShare;
         
         
         //high collision handling

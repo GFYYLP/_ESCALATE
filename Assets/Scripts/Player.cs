@@ -30,6 +30,7 @@ public class Player : PhysicsBody
     [SerializeField] private float dashDuration = 0.25f;
     [SerializeField] private float dashEndHCap  = 20f;
     [SerializeField] private float reflectSensitivity    = 0.3f;
+    [SerializeField] private float warpChargeCap = 20f;
     
     //restitution response
     
@@ -37,6 +38,7 @@ public class Player : PhysicsBody
     //state 
     private bool  isDashing;
     private bool  dashUsed;
+    private float warpCharge;
     private bool  isJumping;
     private float dashTimer;
     private float coyoteTimer;
@@ -70,6 +72,7 @@ public class Player : PhysicsBody
         UpdateTimers(dt);
         TryDash();
         TryReflect();
+        TryWarp();
         
         ApplyHorizontal(dt);
         ApplyVertical(dt);
@@ -87,7 +90,6 @@ public class Player : PhysicsBody
             candidatePos = new Vector2(0f, 1.5f);
         }
         
-        TryWarp();
     }
 
     public void LateUpdate()
@@ -212,7 +214,9 @@ public class Player : PhysicsBody
     private int teleportCharges = 3;
     void TryWarp()
     {
-        if (!Input.GetKeyDown(KeyCode.C)) return;
+        warpCharge += Speed;
+        
+        if (!Input.GetKeyDown(KeyCode.C) || warpCharge < warpChargeCap) return;
 
         Vector2 target = candidatePos + dirVal * 5f;
         
@@ -221,6 +225,8 @@ public class Player : PhysicsBody
         preWarpPos = candidatePos;
         candidatePos       = safePos;
         teleportCharges--;
+
+        warpCharge = 0f;
     }
     
 
