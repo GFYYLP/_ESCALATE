@@ -5,8 +5,9 @@ using UnityEngine;
 public class PlayerVFX : MonoBehaviour
 {
     [SerializeField] private ParticleSystem dashVFX;
-    [SerializeField] private PhysicsBody body;
-
+    [SerializeField] private Player player;
+    private TrailRenderer trail;
+    
     [SerializeField] private AfterImage afterImagePrefab;
     [SerializeField] private float spawnInterval = 0.05f;
     [SerializeField] private float lifetime = 0.3f;
@@ -20,10 +21,20 @@ public class PlayerVFX : MonoBehaviour
     void Awake()
     {
         playerSprite = GetComponent<SpriteRenderer>();
+        trail  = GetComponent<TrailRenderer>();
     }
 
     void Update()
     {
+        if (player.PreWarpPos != Vector2.zero)
+        {
+            trail.emitting = true;
+        }
+        else
+        {
+            trail.emitting = false;
+        }
+        
         // float speed = body.Speed;
         // //bool isDash = player.IsDashing;
         //

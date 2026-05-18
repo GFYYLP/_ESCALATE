@@ -44,6 +44,8 @@ public class Player : PhysicsBody
     private float reflectVal=0f;
     private Vector2 reflectDir = default;
     private float lastDir = 1f;
+    private Vector2 dirVal = default;
+    private Vector2 preWarpPos = default;
 
     public override void UpdateVelocity(float dt)
     {
@@ -51,11 +53,24 @@ public class Player : PhysicsBody
             + ((isDashing) ? 0.7f : 0f);
         reflectVal = reflectCondition;
         
-        
+        // Read 8-directional input from arrow keys or WASD
+        float x = 0f, y = 0f;
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) x += 1f;
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))  x -= 1f;
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))    y += 1f;
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))  y -= 1f;
+
+        // Default to last horizontal direction if no input
+        if (x == 0f && y == 0f)
+            x = lastDir;
+
+        dirVal = new Vector2(x, y).normalized;
+        dirVal.y   *= 0.75f;
         
         UpdateTimers(dt);
         TryDash();
         TryReflect();
+        
         ApplyHorizontal(dt);
         ApplyVertical(dt);
         
@@ -71,8 +86,15 @@ public class Player : PhysicsBody
             velocity = new Vector2();
             candidatePos = new Vector2(0f, 1.5f);
         }
+        
+        TryWarp();
     }
-    
+
+    public void LateUpdate()
+    {
+        preWarpPos = default; //reset warping state;
+    }
+
 
     void UpdateTimers(float dt)
     {
@@ -102,22 +124,8 @@ public class Player : PhysicsBody
     {
         if (!Input.GetKeyDown(KeyCode.X) || isDashing || dashUsed) return;
 
-        // Read 8-directional input from arrow keys or WASD
-        float x = 0f, y = 0f;
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) x += 1f;
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))  x -= 1f;
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))    y += 1f;
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))  y -= 1f;
 
-        // Default to last horizontal direction if no input
-        if (x == 0f && y == 0f)
-            x = lastDir;
-
-        Vector2 dir = new Vector2(x, y).normalized;
-
-        // Skew diagonal to favour horizontal
-        dir.y   *= 0.75f;
-        velocity = dir.normalized * dashSpeed;
+        velocity = dirVal.normalized * dashSpeed;
 
         isDashing = true;
         dashUsed  = true;
@@ -200,6 +208,22 @@ public class Player : PhysicsBody
         //apply grid vfx
         //rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
     }
+
+    private int teleportCharges = 3;
+    void TryWarp()
+    {
+        if (!Input.GetKeyDown(KeyCode.C)) return;
+
+        Vector2 target = candidatePos + dirVal * 5f;
+        
+        Vector2 safePos = target;
+
+        preWarpPos = candidatePos;
+        candidatePos       = safePos;
+        teleportCharges--;
+    }
+    
+
     
 
     void ApplyVertical(float dt)
@@ -238,4 +262,5 @@ public class Player : PhysicsBody
     // Public data
     public bool IsDashing => isDashing;
     public float ReflectVal => reflectVal;
+    public Vector2 PreWarpPos => preWarpPos;
 }
