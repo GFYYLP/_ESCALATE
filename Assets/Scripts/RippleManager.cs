@@ -12,6 +12,7 @@ public class RippleManager : MonoBehaviour
     [SerializeField] private int      maxRipples = 16;
     [SerializeField] private float    directionTriggerVal = 0.5f;
     [SerializeField] private float    pointTriggerVal = 0.5f;
+    [SerializeField] private float  rippleCooldown;
     
     [StructLayout(LayoutKind.Sequential)]
     private struct Ripple
@@ -33,11 +34,17 @@ public class RippleManager : MonoBehaviour
 
     public void RespondToBody(PhysicsBody body)
     {
-        if (body.Speed > directionTriggerVal) AddDirRipple(body.candidatePos, body.Speed * 2.5f, body.velocity);
-            
-        if (body.accel > pointTriggerVal) AddPointRipple(body.candidatePos, body.Speed*4.0f);  
-    }
+        rippleCooldown -= Time.deltaTime;
+        if (rippleCooldown > 0f) return;
 
+        if (body.Speed > directionTriggerVal)
+        {
+            AddDirRipple(body.candidatePos, body.Speed * 2.5f, body.velocity);
+            rippleCooldown = 0.2f; // tune this
+        }
+        if (body.accel > pointTriggerVal)
+            AddPointRipple(body.candidatePos, body.Speed * 4.0f);
+    }
 
     private void Start()
     {
@@ -50,24 +57,27 @@ public class RippleManager : MonoBehaviour
 
     public void AddPointRipple(Vector2 pos, float strength)
     {
-        if (ripples.Count >= maxRipples) return;
-        //ripples.Add(new Ripple { position = pos, dir = new Vector2(), strength = strength, age = 0f, type = 0 });
+        if (ripples.Count >= maxRipples)
+            ripples.RemoveAt(0); // oldest is always at index 0
+        ripples.Add(new Ripple { position = pos, dir = new Vector2(), strength = strength, age = 0f, type = 0 });
     }
     
     public void AddDirRipple(Vector2 pos, float strength, Vector2 dir)
     {
-        if (ripples.Count >= maxRipples) return;
+        if (ripples.Count >= maxRipples)
+            ripples.RemoveAt(0); // oldest is always at index 0
         ripples.Add(new Ripple { position = pos, dir = dir, strength = strength, age = 0f, type = 1 });
     }
     
     public void AddScanlineRipple(Vector2 pos)
     {
-        if (ripples.Count >= maxRipples) return;
+        if (ripples.Count >= maxRipples)
+            ripples.RemoveAt(0); // oldest is always at index 0
         ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 0f, age = 0f, type = 2 });
     }
     
 
-    void Update()
+    void LateUpdate()
     {
         //age and cull ripples
         for (int i = ripples.Count - 1; i >= 0; i--)

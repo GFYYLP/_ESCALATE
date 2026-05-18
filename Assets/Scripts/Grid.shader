@@ -77,14 +77,12 @@ Shader "Unlit/Grid"
                     case 0: //point ripple (on objects abrupt speedup)
                         {
                             displacement   += normalize(toRipple) * strength * falloff;
-                            
-                            //tint.xyz *= 2.0;
                             break;
                         }
                     case 1: //directional ripple (follow along high-velocity objects)
                         {
                             float  along    = dot(toRipple, dir);         // signed projection onto travel axis
-                            float  perp     = dot(toRipple, float2(-dir.y, dir.x));
+                            float  perp     = dot(toRipple, float2(-dir.y, dir.x));  //perpendicular distance from axis
                             
                             // falloff that elongates behind the object, sharp ahead
                             float  axialFalloff = exp(-max(along, 0.0) * 1.5) *  // weak ahead
@@ -92,25 +90,27 @@ Shader "Unlit/Grid"
                                                   exp(-abs(perp) * 3.0)         *  // narrow band
                                                   exp(-age * 2.0);
                             
-                            // shear perpendicular to travel — grid lines "drag"
+                            // shear perpendicular to travel, dragging grid lines
                             displacement += dir * along * strength * axialFalloff * 0.3;
+                            
+                            //apply some perpendicular displacement too
+                            //we multiply by perp here to get a stronger effect further from the center, which emphasizes the shearing
                             displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
                             break;
                         }
-                    case 2:
+                    case 2:  //scanline ripple
                         {
                             float2 toImpact     = uv - _Ripples[r].position;
                             float  proximity    = 1.0 - age;
                             
                             float  blockHalfWidth = 1.0;
+                            float  lineWidth    = 0.04;  
+                            float  scanSpacing  = 0.05; 
+                            
                             float  inColumn     = step(abs(toImpact.x), blockHalfWidth);
                             float  spreadHeight = lerp(200.0, 10.0, proximity);
                             float  inSpread     = step(abs(toImpact.y), spreadHeight);
-                            float  spreadT      = saturate(abs(toImpact.y) / max(spreadHeight, 0.001));
-
-                            // --- scanline width: pixel-scale, not grid-scale ---
-                            float  lineWidth    = 0.04;                          // world units, tune to taste — should be thin
-                            float  scanSpacing  = 0.05;                          // gap between lines, also sub-grid
+                            float  spreadT      = saturate(abs(toImpact.y) / max(spreadHeight, 0.001));  // 0 at center, 1 at edge of spread
                             
                             // which scanline index is this pixel on
                             float  scanIndex    = floor(uv.x / scanSpacing);

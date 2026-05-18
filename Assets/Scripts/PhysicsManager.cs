@@ -21,6 +21,7 @@ public class PhysicsManager : MonoBehaviour
     void Start()
     {
         onHighCollision += rippleManager.AddScanlineRipple;
+        onHighCollision += HandleHit;
     }
 
     public void Register(PhysicsBody b)   => bodies.Add(b);
@@ -91,7 +92,7 @@ public class PhysicsManager : MonoBehaviour
         float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
 
-        // Proximity window — within 5 pixels (0.3 units at your scale)
+        // Proximity window: within 5 pixels (0.3 units at your scale)
         float proximityThreshold = 0.3f;
         if (overlapX > -proximityThreshold && overlapY > -proximityThreshold)
         {
@@ -176,5 +177,19 @@ public class PhysicsManager : MonoBehaviour
 
         if (!a.isKinematic) a.Velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;  // push a away from b
         if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare * verticalDamp;  // push b away from a
+    }
+    
+    void HandleHit(Vector2 param = new Vector2())
+    {
+        StartCoroutine(HitStop(0.1f));
+    }
+    
+    IEnumerator HitStop(float duration)
+    {
+        Time.timeScale = 0f;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        Time.timeScale = 1f;
     }
 }
