@@ -63,8 +63,8 @@ MonoBehaviour:
   nearBlock: 0
   nearNormal: {x: 0, y: 0}
   size: {x: 0, y: 0}
-  gravity: 4.81
-  maxFallSpeed: 8.93
+  gravity: 0.36
+  maxFallSpeed: 7.38
   sr: {fileID: 7140879497347678013}
 --- !u!212 &7140879497347678013
 SpriteRenderer:

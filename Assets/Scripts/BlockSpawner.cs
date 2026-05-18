@@ -17,7 +17,7 @@ public class BlockSpawner : MonoBehaviour
     void Start()
     {
         physicsManager.onHighCollision  += SpawnBlock;
-        DoSpawn(new Vector2(0f, -2.0f));
+        DoSpawn(new Vector2(0f, -5.0f));
         isFirstSpawn = false;
         lastSpawnTime = Time.time; 
     }
@@ -48,6 +48,14 @@ public class BlockSpawner : MonoBehaviour
         block.sr.sprite = sprites[0];
         block.name = "Block [" + spawnCounter + "]";
         block.isKinematic = isFirstSpawn;
+
+        if (isFirstSpawn)
+        {
+            float scale = 5f;
+
+            block.transform.localScale = new Vector3(scale, scale, scale);
+            
+        }
     }
 
     void Update()

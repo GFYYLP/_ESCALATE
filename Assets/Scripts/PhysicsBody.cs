@@ -46,10 +46,10 @@ public abstract class PhysicsBody : MonoBehaviour
     protected virtual void Awake()
     {
         collider    = GetComponent<BoxCollider2D>();
-        size  = new Vector2(
-            collider.size.x * transform.localScale.x,
-            collider.size.y * transform.localScale.y
-        );
+        // size  = new Vector2(
+        //     collider.size.x * transform.localScale.x,
+        //     collider.size.y * transform.localScale.y
+        // );
         
         bodySprite = GetComponent<SpriteRenderer>();
     }
@@ -80,7 +80,8 @@ public abstract class PhysicsBody : MonoBehaviour
 
         foreach (var other in bodies)
         {
-            if (other == this) continue;
+            if (other == this || (this is Block && other.isKinematic)
+                              || (other is Block && this.isKinematic)) continue;
             Vector2 delta    = feetPos - other.candidatePos;
             float overlapX   = (size.x + other.size.x) * 0.5f - Mathf.Abs(delta.x);
             float overlapY   = (size.y + other.size.y) * 0.5f - Mathf.Abs(delta.y);
@@ -103,6 +104,12 @@ public abstract class PhysicsBody : MonoBehaviour
 
     public void Update()
     {
+        
+        size = new Vector2(
+            collider.size.x * transform.lossyScale.x,
+            collider.size.y * transform.lossyScale.y
+        );
+        
         if (Speed > imgSpeedThreshold)
         {
             imgTimer += Time.deltaTime;

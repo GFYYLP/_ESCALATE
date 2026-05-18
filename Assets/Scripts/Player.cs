@@ -69,7 +69,7 @@ public class Player : PhysicsBody
         if (Input.GetKey(KeyCode.R))
         {
             velocity = new Vector2();
-            candidatePos = new Vector2(0f, 2.5f);
+            candidatePos = new Vector2(0f, 1.5f);
         }
     }
     

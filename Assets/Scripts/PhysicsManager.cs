@@ -84,6 +84,9 @@ public class PhysicsManager : MonoBehaviour
 
     bool AABBOverlap(PhysicsBody a, PhysicsBody b)
     {
+        if (a.isKinematic && b is Block) return false;
+        if (b.isKinematic && a is Block) return false;
+        
         Vector2 delta  = a.candidatePos - b.candidatePos;
         float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
@@ -108,19 +111,21 @@ public class PhysicsManager : MonoBehaviour
         bool result = overlapX > 0f && overlapY > 0f;
         
         //check if either PhysicsBodies is Player
-        if (result == true)
-        {
-            bool  isSide   = overlapX < overlapY;
-            if (a is Player) a.TryLatch(b, isSide);
-            else if (b is Player) b.TryLatch(a, isSide);
-        }
-
-
+        // if (result)
+        // {
+        //     bool  isSide   = overlapX < overlapY;
+        //     if (a is Player) a.TryLatch(b, isSide);
+        //     else if (b is Player) b.TryLatch(a, isSide);
+        // }
+        
         return result;
     }
 
     void ResolveOverlap(PhysicsBody a, PhysicsBody b)
     {
+        if (a.isKinematic && b is Block) return;
+        if (b.isKinematic && a is Block) return ;
+        
         Vector2 delta    = a.candidatePos - b.candidatePos;
         float overlapX   = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY   = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
@@ -166,7 +171,10 @@ public class PhysicsManager : MonoBehaviour
         // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
         if (impactSpeed >= 0f) return;
         
-        if (!a.isKinematic) a.Velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;   // push a away from b
-        if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare;   // push b away from aa
+        // Scale vertical impulse transfer down significantly
+        float verticalDamp = Mathf.Abs(normal.y) > 0.5f ? 0.2f : 1f;
+
+        if (!a.isKinematic) a.Velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;  // push a away from b
+        if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare * verticalDamp;  // push b away from a
     }
 }
