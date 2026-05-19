@@ -38,6 +38,8 @@ public class Player : PhysicsBody
     //state 
     private bool  isDashing;
     private bool  dashUsed;
+    private bool canWarp;
+    private bool canReflect;
     private float warpCharge;
     private bool  isJumping;
     private float dashTimer;
@@ -195,8 +197,11 @@ public class Player : PhysicsBody
     
     void TryReflect()
     {
+        canReflect = false; 
         //reflect trigger conditions
         if (!nearBlock || !isDashing) return;
+        canReflect = true;
+        
         if (!Input.GetKeyDown(KeyCode.Z)) return;
 
         // Reflect dash velocity off the contact normal
@@ -210,8 +215,7 @@ public class Player : PhysicsBody
         //apply grid vfx
         //rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
     }
-
-    private int teleportCharges = 3;
+    
     void TryWarp()
     {
         warpCharge += Speed;
@@ -224,7 +228,6 @@ public class Player : PhysicsBody
 
         preWarpPos = candidatePos;
         candidatePos       = safePos;
-        teleportCharges--;
 
         warpCharge = 0f;
     }
@@ -269,4 +272,11 @@ public class Player : PhysicsBody
     public bool IsDashing => isDashing;
     public float ReflectVal => reflectVal;
     public Vector2 PreWarpPos => preWarpPos;
+    
+    public bool DashUsed  => dashUsed;
+    public bool CanReflect => canReflect;
+    public bool CanWarp(){
+        if (warpCharge < warpChargeCap) return false;
+        return true;
+    }
 }

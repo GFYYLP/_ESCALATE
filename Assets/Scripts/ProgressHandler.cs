@@ -7,23 +7,45 @@ public class ProgressBar : MonoBehaviour
 {
     [SerializeField] private TMP_Text percentText;
     [SerializeField] private GameObject progressBar;
+    private Vector3 originalScale;
+    private Vector3 originalPosition;
+    
     private PhysicsManager physicsManager;
+    private Player player;
     
     void Awake()
     {
         physicsManager = FindObjectOfType<PhysicsManager>();
+        player = FindObjectOfType<Player>();
+    }
+    
+    private void Start()
+    {
+        originalScale = progressBar.transform.localScale;
+        originalPosition = progressBar.transform.localPosition;
     }
 
     // Update is called once per frame
     void Update()
     {
-        int percent = Mathf.RoundToInt((physicsManager.highestImpactSpeed / physicsManager.highCollideVal) * 100f);
+        int percent = Mathf.RoundToInt((player.Speed / physicsManager.highCollideVal) * 100f);
         percentText.text = percent.ToString() + "% complete";
         
+        float scaledWidth = originalScale.x * percent;
+
         progressBar.transform.localScale =
-            new Vector3(percent, 1f, 1f);
+            new Vector3(
+                scaledWidth,
+                originalScale.y,
+                originalScale.z
+            );
 
         progressBar.transform.localPosition =
-            new Vector3(-(transform.localScale.x - transform.localScale.x * percent) * 0.5f, 0f, 0f);
+            new Vector3(
+                originalPosition.x
+                - (originalScale.x - scaledWidth) * 0.5f,
+                originalPosition.y,
+                originalPosition.z
+            );
     }
 }

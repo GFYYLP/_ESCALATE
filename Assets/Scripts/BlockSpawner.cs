@@ -40,7 +40,7 @@ public class BlockSpawner : MonoBehaviour
         
         var block = Instantiate(
             blockPrefab,
-            new Vector3(pos.x, isFirstSpawn ? pos.y : transform.position.y, 0f),
+            new Vector3(pos.x, isFirstSpawn ? pos.y : transform.position.y, 105f),
             Quaternion.identity,
             transform
         );

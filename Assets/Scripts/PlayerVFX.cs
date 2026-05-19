@@ -13,7 +13,14 @@ public class PlayerVFX : MonoBehaviour
     [SerializeField] private float lifetime = 0.3f;
     [SerializeField] private float speedThreshold = 10f;
     [SerializeField] private Color tint = new Color(1,1,1,0.8f);
-
+    
+    [SerializeField] private SpriteRenderer dashTab;
+    [SerializeField] private SpriteRenderer reflectTab;
+    [SerializeField] private SpriteRenderer warpTab;
+    Color dashColor = Color.blue;
+    Color reflectColor = Color.yellow;
+    Color warpColor = Color.magenta;
+    
     private float timer;
 
     private SpriteRenderer playerSprite;
@@ -26,6 +33,8 @@ public class PlayerVFX : MonoBehaviour
 
     void Update()
     {
+        Color defaultTint = new Color(0f, 0f, 0f, 0f);
+        
         if (player.PreWarpPos != Vector2.zero)
         {
             trail.emitting = true;
@@ -34,7 +43,17 @@ public class PlayerVFX : MonoBehaviour
         {
             trail.emitting = false;
         }
+
         
+        if (player.DashUsed) dashTab.color = defaultTint;
+        else dashTab.color = dashColor;
+        
+        if (!player.CanReflect) reflectTab.color = defaultTint;
+        else  reflectTab.color = reflectColor;
+        
+        if (!player.CanWarp())  warpTab.color = defaultTint;
+        else warpTab.color = warpColor;
+
         // float speed = body.Speed;
         // //bool isDash = player.IsDashing;
         //
@@ -52,8 +71,8 @@ public class PlayerVFX : MonoBehaviour
         // {
         //     timer = 0f;
         // }
-        
-        
+
+
         //update tint on reflection value
         // playerSprite.color = new Color((!player.IsDashing)? tint.r : 0f, 
         //                               (!player.IsDashing)? tint.g : 0f, 

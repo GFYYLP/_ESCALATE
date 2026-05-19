@@ -12,7 +12,7 @@ public class PhysicsManager : MonoBehaviour
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
     [SerializeField] public float highCollideVal = 0.1f;
     
-    public float highestImpactSpeed = 0.1f;
+    public float highestImpactSpeed = 0f;
     
     void Awake()
     {
@@ -149,23 +149,21 @@ public class PhysicsManager : MonoBehaviour
         float totalInvMass = (a.isKinematic ? 0f : 1f) + (b.isKinematic ? 0f : 1f);
         if (totalInvMass == 0f) return;
 
-        float aShare = a.isKinematic ? 0f : 1f / totalInvMass;
-        float bShare = b.isKinematic ? 0f : 1f / totalInvMass;
-        
-
         // Velocity exchange along normal
         float aSpeed      = Vector2.Dot(a.velocity, normal);
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
-        if (impactSpeed > highestImpactSpeed) highestImpactSpeed = impactSpeed;
+        if (b is Player) highestImpactSpeed = impactSpeed;
         
         if (a.isKinematic && b is Block) return;
         if (b.isKinematic && a is Block) return;
         
+        float aShare = a.isKinematic ? 0f : 1f / totalInvMass;
+        float bShare = b.isKinematic ? 0f : 1f / totalInvMass;
+        
         //position correction for immediate geometric fix
         a.candidatePos += normal *  penetration * aShare;
         b.candidatePos -= normal *  penetration * bShare;
-        
         
         //high collision handling
         if (Mathf.Abs(impactSpeed) > highCollideVal)
