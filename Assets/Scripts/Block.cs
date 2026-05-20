@@ -7,13 +7,7 @@ public class Block : PhysicsBody
 {
     [SerializeField] private float gravity     = 5f;
     [SerializeField] private float maxFallSpeed = 35f;
-    public SpriteRenderer sr;
-
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        sr = GetComponent<SpriteRenderer>();
-    }
+    
     
 
     public override void UpdateVelocity(float dt)

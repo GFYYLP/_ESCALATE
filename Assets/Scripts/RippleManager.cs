@@ -13,6 +13,7 @@ public class RippleManager : MonoBehaviour
     [SerializeField] private float    directionTriggerVal = 0.5f;
     [SerializeField] private float    pointTriggerVal = 0.5f;
     [SerializeField] private float  rippleCooldown;
+    [SerializeField] private Transform rippleGrid;
     
     [StructLayout(LayoutKind.Sequential)]
     private struct Ripple
@@ -79,6 +80,14 @@ public class RippleManager : MonoBehaviour
 
     void LateUpdate()
     {
+        //update grid position
+        Vector3 cam = Camera.main.transform.position;
+        rippleGrid.transform.position = new Vector3(
+            cam.x,
+            cam.y,
+            rippleGrid.transform.position.z
+        );
+        
         //age and cull ripples
         for (int i = ripples.Count - 1; i >= 0; i--)
         {

@@ -28,8 +28,8 @@ public class ProgressBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int percent = Mathf.RoundToInt((player.Speed / physicsManager.highCollideVal) * 100f);
-        percentText.text = percent.ToString() + "% complete";
+        int percent = Mathf.RoundToInt((player.Speed * 0.8f/ physicsManager.highCollideVal) * 100f);
+        percentText.text = percent.ToString() + "% disrupted";
         
         float scaledWidth = originalScale.x * percent;
 

@@ -14,6 +14,13 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool    pendingDestroy;
     [HideInInspector] public Vector2 prevPos;
     
+    //edge collision handling
+    [HideInInspector] public bool nearBlock;
+    [HideInInspector] public Vector2 nearNormal;
+    [HideInInspector] public PhysicsBody collidedBody=default;
+    [HideInInspector] public bool collidedToSide=false;
+    
+    
     [HideInInspector] public float   weight=0.55f;
     
     //afterimage
@@ -24,10 +31,8 @@ public abstract class PhysicsBody : MonoBehaviour
     [SerializeField] private Color imgTint = new Color(1,1,1,0.8f);
     private float imgTimer;
     private SpriteRenderer bodySprite;
+    [SerializeField] private Transform visual;
     
-    //edge collision handling
-    public bool nearBlock;
-    public Vector2 nearNormal;
 
     public Vector2 Velocity
     {
@@ -50,8 +55,8 @@ public abstract class PhysicsBody : MonoBehaviour
         //     collider.size.x * transform.localScale.x,
         //     collider.size.y * transform.localScale.y
         // );
-        
-        bodySprite = GetComponent<SpriteRenderer>();
+
+        bodySprite = GetComponentInChildren<SpriteRenderer>();
     }
     
     public float     Speed => velocity.magnitude;
@@ -66,11 +71,6 @@ public abstract class PhysicsBody : MonoBehaviour
         PhysicsManager.Instance.Unregister(this);
     
     public abstract void UpdateVelocity(float dt);
-
-    public virtual void TryLatch(PhysicsBody collidedBody, bool isSide)
-    {
-        
-    }
 
     public void UpdateGroundState(List<PhysicsBody> bodies)
     {
@@ -124,6 +124,8 @@ public abstract class PhysicsBody : MonoBehaviour
         {
             imgTimer = 0f;
         }
+        
+        //UpdateVisual(Time.deltaTime);
     }
     
     void SpawnAfterImage()
@@ -149,5 +151,43 @@ public abstract class PhysicsBody : MonoBehaviour
 
         if (candidatePos.x > camX + halfW) candidatePos.x -= width;
         else if (candidatePos.x < camX - halfW) candidatePos.x += width;
+    }
+    
+    
+    [SerializeField] private float stretchSensitivity = 0.01f;
+    [SerializeField] private float maxStretch         = 1.8f;
+    [SerializeField] private float minSquash          = 0.5f;
+    [SerializeField] private float morphSmoothing     = 8f;
+
+    private Vector3 targetScale = Vector3.one;
+
+    void UpdateVisual(float dt)
+    {
+        float speed = velocity.magnitude;
+
+        if (speed < 0.1f)
+        {
+            targetScale = Vector3.one;
+        }
+        else
+        {
+            Vector2 dir     = velocity.normalized;
+            // Small additive stretch — never more than +/-maxStretchAmount from 1
+            float amount    = Mathf.Min(speed * stretchSensitivity, maxStretch - 1f);
+        
+            float scaleX = 1f + amount * Mathf.Abs(dir.x) 
+                           - amount * Mathf.Abs(dir.y) * 0.5f;
+            float scaleY = 1f + amount * Mathf.Abs(dir.y)
+                           - amount * Mathf.Abs(dir.x) * 0.5f;
+
+            // Hard clamp
+            scaleX = Mathf.Clamp(scaleX, 0.6f, 1.4f);
+            scaleY = Mathf.Clamp(scaleY, 0.6f, 1.4f);
+
+            targetScale = new Vector3(scaleX, scaleY, 1f);
+        }
+
+        visual.localScale = Vector3.Lerp(
+            visual.localScale, targetScale, morphSmoothing * dt);
     }
 }

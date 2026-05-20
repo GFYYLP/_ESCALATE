@@ -40,12 +40,11 @@ public class BlockSpawner : MonoBehaviour
         
         var block = Instantiate(
             blockPrefab,
-            new Vector3(pos.x, isFirstSpawn ? pos.y : transform.position.y, 105f),
+            new Vector3(pos.x, isFirstSpawn ? pos.y : transform.position.y, 20f),
             Quaternion.identity,
             transform
         );
         block.gameObject.layer = LayerMask.NameToLayer("Ground");
-        block.sr.sprite = sprites[0];
         block.name = "Block [" + spawnCounter + "]";
         block.isKinematic = isFirstSpawn;
 
@@ -53,7 +52,7 @@ public class BlockSpawner : MonoBehaviour
         {
             float scale = 5f;
 
-            block.transform.localScale = new Vector3(scale, scale, scale);
+            block.transform.localScale = new Vector3(scale*2f, scale, scale);
             
         }
     }

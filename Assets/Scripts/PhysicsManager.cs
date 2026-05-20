@@ -94,7 +94,7 @@ public class PhysicsManager : MonoBehaviour
         float overlapX = (a.size.x + b.size.x) * 0.5f - Mathf.Abs(delta.x);
         float overlapY = (a.size.y + b.size.y) * 0.5f - Mathf.Abs(delta.y);
 
-        // Proximity window: within 5 pixels (0.3 units at your scale)
+        //proximity handling
         float proximityThreshold = 0.3f;
         if (overlapX > -proximityThreshold && overlapY > -proximityThreshold)
         {
@@ -113,13 +113,15 @@ public class PhysicsManager : MonoBehaviour
 
         bool result = overlapX > 0f && overlapY > 0f;
         
-        //check if either PhysicsBodies is Player
-        // if (result)
-        // {
-        //     bool  isSide   = overlapX < overlapY;
-        //     if (a is Player) a.TryLatch(b, isSide);
-        //     else if (b is Player) b.TryLatch(a, isSide);
-        // }
+        //update per-body states
+        if (result)
+        {
+            bool  isSide   = overlapX < overlapY;
+            a.collidedBody = b;
+            a.collidedToSide = isSide;
+            b.collidedToSide = isSide;
+            b.collidedBody = a;
+        }
         
         return result;
     }
@@ -183,7 +185,7 @@ public class PhysicsManager : MonoBehaviour
     
     void HandleHit(Vector2 param = new Vector2())
     {
-        StartCoroutine(HitStop(0.1f));
+        StartCoroutine(HitStop(0.01f));
     }
     
     IEnumerator HitStop(float duration)

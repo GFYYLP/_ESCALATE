@@ -72,6 +72,7 @@ public class Player : PhysicsBody
         dirVal.y   *= 0.75f;
         
         UpdateTimers(dt);
+        TryLatch();
         TryDash();
         TryReflect();
         TryWarp();
@@ -148,27 +149,27 @@ public class Player : PhysicsBody
         if (velocity.y > 0f) velocity.y = 0f;
     }
     
-    public override void TryLatch(PhysicsBody collidedBody, bool isSide)
+    public void TryLatch()
     {
         Block block = collidedBody as Block;
         if (block == null) return;
 
-        if (isSide)
+        if (collidedToSide)
         {
-            // Side contact — hold direction required
+            // hold direction required for side contact
             float inputX = Input.GetKey(KeyCode.RightArrow) ?  1f :
                 Input.GetKey(KeyCode.LeftArrow)  ? -1f : 0f;
             Vector2 delta  = candidatePos - block.candidatePos;
-            bool holding = Mathf.Sign(inputX) == -Mathf.Sign(delta.x);
+            bool holding = Mathf.Floor(dirVal.x) == -Mathf.Sign(delta.x);
 
             if (holding)
-                // Match block's vertical movement — ride it up or down
+                //inherit block's movement
                 velocity.y = block.velocity.y;
 
         }
         else if (onGround)
         {
-            // Top contact — automatic, match horizontal
+            //automatic top contact
             velocity.x += block.velocity.x;
         }
     }
