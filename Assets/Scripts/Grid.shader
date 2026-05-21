@@ -117,7 +117,7 @@ Shader "Unlit/Grid"
                             float  scanLocal    = fmod(abs(uv.x), scanSpacing);  // position within one scanline period
                             float  onScanline   = step(scanLocal, lineWidth);     // 1 if on a line, 0 if in gap
                             
-                            // per-line color: same hash but now per thin-line index, not per grid column
+                            // per-line color  per thin-line index, not per grid column
                             float  scanHash  = frac(sin(scanIndex * 127.1) * 43758.5);
                             float  shuffled  = fmod(abs(floor(scanHash * 6.0) + scanIndex * 1.618), 6.0);
 
@@ -130,7 +130,7 @@ Shader "Unlit/Grid"
                             else                      scanColor = float3(1.0, 0.0, 0.8);
 
                             float  withinSilhouette = step(abs(toImpact.x), blockHalfWidth * proximity);
-                            float  scanOpacity  = proximity * (1.0 - spreadT * 0.7) 
+                            float  scanOpacity  = proximity * (1.0 - spreadT * 0.7)  // fade out as it spreads
                                                 * inSpread * inColumn * onScanline
                                                 * lerp(1.0, withinSilhouette, proximity);
                                                     
@@ -150,8 +150,6 @@ Shader "Unlit/Grid"
 
                 //displace grid sampling position
                 float2 gridUV = uv + displacement;
-
-                // after accumulating displacement:
                 float  dispMag    = length(displacement);
                 float2 dispDir    = dispMag > 0.001 ? displacement / dispMag : float2(0, 0);
 
@@ -160,13 +158,14 @@ Shader "Unlit/Grid"
 
                 // stronger separation on the dominant axis
                 float2 aberrVec   = dispDir * aberrStr;
-                // extra: vertical hits get stronger vertical chromatic sep
-                aberrVec.y       *= 1.5;
+                aberrVec.y       *= 1.5;   //vertical hits get stronger vertical chromatic sep
 
+                // sample grid lines with chromatic aberration
+                // with separate UV offsets for each channel
                 float2 uvR = gridUV + aberrVec;
                 float2 uvG = gridUV;
                 float2 uvB = gridUV - aberrVec;
-
+                
                 #define GRID_LINE(guv) saturate( \
                     step(min(fmod(abs(guv), _GridSpacing), \
                              _GridSpacing - fmod(abs(guv), _GridSpacing)).x, _LineWidth) + \

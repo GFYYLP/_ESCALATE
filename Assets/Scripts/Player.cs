@@ -67,12 +67,16 @@ public class Player : PhysicsBody
         // Default to last horizontal direction if no input
         if (x == 0f && y == 0f)
             x = lastDir;
+        
+        //flip sprite
+        //if (x != 0f)
+            visual.localScale = new Vector3(Mathf.Sign(-x), 1f, 1f);
 
         dirVal = new Vector2(x, y).normalized;
         dirVal.y   *= 0.75f;
         
         UpdateTimers(dt);
-        TryLatch();
+        //TryLatch();
         TryDash();
         TryReflect();
         TryWarp();
@@ -137,8 +141,6 @@ public class Player : PhysicsBody
         dashTimer = dashDuration;
          //isJumping = false;
         
-        //apply dash vfx
-        //rippleManager.AddPointRipple(candidatePos, Speed);
     }
     
 
@@ -223,7 +225,7 @@ public class Player : PhysicsBody
         
         if (!Input.GetKeyDown(KeyCode.C) || warpCharge < warpChargeCap) return;
 
-        Vector2 target = candidatePos + dirVal * 5f;
+        Vector2 target = candidatePos + dirVal * 6f;
         
         Vector2 safePos = target;
 

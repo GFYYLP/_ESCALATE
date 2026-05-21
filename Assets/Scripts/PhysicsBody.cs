@@ -31,7 +31,7 @@ public abstract class PhysicsBody : MonoBehaviour
     [SerializeField] private Color imgTint = new Color(1,1,1,0.8f);
     private float imgTimer;
     private SpriteRenderer bodySprite;
-    [SerializeField] private Transform visual;
+    [SerializeField] public Transform visual;
     
 
     public Vector2 Velocity
@@ -125,7 +125,7 @@ public abstract class PhysicsBody : MonoBehaviour
             imgTimer = 0f;
         }
         
-        //UpdateVisual(Time.deltaTime);
+        if (this is Player) UpdateVisual(Time.deltaTime);
     }
     
     void SpawnAfterImage()
@@ -155,8 +155,8 @@ public abstract class PhysicsBody : MonoBehaviour
     
     
     [SerializeField] private float stretchSensitivity = 0.01f;
-    [SerializeField] private float maxStretch         = 1.8f;
-    [SerializeField] private float minSquash          = 0.5f;
+    [SerializeField] private float maxStretch         = 1.1f;
+    [SerializeField] private float minSquash          = 0.8f;
     [SerializeField] private float morphSmoothing     = 8f;
 
     private Vector3 targetScale = Vector3.one;
@@ -181,8 +181,8 @@ public abstract class PhysicsBody : MonoBehaviour
                            - amount * Mathf.Abs(dir.x) * 0.5f;
 
             // Hard clamp
-            scaleX = Mathf.Clamp(scaleX, 0.6f, 1.4f);
-            scaleY = Mathf.Clamp(scaleY, 0.6f, 1.4f);
+            scaleX = Mathf.Clamp(scaleX, 0.9f, 1.3f);
+            scaleY = Mathf.Clamp(scaleY, 0.9f, 1.3f);
 
             targetScale = new Vector3(scaleX, scaleY, 1f);
         }

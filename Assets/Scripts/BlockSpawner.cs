@@ -17,7 +17,7 @@ public class BlockSpawner : MonoBehaviour
     void Start()
     {
         physicsManager.onHighCollision  += SpawnBlock;
-        DoSpawn(new Vector2(0f, -5.0f));
+        DoSpawn(new Vector2(0f, -9.0f));
         isFirstSpawn = false;
         lastSpawnTime = Time.time; 
     }

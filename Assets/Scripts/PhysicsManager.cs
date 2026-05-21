@@ -11,8 +11,11 @@ public class PhysicsManager : MonoBehaviour
     private RippleManager rippleManager;
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
     [SerializeField] public float highCollideVal = 0.1f;
+    [SerializeField] private float stabilizeRate = 10f;
     
     public float highestImpactSpeed = 0f;
+    public float systemStability = 0f;
+    public float corruptScore = 0f;
     
     void Awake()
     {
@@ -32,7 +35,8 @@ public class PhysicsManager : MonoBehaviour
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
-
+        systemStability += corruptScore * stabilizeRate * dt;
+        
         //let each body update its own velocity THEN move candidate positions
         foreach (var b in bodies) b.UpdateVelocity(dt);
         foreach (var b in bodies) b.candidatePos = b.candidatePos + b.velocity * dt;
@@ -75,6 +79,7 @@ public class PhysicsManager : MonoBehaviour
             Destroy(b.gameObject);
     }
 
+    private bool paused = false;
 
     void Update()
     {
@@ -82,6 +87,12 @@ public class PhysicsManager : MonoBehaviour
         foreach (var b in bodies)
         {
             rippleManager.RespondToBody(b);
+        }
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            paused = !paused;
+            Time.timeScale = paused ? 0f : 1f;
         }
     }
 
@@ -155,6 +166,7 @@ public class PhysicsManager : MonoBehaviour
         float aSpeed      = Vector2.Dot(a.velocity, normal);
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
+        corruptScore += Mathf.Abs(impactSpeed);
         if (b is Player) highestImpactSpeed = impactSpeed;
         
         if (a.isKinematic && b is Block) return;
@@ -185,7 +197,7 @@ public class PhysicsManager : MonoBehaviour
     
     void HandleHit(Vector2 param = new Vector2())
     {
-        StartCoroutine(HitStop(0.01f));
+        //StartCoroutine(HitStop(0.01f));
     }
     
     IEnumerator HitStop(float duration)
