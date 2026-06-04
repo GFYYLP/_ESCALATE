@@ -38,7 +38,12 @@ public class PhysicsManager : MonoBehaviour
         systemStability += corruptScore * stabilizeRate * dt;
         
         //let each body update its own velocity THEN move candidate positions
-        foreach (var b in bodies) b.UpdateVelocity(dt);
+        foreach (var b in bodies)
+        {
+            b.UpdateVelocity(dt);
+            
+            if (b is Player && systemStability > 0f) systemStability -= b.Velocity.magnitude * dt;
+        }
         foreach (var b in bodies) b.candidatePos = b.candidatePos + b.velocity * dt;
 
         //broad phase to collect overlapping pairs
@@ -166,7 +171,6 @@ public class PhysicsManager : MonoBehaviour
         float aSpeed      = Vector2.Dot(a.velocity, normal);
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
-        corruptScore += Mathf.Abs(impactSpeed);
         if (b is Player) highestImpactSpeed = impactSpeed;
         
         if (a.isKinematic && b is Block) return;
@@ -182,7 +186,7 @@ public class PhysicsManager : MonoBehaviour
         //high collision handling
         if (Mathf.Abs(impactSpeed) > highCollideVal)
             onHighCollision?.Invoke(a.candidatePos);  //either a or b should work given collision proximity
-
+        corruptScore += Mathf.Abs(impactSpeed) * Camera.main.transform.position.y * 0.5f;
         
         // aSpeed - bSpeed > 0 means a and b moves in opposite directions
         // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0

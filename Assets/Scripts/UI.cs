@@ -5,18 +5,18 @@ using UnityEngine;
 
 public class CounterUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text heightText;
-    [SerializeField] private TMP_Text bestHeightText;
-    [SerializeField] private Player player;
-    private int bestHeight;
+    [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private TMP_Text bestScoreText;
+    [SerializeField] private PhysicsManager physicsManager;
+    private int bestScore;
     
     public void Update()
     {
-        int heightVal = Mathf.Max((int)player.transform.position.y, 0);
-        heightText.text = (heightVal).ToString();
+        int scoreVal = Mathf.Max((int)physicsManager.corruptScore, 0);
+        scoreText.text = (scoreVal).ToString();
         
-        bestHeight = Mathf.Max(heightVal, bestHeight);
-        bestHeightText.text = bestHeight.ToString();
+        bestScore = Mathf.Max(scoreVal, bestScore);
+        bestScoreText.text = bestScore.ToString();
     }
 
 }

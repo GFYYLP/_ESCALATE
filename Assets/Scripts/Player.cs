@@ -208,7 +208,7 @@ public class Player : PhysicsBody
         if (!Input.GetKeyDown(KeyCode.Z)) return;
 
         // Reflect dash velocity off the contact normal
-        Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
+        //Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
         velocity          *= 3.0f;  
         isDashing         = false;
         dashUsed          = false;  // refund dash

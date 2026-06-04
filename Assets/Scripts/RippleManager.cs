@@ -41,7 +41,7 @@ public class RippleManager : MonoBehaviour
         if (body.Speed > directionTriggerVal)
         {
             AddDirRipple(body.candidatePos, body.Speed * 2.5f, body.velocity);
-            rippleCooldown = 0.2f; // tune this
+            rippleCooldown = 0.2f; 
         }
         if (body.accel > pointTriggerVal)
             AddPointRipple(body.candidatePos, body.Speed * 4.0f);

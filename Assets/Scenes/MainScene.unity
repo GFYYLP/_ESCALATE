@@ -190,7 +190,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highCollideVal: 9
+  stabilizeRate: 0
   highestImpactSpeed: 0.1
+  systemStability: 0
+  corruptScore: 0
 --- !u!4 &303124851
 Transform:
   m_ObjectHideFlags: 0
@@ -503,6 +506,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 539382192}
+  physicsManager: {fileID: 303124850}
+  material: {fileID: 2100000, guid: 3b0946f3ce7f1f742bf9ccf466239c24, type: 2}
 --- !u!114 &539382192 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
@@ -887,9 +892,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9b0165d6956ba54ea740b67ff5d2302, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightText: {fileID: 884597020}
-  bestHeightText: {fileID: 1317770197}
-  player: {fileID: 539382192}
+  scoreText: {fileID: 884597020}
+  bestScoreText: {fileID: 1317770197}
+  physicsManager: {fileID: 303124850}
 --- !u!114 &884597020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1483,9 +1488,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9b0165d6956ba54ea740b67ff5d2302, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightText: {fileID: 884597020}
-  bestHeightText: {fileID: 1317770197}
-  player: {fileID: 539382192}
+  scoreText: {fileID: 884597020}
+  bestScoreText: {fileID: 1317770197}
+  physicsManager: {fileID: 303124850}
 --- !u!114 &1317770197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1594,7 +1599,6 @@ GameObject:
   - component: {fileID: 1553320608}
   - component: {fileID: 1553320610}
   - component: {fileID: 1553320609}
-  - component: {fileID: 1553320611}
   m_Layer: 1
   m_Name: Progress Bar
   m_TagString: Untagged
@@ -1755,20 +1759,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1553320611
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1553320607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e112c4d563a16f44aeca48b545efdda, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  percentText: {fileID: 548882742}
-  progressBar: {fileID: 996565630}
 --- !u!1 &1941773076
 GameObject:
   m_ObjectHideFlags: 0

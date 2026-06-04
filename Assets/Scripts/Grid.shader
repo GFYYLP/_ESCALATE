@@ -98,7 +98,7 @@ Shader "Unlit/Grid"
                             displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
                             break;
                         }
-                    case 2:  //scanline ripple
+                    case 2:  //scanline ripple (extreme impact)
                         {
                             float2 toImpact     = uv - _Ripples[r].position;
                             float  proximity    = 1.0 - age;
@@ -141,6 +141,10 @@ Shader "Unlit/Grid"
 
                             scanlineColor = float4(scanColor * scanOpacity, 0.0);
                             
+                            break;
+                        }
+                    case 3:
+                        {
                             break;
                         }
 
