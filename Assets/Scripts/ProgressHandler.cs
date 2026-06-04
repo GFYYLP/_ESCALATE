@@ -23,9 +23,9 @@ public class ProgressHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int percent = Mathf.RoundToInt((player.Speed * 0.8f/ physicsManager.highCollideVal) * 100f);
-        percentText.text = percent.ToString() + "% disrupted";
+        float scoreRatio = player.Speed * 0.8f / physicsManager.highCollideVal;
+        int percent = progressBar.UpdateBar(scoreRatio);
         
-        progressBar.UpdateBar(percent);
+        percentText.text = percent.ToString() + "% disrupted";
     }
 }

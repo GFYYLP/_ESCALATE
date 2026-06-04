@@ -7,6 +7,8 @@ public class PlayerVFX : MonoBehaviour
     [SerializeField] private ParticleSystem dashVFX;
     [SerializeField] private Player player;
     private TrailRenderer trail;
+    private ProgressBar reflectBar;
+    private ProgressBar warpBar;
     
     [SerializeField] private AfterImage afterImagePrefab;
     [SerializeField] private float spawnInterval = 0.05f;
@@ -22,6 +24,7 @@ public class PlayerVFX : MonoBehaviour
     Color warpColor = Color.magenta;
     
     private float timer;
+    private Color defaultTint = new Color(0f, 0f, 0f, 0f);
 
     private SpriteRenderer playerSprite;
 
@@ -29,12 +32,14 @@ public class PlayerVFX : MonoBehaviour
     {
         playerSprite = GetComponent<SpriteRenderer>();
         trail  = GetComponent<TrailRenderer>();
+        
+        ProgressBar[] bars   = GetComponentsInChildren<ProgressBar>();
+        reflectBar  = bars[0].GetComponent<ProgressBar>();
+        warpBar  = bars[1].GetComponent<ProgressBar>();
     }
 
     void Update()
     {
-        Color defaultTint = new Color(0f, 0f, 0f, 0f);
-        
         if (player.PreWarpPos != Vector2.zero)
         {
             trail.emitting = true;
@@ -48,35 +53,39 @@ public class PlayerVFX : MonoBehaviour
         if (player.DashUsed) dashTab.color = defaultTint;
         else dashTab.color = dashColor;
         
-        if (!player.CanReflect) reflectTab.color = defaultTint;
-        else  reflectTab.color = reflectColor;
+        // if (!player.CanReflect) reflectTab.color = defaultTint;
+        // else  reflectTab.color = reflectColor;
+        //
+        // if (!player.CanWarp())  warpTab.color = defaultTint;
+        // else warpTab.color = warpColor;
         
-        if (!player.CanWarp())  warpTab.color = defaultTint;
-        else warpTab.color = warpColor;
-
-        // float speed = body.Speed;
-        // //bool isDash = player.IsDashing;
-        //
-        // if (speed > speedThreshold)
-        // {
-        //     timer += Time.deltaTime;
-        //
-        //     if (timer >= spawnInterval)
-        //     {
-        //         SpawnAfterImage();
-        //         timer = 0f;
-        //     }
-        // }
-        // else
-        // {
-        //     timer = 0f;
-        // }
+         if (player.CanReflect)  StartCoroutine(PulseSprite(warpTab.color, warpColor, defaultTint));
+         if (player.CanWarp())  StartCoroutine(PulseSprite(reflectTab.color, reflectColor, defaultTint));
 
 
-        //update tint on reflection value
-        // playerSprite.color = new Color((!player.IsDashing)? tint.r : 0f, 
-        //                               (!player.IsDashing)? tint.g : 0f, 
-        //                               tint.b*(1f - player.ReflectVal), 1f);
+        if (warpBar.UpdateBar(player.WarpProgress()) >= 1)
+        {
+            StartCoroutine(PulseSprite(warpTab.color, warpColor, defaultTint));
+        }
+        if (reflectBar.UpdateBar(player.ReflectVal) >= 1)
+        {
+            StartCoroutine(PulseSprite(reflectTab.color, reflectColor, defaultTint));
+        }
+    }
+
+    IEnumerator PulseSprite(Color src, Color first, Color second)
+    {
+        float t = 0f;
+        float pulseDuration = 2f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / pulseDuration;
+            
+            //pulse src color
+            src = Color.Lerp(first, second, t);
+            
+            yield return null;
+        }
     }
 
     void SpawnAfterImage()

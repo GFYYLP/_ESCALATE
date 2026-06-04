@@ -14,9 +14,11 @@ public class ProgressBar : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void UpdateBar(int percent)
+    public int UpdateBar(float ratio)
     {
-        float scaledWidth = originalScale.x * percent;
+        int percent = Mathf.RoundToInt(Mathf.Clamp01(ratio) * 100f);
+
+        float scaledWidth = originalScale.x * (percent / 100f);
 
         transform.localScale =
             new Vector3(
@@ -32,5 +34,7 @@ public class ProgressBar : MonoBehaviour
                 originalPosition.y,
                 originalPosition.z
             );
+        
+        return percent;
     }
 }

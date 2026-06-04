@@ -114,16 +114,26 @@ public class PhysicsManager : MonoBehaviour
         float proximityThreshold = 0.3f;
         if (overlapX > -proximityThreshold && overlapY > -proximityThreshold)
         {
+            float proximityX = (a.size.x + b.size.x) * 0.5f + proximityThreshold - Mathf.Abs(delta.x);
+            float proximityY = (a.size.y + b.size.y) * 0.5f + proximityThreshold - Mathf.Abs(delta.y);
+
+            float currProximity;
             // Derive actual contact normal from overlap axes
             Vector2 normal;
             if (Mathf.Abs(overlapX) < Mathf.Abs(overlapY))
+            {
                 normal = new Vector2(Mathf.Sign(delta.x), 0f);
+                currProximity = proximityX;
+            }
             else
+            {
                 normal = new Vector2(0f, Mathf.Sign(delta.y));
+                currProximity = proximityY;
+            }
 
-            a.nearBlock  = true;
+            a.nearBlock = true;//currProximity/proximityThreshold;
             a.nearNormal = normal;
-            b.nearBlock  = true;
+            b.nearBlock = true;//currProximity/proximityThreshold;
             b.nearNormal = -normal;
         }
 

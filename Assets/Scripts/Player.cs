@@ -282,4 +282,9 @@ public class Player : PhysicsBody
         if (warpCharge < warpChargeCap) return false;
         return true;
     }
+
+    public float WarpProgress()
+    {
+        return warpCharge / warpChargeCap;
+    }
 }
