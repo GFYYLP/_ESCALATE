@@ -19,7 +19,7 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public Vector2 nearNormal;
     [HideInInspector] public PhysicsBody collidedBody=default;
     [HideInInspector] public bool collidedToSide=false;
-    
+    [HideInInspector] public float flipSign = 1;
     
     [HideInInspector] public float   weight=0.55f;
     
@@ -32,6 +32,7 @@ public abstract class PhysicsBody : MonoBehaviour
     private float imgTimer;
     private SpriteRenderer bodySprite;
     [SerializeField] public Transform visual;
+    
     
 
     public Vector2 Velocity
@@ -172,7 +173,7 @@ public abstract class PhysicsBody : MonoBehaviour
         else
         {
             Vector2 dir     = velocity.normalized;
-            // Small additive stretch — never more than +/-maxStretchAmount from 1
+            // Small additive stretch: never more than +/-maxStretchAmount from 1
             float amount    = Mathf.Min(speed * stretchSensitivity, maxStretch - 1f);
         
             float scaleX = 1f + amount * Mathf.Abs(dir.x) 
@@ -181,13 +182,21 @@ public abstract class PhysicsBody : MonoBehaviour
                            - amount * Mathf.Abs(dir.x) * 0.5f;
 
             // Hard clamp
-            scaleX = Mathf.Clamp(scaleX, 0.9f, 1.3f);
-            scaleY = Mathf.Clamp(scaleY, 0.9f, 1.3f);
+            scaleX = Mathf.Clamp(scaleX, 0.85f, 1.15f);
+            scaleY = Mathf.Clamp(scaleY, 0.85f, 1.15f);
 
             targetScale = new Vector3(scaleX, scaleY, 1f);
         }
+        
+        Vector3 currentScale = visual.localScale;
+        currentScale.x = Mathf.Abs(currentScale.x); // strip flip before lerping
 
-        visual.localScale = Vector3.Lerp(
-            visual.localScale, targetScale, morphSmoothing * dt);
+        Vector3 smoothed = Vector3.Lerp(
+            currentScale, targetScale, morphSmoothing * dt);
+
+        visual.localScale = new Vector3(
+            smoothed.x * flipSign,
+            smoothed.y,
+            smoothed.z);
     }
 }

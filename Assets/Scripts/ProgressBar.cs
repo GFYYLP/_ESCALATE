@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,8 @@ public class ProgressBar : MonoBehaviour
 {
     private Vector3 originalScale;
     private Vector3 originalPosition;
+    
+    public event Action<Vector2> onHighCollision;
     
     private void Start()
     {
@@ -36,5 +39,16 @@ public class ProgressBar : MonoBehaviour
             );
         
         return percent;
+    }
+
+    void applyFlicker()
+    {
+        StartCoroutine(Flicker());
+    }
+
+    IEnumerator Flicker()
+    {
+
+        yield return null;
     }
 }

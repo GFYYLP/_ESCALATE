@@ -69,8 +69,7 @@ public class Player : PhysicsBody
             x = lastDir;
         
         //flip sprite
-        //if (x != 0f)
-            visual.localScale = new Vector3(Mathf.Sign(-x), 1f, 1f);
+        if (x != 0f) flipSign = Mathf.Sign(-x);
 
         dirVal = new Vector2(x, y).normalized;
         dirVal.y   *= 0.75f;
