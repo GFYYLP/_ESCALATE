@@ -59,6 +59,7 @@ MonoBehaviour:
   nearNormal: {x: 0, y: 0}
   collidedBody: {fileID: 0}
   collidedToSide: 0
+  flipSign: 1
   weight: 0.55
   afterImagePrefab: {fileID: 7985264341178807462, guid: 13e55965b5b6dca4f9c539ed8d6f6abc, type: 3}
   imgSpawnInterval: 0.05
@@ -71,8 +72,8 @@ MonoBehaviour:
   maxStretch: 0.003
   minSquash: 0.002
   morphSmoothing: 8
-  gravity: 0.36
-  maxFallSpeed: 7.38
+  gravity: 0.11
+  maxFallSpeed: 4.31
 --- !u!61 &949387385924246826
 BoxCollider2D:
   m_ObjectHideFlags: 0

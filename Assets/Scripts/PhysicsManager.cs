@@ -7,10 +7,12 @@ public class PhysicsManager : MonoBehaviour
 {
     public static PhysicsManager Instance;
     public event Action<Vector2> onHighCollision;
+    public event Action<Vector2> onLowCollision;
     
     private RippleManager rippleManager;
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
     [SerializeField] public float highCollideVal = 0.1f;
+    [SerializeField] public float lowCollideVal = 0.1f;
     [SerializeField] private float stabilizeRate = 10f;
     
     public float highestImpactSpeed = 0f;
@@ -25,6 +27,8 @@ public class PhysicsManager : MonoBehaviour
 
     void Start()
     {
+        onLowCollision += rippleManager.AddBloomRipple;
+        
         onHighCollision += rippleManager.AddScanlineRipple;
         onHighCollision += HandleHit;
     }
@@ -193,7 +197,10 @@ public class PhysicsManager : MonoBehaviour
         a.candidatePos += normal *  penetration * aShare;
         b.candidatePos -= normal *  penetration * bShare;
         
-        //high collision handling
+        //collision handling
+        if (Mathf.Abs(impactSpeed) > lowCollideVal)
+            onLowCollision?.Invoke(a.candidatePos);
+        
         if (Mathf.Abs(impactSpeed) > highCollideVal)
             onHighCollision?.Invoke(a.candidatePos);  //either a or b should work given collision proximity
         corruptScore += Mathf.Abs(impactSpeed) * Camera.main.transform.position.y * 0.5f;

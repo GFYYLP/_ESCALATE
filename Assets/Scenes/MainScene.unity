@@ -189,7 +189,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0451281f328707a46b5012c2e2c5e575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highCollideVal: 9
+  highCollideVal: 12
+  lowCollideVal: 1.5
   stabilizeRate: 0
   highestImpactSpeed: 0.1
   systemStability: 0
@@ -223,8 +224,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridMaterial: {fileID: 2100000, guid: 3ff59146e8e829f4f90d1fa82ffaf599, type: 2}
   maxRipples: 30
-  directionTriggerVal: 0.26
+  directionTriggerVal: 8
   pointTriggerVal: 0.88
+  bloomTriggerVal: 0.1
   rippleCooldown: 0
   rippleGrid: {fileID: 1941773078}
 --- !u!1 &319503809
@@ -890,7 +892,7 @@ Transform:
   m_GameObject: {fileID: 871523915}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.3035, y: 0.708, z: -1}
+  m_LocalPosition: {x: -0.3035, y: 0.708, z: -0.66}
   m_LocalScale: {x: 2.495, y: 1.7181, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1320,8 +1322,8 @@ Transform:
   m_GameObject: {fileID: 996565630}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.01, y: -13.57, z: -8.52}
-  m_LocalScale: {x: 0.13, y: 0.4161027, z: 0.96465}
+  m_LocalPosition: {x: -3.13, y: -13.56, z: -8.52}
+  m_LocalScale: {x: 15.7, y: 0.4161027, z: 0.96465}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 235025897}
@@ -2111,8 +2113,32 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: gravity
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: airAccel
+      value: 56.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: jumpForce
+      value: 11.53
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: moveSpeed
       value: 3.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: maxFastFall
+      value: 33.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: maxFallSpeed
+      value: 100.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: fastFallGravity
+      value: 58.7
       objectReference: {fileID: 0}
     - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: stretchSensitivity

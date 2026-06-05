@@ -59,6 +59,8 @@ Shader "Unlit/Grid"
                 float2 uv = i.worldPos;
                 float4 tint = float4(1.0, 1.0, 1.0, 1.0);
                 float4 scanlineColor = float4(0, 0, 0, 0);
+                float4 whiteBloom = float4(0, 0, 0, 0);
+                float  pixelate   = 0.0;
 
                 //accumulate displacement from all ripples
                 float2 displacement = float2(0, 0);
@@ -85,10 +87,15 @@ Shader "Unlit/Grid"
                             float  perp     = dot(toRipple, float2(-dir.y, dir.x));  //perpendicular distance from axis
                             
                             // falloff that elongates behind the object, sharp ahead
-                            float  axialFalloff = exp(-max(along, 0.0) * 1.5) *  // weak ahead
-                                                  exp(-max(-along, 0.0) * 0.3) *  // long tail behind
-                                                  exp(-abs(perp) * 3.0)         *  // narrow band
-                                                  exp(-age * 2.0);
+                            // float  axialFalloff = exp(-max(along, 0.0) * 1.5) *  // weak ahead
+                            //                       exp(-max(-along, 0.0) * 0.3) *  // long tail behind
+                            //                       exp(-abs(perp) * 3.0)         *  // narrow band
+                            //                       exp(-age * 2.0);
+                            float  s = max(_Ripples[r].strength, 0.01);
+float  axialFalloff = exp(-max(along,  0.0) * (1.5 / s)) *
+                      exp(-max(-along, 0.0) * (0.3 / s)) *
+                      exp(-abs(perp)        * (3.0 / s)) *
+                      exp(-age * 2.0);
                             
                             // shear perpendicular to travel, dragging grid lines
                             displacement += dir * along * strength * axialFalloff * 0.3;
@@ -143,17 +150,52 @@ Shader "Unlit/Grid"
                             
                             break;
                         }
-                    case 3:
+                    case 3:  // dither bloom: mild collision / failed-repaint flash
                         {
-                            break;
-                        }
+                        float2 toImpact = uv - _Ripples[r].position;
+                        float  dist     = length(toImpact);
 
+                        // soft shell that expands outward as the ripple ages,
+                        // plus a small solid core so it pops on contact
+                        float  radius    = age * 1.2;
+                        float  shell     = exp(-abs(dist - radius) * 5.0);
+                        float  core      = exp(-dist * 6.0) * (1.0 - age);
+                        float  fade      = exp(-age * 3.0) * strength;
+                        float  intensity = saturate((shell + core) * fade);
+
+                        // chunky pixel grid + per-cell dither threshold
+                        float  cell  = 0.05;
+                        float2 pix   = floor(uv / cell);
+                        float  bayer = frac(sin(dot(pix, float2(12.9898, 78.233))) * 43758.5453);
+
+                        // white pixels switch on where intensity beats the cell threshold
+                        float  on    = step(bayer, intensity);
+                        // a fraction of cells flicker per frame for the "unstable" look
+                        float  flick = step(0.3, frac(sin(dot(pix, float2(45.2, 13.7))
+                                           + floor(_Time.y * 30.0)) * 9182.7));
+
+                        whiteBloom += float4(1, 1, 1, 1) * on * intensity * flick;
+
+                        // mark this region for grid quantization
+                        pixelate += intensity;
+                        break;
+                        }
                     }
                     
                 }
 
                 //displace grid sampling position
                 float2 gridUV = uv + displacement;
+                
+                // snap the grid where the bloom is active so the lines go blocky:
+                if (pixelate > 0.001)
+                {
+                    float  q       = saturate(pixelate);
+                    float  qcell   = 0.08;
+                    float2 snapped = floor(gridUV / qcell) * qcell + qcell * 0.5;
+                    gridUV = lerp(gridUV, snapped, q);
+                }
+                
                 float  dispMag    = length(displacement);
                 float2 dispDir    = dispMag > 0.001 ? displacement / dispMag : float2(0, 0);
 
@@ -181,7 +223,7 @@ Shader "Unlit/Grid"
                 col.g = lerp(col.g, _GridColor.g, GRID_LINE(uvG));
                 col.b = lerp(col.b, _GridColor.b, GRID_LINE(uvB));
 
-                return col + scanlineColor;
+                return col + scanlineColor + saturate(whiteBloom);
                 
             }
             ENDHLSL

@@ -11,7 +11,8 @@ public class RippleManager : MonoBehaviour
     [SerializeField] private Material gridMaterial;
     [SerializeField] private int      maxRipples = 16;
     [SerializeField] private float    directionTriggerVal = 0.5f;
-    [SerializeField] private float    pointTriggerVal = 0.5f;
+    [SerializeField] private float    pointTriggerVal = 0.3f;
+    [SerializeField] private float    bloomTriggerVal = 0.1f;
     [SerializeField] private float  rippleCooldown;
     [SerializeField] private Transform rippleGrid;
     
@@ -30,6 +31,8 @@ public class RippleManager : MonoBehaviour
     private List<Ripple> ripples = new List<Ripple>();
     private GraphicsBuffer    rippleBuffer;
     
+    private float[] lifetime = { 6f, 2f, 2f, 0.3f };  //lifetime val for each ripple
+    
     void Awake() => Instance = this;
 
 
@@ -40,7 +43,7 @@ public class RippleManager : MonoBehaviour
 
         if (body.Speed > directionTriggerVal)
         {
-            AddDirRipple(body.candidatePos, body.Speed * 2.5f, body.velocity);
+            AddDirRipple(body.candidatePos, body.Speed * 5.5f, body.velocity);
             rippleCooldown = 0.2f; 
         }
         if (body.accel > pointTriggerVal)
@@ -70,6 +73,13 @@ public class RippleManager : MonoBehaviour
         ripples.Add(new Ripple { position = pos, dir = dir, strength = strength, age = 0f, type = 1 });
     }
     
+    public void AddBloomRipple(Vector2 pos)
+    {
+        if (ripples.Count >= maxRipples)
+            ripples.RemoveAt(0); // oldest is always at index 0
+        ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 0.5f, age = 0f, type = 3 });
+    }
+    
     public void AddScanlineRipple(Vector2 pos)
     {
         if (ripples.Count >= maxRipples)
@@ -96,8 +106,10 @@ public class RippleManager : MonoBehaviour
             //if (r.type == 2) r.age += Time.deltaTime * 0.1f;
             r.age += Time.deltaTime;
             
-            if (r.age > 2f)  // ripple lifetime
+            if (r.age > lifetime[r.type])  // ripple lifetime
+            {
                 ripples.RemoveAt(i); //safe removal with reverse iterating 
+            }
             else
                 ripples[i] = r;
         }
