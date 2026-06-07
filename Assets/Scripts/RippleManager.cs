@@ -15,6 +15,7 @@ public class RippleManager : MonoBehaviour
     [SerializeField] private float    bloomTriggerVal = 0.1f;
     [SerializeField] private float  rippleCooldown;
     [SerializeField] private Transform rippleGrid;
+    [SerializeField] private float rippleStrength = 1f;
     
     [StructLayout(LayoutKind.Sequential)]
     private struct Ripple
@@ -43,7 +44,7 @@ public class RippleManager : MonoBehaviour
 
         if (body.Speed > directionTriggerVal)
         {
-            AddDirRipple(body.candidatePos, body.Speed * 5.5f, body.velocity);
+            AddDirRipple(body.candidatePos, body.Speed * rippleStrength, body.velocity);
             rippleCooldown = 0.2f; 
         }
         if (body.accel > pointTriggerVal)

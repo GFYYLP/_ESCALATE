@@ -53,24 +53,14 @@ public class PlayerVFX : MonoBehaviour
         if (player.DashUsed) dashTab.color = defaultTint;
         else dashTab.color = dashColor;
         
-        // if (!player.CanReflect) reflectTab.color = defaultTint;
-        // else  reflectTab.color = reflectColor;
-        //
-        // if (!player.CanWarp())  warpTab.color = defaultTint;
-        // else warpTab.color = warpColor;
-        
-         if (player.CanReflect)  StartCoroutine(PulseSprite(warpTab.color, warpColor, defaultTint));
-         if (player.CanWarp())  StartCoroutine(PulseSprite(reflectTab.color, reflectColor, defaultTint));
+        // dash: binary — available or not
+        //dashBar.UpdateBar(player.DashUsed ? 0f : 1f);
 
+        // reflect: also mostly binary but use ReflectVal (0, 0.3, or 1.0)
+        reflectBar.UpdateBar(player.ReflectVal);
 
-        if (warpBar.UpdateBar(player.WarpProgress()) >= 1)
-        {
-            StartCoroutine(PulseSprite(warpTab.color, warpColor, defaultTint));
-        }
-        if (reflectBar.UpdateBar(player.ReflectVal) >= 1)
-        {
-            StartCoroutine(PulseSprite(reflectTab.color, reflectColor, defaultTint));
-        }
+        // warp: continuous charge
+        warpBar.UpdateBar(player.WarpProgress());
     }
 
     IEnumerator PulseSprite(Color src, Color first, Color second)

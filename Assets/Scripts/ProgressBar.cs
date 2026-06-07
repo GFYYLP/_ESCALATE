@@ -7,48 +7,121 @@ public class ProgressBar : MonoBehaviour
 {
     private Vector3 originalScale;
     private Vector3 originalPosition;
+    private SpriteRenderer sr;
+
+    private float displayRatio = 0f;
+    private float prevRatio    = 0f;
+
+    [SerializeField] private Color baseColor  = Color.white;
+    [SerializeField] private Color flashColor = Color.white;
+
+    private float flashTimer    = 0f;
+    private bool isStrongFlash = false;
+    private float scalePopTimer = 0f;
+    const float FLASH_DURATION  = 0.12f;
+    const float POP_DURATION    = 0.1f;
+    const float TICK_THRESHOLD  = 0.19f;   // charge tick every ~20%
     
-    public event Action<Vector2> onHighCollision;
-    
-    private void Start()
+    static readonly Color[] flickerColors = {
+        new Color(1f, 0f, 0.2f),    // red
+        new Color(0f, 1f, 0.8f),    // cyan
+        new Color(0.8f, 0f, 1f),    // magenta
+        new Color(1f, 0.8f, 0f),    // yellow
+        new Color(0f, 0.8f, 1f),    // blue
+        Color.white,
+    };
+
+    void Start()
     {
-        originalScale = transform.localScale;
+        originalScale    = transform.localScale;
         originalPosition = transform.localPosition;
+        sr               = GetComponent<SpriteRenderer>();
+        sr.color         = baseColor;
     }
 
-    // Update is called once per frame
+    // Call every frame. Returns current percent.
     public int UpdateBar(float ratio)
     {
-        int percent = Mathf.RoundToInt(Mathf.Clamp01(ratio) * 100f);
+        ratio = Mathf.Clamp01(ratio);
 
-        float scaledWidth = originalScale.x * (percent / 100f);
+        // detect events
+        bool hitFull    = ratio >= 1f && prevRatio < 1f;
+        bool consumed   = ratio < 0.05f && prevRatio > 0.5f;
+        bool chargeTick = Mathf.Floor(ratio / TICK_THRESHOLD)
+                        > Mathf.Floor(prevRatio / TICK_THRESHOLD)
+                        && ratio < 1f;
 
-        transform.localScale =
-            new Vector3(
-                scaledWidth,
+        if (hitFull || consumed)
+            TriggerFlash(strong: true);
+        else if (chargeTick)
+            TriggerFlash(strong: false);
+
+        prevRatio    = ratio;
+        displayRatio = ratio;
+
+        ApplyScale(ratio);
+        UpdateVisuals();
+
+        return Mathf.RoundToInt(ratio * 100f);
+    }
+
+    void TriggerFlash(bool strong)
+    {
+        flashTimer = FLASH_DURATION * (strong ? 1f : 0.6f);
+        isStrongFlash = strong;
+        if (strong) scalePopTimer = POP_DURATION;
+    }
+
+    void UpdateVisuals()
+    {
+        flashTimer    = Mathf.Max(0f, flashTimer    - Time.deltaTime);
+        scalePopTimer = Mathf.Max(0f, scalePopTimer - Time.deltaTime);
+
+        if (flashTimer > 0f)
+        {
+            // rapid color index cycling — faster on strong flash
+            float cycleRate = isStrongFlash ? 24f : 14f;
+            int idx = Mathf.FloorToInt(Time.time * cycleRate) % flickerColors.Length;
+            sr.color = flickerColors[idx];
+        }
+        else
+        {
+            sr.color = baseColor;
+        }
+
+        // scale pop unchanged
+        if (scalePopTimer > 0f)
+        {
+            float popT = scalePopTimer / POP_DURATION;
+            float popY = 1f + 0.4f * Mathf.Sin(popT * Mathf.PI);
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                originalScale.y * popY,
+                originalScale.z
+            );
+        }
+        else
+        {
+            transform.localScale = new Vector3(
+                transform.localScale.x,
                 originalScale.y,
                 originalScale.z
             );
-
-        transform.localPosition =
-            new Vector3(
-                originalPosition.x
-                - (originalScale.x - scaledWidth) * 0.5f,
-                originalPosition.y,
-                originalPosition.z
-            );
-        
-        return percent;
+        }
     }
 
-    void applyFlicker()
+    void ApplyScale(float ratio)
     {
-        StartCoroutine(Flicker());
-    }
-
-    IEnumerator Flicker()
-    {
-
-        yield return null;
+        float scaledWidth = originalScale.x * ratio;
+        transform.localScale = new Vector3(
+            scaledWidth,
+            transform.localScale.y,   // preserve any active pop
+            originalScale.z
+        );
+        transform.localPosition = new Vector3(
+            originalPosition.x - (originalScale.x - scaledWidth) * 0.5f,
+            originalPosition.y,
+            originalPosition.z
+        );
     }
 }

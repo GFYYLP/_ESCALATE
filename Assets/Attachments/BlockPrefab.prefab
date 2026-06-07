@@ -65,7 +65,7 @@ MonoBehaviour:
   imgSpawnInterval: 0.05
   imgLifetime: 0.3
   imgSpeedThreshold: 10
-  imgTint: {r: 1, g: 1, b: 1, a: 0.8}
+  imgTint: {r: 1, g: 1, b: 1, a: 0.3647059}
   visual: {fileID: 2277612001119226240}
   size: {x: 0, y: 0}
   stretchSensitivity: 0

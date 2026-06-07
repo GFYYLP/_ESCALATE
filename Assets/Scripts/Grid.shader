@@ -78,7 +78,10 @@ Shader "Unlit/Grid"
                     {
                     case 0: //point ripple (on objects abrupt speedup)
                         {
-                            displacement   += normalize(toRipple) * strength * falloff;
+float radius = age * 0.8;
+float ring   = exp(-pow(dist - radius, 2.0) * 20.0);
+float falloff = ring * exp(-age * 3.0) * strength;
+displacement += normalize(toRipple) * falloff;
                             break;
                         }
                     case 1: //directional ripple (follow along high-velocity objects)
@@ -92,11 +95,11 @@ Shader "Unlit/Grid"
                             //                       exp(-abs(perp) * 3.0)         *  // narrow band
                             //                       exp(-age * 2.0);
                             float  s = max(_Ripples[r].strength, 0.01);
-float  axialFalloff = exp(-max(along,  0.0) * (1.5 / s)) *
-                      exp(-max(-along, 0.0) * (0.3 / s)) *
-                      exp(-abs(perp)        * (3.0 / s)) *
-                      exp(-age * 2.0);
-                            
+                            float  axialFalloff = exp(-max(along,  0.0) * (1.5 / s)) *
+                                                  exp(-max(-along, 0.0) * (0.3 / s)) *
+                                                  exp(-abs(perp)        * (3.0 / s)) *
+                                                  exp(-age * 2.0);
+                                                        
                             // shear perpendicular to travel, dragging grid lines
                             displacement += dir * along * strength * axialFalloff * 0.3;
                             
