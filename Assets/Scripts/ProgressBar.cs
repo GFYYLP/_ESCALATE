@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ProgressBar : MonoBehaviour
 {
     private Vector3 originalScale;
     private Vector3 originalPosition;
-    private SpriteRenderer sr;
+    private SpriteRenderer sr;  
+    private Graphic graphic;  //for ui canvas
 
     private float displayRatio = 0f;
     private float prevRatio    = 0f;
@@ -35,8 +37,8 @@ public class ProgressBar : MonoBehaviour
     {
         originalScale    = transform.localScale;
         originalPosition = transform.localPosition;
-        sr               = GetComponent<SpriteRenderer>();
-        sr.color         = baseColor;
+        sr = GetComponent<SpriteRenderer>();
+        graphic = GetComponent<Graphic>();
     }
 
     // Call every frame. Returns current percent.
@@ -82,11 +84,11 @@ public class ProgressBar : MonoBehaviour
             // rapid color index cycling — faster on strong flash
             float cycleRate = isStrongFlash ? 24f : 14f;
             int idx = Mathf.FloorToInt(Time.time * cycleRate) % flickerColors.Length;
-            sr.color = flickerColors[idx];
+            SetColor(flickerColors[idx]);
         }
         else
         {
-            sr.color = baseColor;
+            SetColor(baseColor);
         }
 
         // scale pop unchanged
@@ -123,5 +125,14 @@ public class ProgressBar : MonoBehaviour
             originalPosition.y,
             originalPosition.z
         );
+    }
+    
+    public void SetColor(Color color)
+    {
+        if (sr != null)
+            sr.color = color;
+
+        if (graphic != null)
+            graphic.color = color;
     }
 }

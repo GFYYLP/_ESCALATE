@@ -9,6 +9,8 @@ public class PlayerVFX : MonoBehaviour
     private TrailRenderer trail;
     private ProgressBar reflectBar;
     private ProgressBar warpBar;
+    [SerializeField] private ProgressBar reflectTask;
+    [SerializeField] private ProgressBar warpTask;
     
     [SerializeField] private AfterImage afterImagePrefab;
     [SerializeField] private float spawnInterval = 0.05f;
@@ -58,9 +60,11 @@ public class PlayerVFX : MonoBehaviour
 
         // reflect: also mostly binary but use ReflectVal (0, 0.3, or 1.0)
         reflectBar.UpdateBar(player.ReflectVal);
-
+        reflectTask.UpdateBar(player.ReflectVal);
+        
         // warp: continuous charge
         warpBar.UpdateBar(player.WarpProgress());
+        warpTask.UpdateBar(player.WarpProgress());
     }
 
     IEnumerator PulseSprite(Color src, Color first, Color second)
