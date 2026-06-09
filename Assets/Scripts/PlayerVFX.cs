@@ -11,6 +11,7 @@ public class PlayerVFX : MonoBehaviour
     private ProgressBar warpBar;
     [SerializeField] private ProgressBar reflectTask;
     [SerializeField] private ProgressBar warpTask;
+    [SerializeField] private ProgressBar dashTask;
     
     [SerializeField] private AfterImage afterImagePrefab;
     [SerializeField] private float spawnInterval = 0.05f;
@@ -51,9 +52,17 @@ public class PlayerVFX : MonoBehaviour
             trail.emitting = false;
         }
 
-        
-        if (player.DashUsed) dashTab.color = defaultTint;
-        else dashTab.color = dashColor;
+
+        if (player.DashUsed)
+        {
+            dashTab.color = defaultTint;
+            dashTask.UpdateBar(0f);
+        }
+        else
+        {
+            dashTab.color = dashColor;
+            dashTask.UpdateBar(1f);
+        }
         
         // dash: binary — available or not
         //dashBar.UpdateBar(player.DashUsed ? 0f : 1f);

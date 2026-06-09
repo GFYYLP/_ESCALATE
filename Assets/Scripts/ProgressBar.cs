@@ -48,7 +48,7 @@ public class ProgressBar : MonoBehaviour
 
         // detect events
         bool hitFull    = ratio >= 1f && prevRatio < 1f;
-        bool consumed   = ratio < 0.05f && prevRatio > 0.5f;
+        bool consumed   = ratio < 0.2f && prevRatio > 0.5f;
         bool chargeTick = Mathf.Floor(ratio / TICK_THRESHOLD)
                         > Mathf.Floor(prevRatio / TICK_THRESHOLD)
                         && ratio < 1f;
