@@ -46,9 +46,13 @@ public class RippleManager : MonoBehaviour
         {
             AddDirRipple(body.candidatePos, body.Speed * rippleStrength, body.velocity);
             rippleCooldown = 0.2f; 
+            AudioManager.Instance.DistortMusic(body.Speed * 0.1f);
         }
         if (body.accel > pointTriggerVal)
+        {
             AddPointRipple(body.candidatePos, body.Speed * 4.0f);
+            AudioManager.Instance.DistortMusic(body.Speed * 2f);
+        }
     }
 
     private void Start()

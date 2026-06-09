@@ -2,19 +2,53 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
+    [SerializeField] private GameObject backgroundMusic;
+    private AudioDistortionFilter distortion;
+    
     [SerializeField] private AudioSource dashSound;
     [SerializeField] private AudioSource reflectSound;
     [SerializeField] private AudioSource warpSound;
     [SerializeField] private AudioSource highCollideSound;
     
+    [SerializeField] private float musicVolume = 3f;
+    [SerializeField] private float stabilizeRate = 3f;
+    
     public static AudioManager Instance;
+
+    private float intensity=1f;
 
     private void Awake()
     {
         Instance = this;
+        distortion = backgroundMusic.GetComponent<AudioDistortionFilter>();
+    }
+
+    void Start()
+    {
+    }
+    
+    void Update()
+    {
+        //intensity = Mathf.Max(musicVolume, intensity - Time.deltaTime * stabilizeRate);
+        
+        intensity = Mathf.MoveTowards(
+            intensity,
+            0f,
+            Time.deltaTime * 0.2f
+        );
+
+        distortion.distortionLevel = intensity;
+    }
+
+    public void DistortMusic(float strength)
+    {
+        intensity = Mathf.Clamp(
+            intensity + strength, 0, 0.7f
+        );
     }
 
     public void PlayDashSound()
@@ -37,17 +71,5 @@ public class AudioManager : MonoBehaviour
     {
         if (highCollideSound != null)
             highCollideSound.Play();
-    }
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
