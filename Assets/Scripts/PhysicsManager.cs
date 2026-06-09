@@ -28,9 +28,10 @@ public class PhysicsManager : MonoBehaviour
     void Start()
     {
         onLowCollision += rippleManager.AddBloomRipple;
+        //onHighCollision += HandleLightHit;
         
         onHighCollision += rippleManager.AddScanlineRipple;
-        onHighCollision += HandleHit;
+        onHighCollision += HandleBigHit;
     }
 
     public void Register(PhysicsBody b)   => bodies.Add(b);
@@ -216,9 +217,10 @@ public class PhysicsManager : MonoBehaviour
         if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare * verticalDamp;  // push b away from a
     }
     
-    void HandleHit(Vector2 param = new Vector2())
+    void HandleBigHit(Vector2 param = new Vector2())
     {
-        //StartCoroutine(HitStop(0.01f));
+        AudioManager.Instance.PlayHighCollideSound();
+        HitStop(0.1f);
     }
     
     IEnumerator HitStop(float duration)

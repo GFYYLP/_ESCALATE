@@ -140,6 +140,7 @@ public class Player : PhysicsBody
         dashTimer = dashDuration;
          //isJumping = false;
         
+         AudioManager.Instance.PlayDashSound();
     }
     
 
@@ -214,8 +215,7 @@ public class Player : PhysicsBody
         nearBlock         = false;
         isJumping         = true;
         
-        //apply grid vfx
-        //rippleManager.AddPointRipple(candidatePos, Speed*4.0f);
+        AudioManager.Instance.PlayReflectSound();
     }
     
     void TryWarp()
@@ -232,6 +232,8 @@ public class Player : PhysicsBody
         candidatePos       = safePos;
 
         warpCharge = 0f;
+        
+        AudioManager.Instance.PlayWarpSound();
     }
     
 
