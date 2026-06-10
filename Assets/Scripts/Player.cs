@@ -205,7 +205,7 @@ public class Player : PhysicsBody
         if (!nearBlock || !isDashing) return;
         canReflect = true;
         
-        if (!Input.GetKeyDown(KeyCode.Z)) return;
+        if (!Input.GetKeyDown(KeyCode.Z) ) return;
 
         // Reflect dash velocity off the contact normal
         //Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
@@ -220,7 +220,7 @@ public class Player : PhysicsBody
     
     void TryWarp()
     {
-        warpCharge += Speed;
+        warpCharge += Speed * 0.2f;
         
         if (!Input.GetKeyDown(KeyCode.C) || warpCharge < warpChargeCap) return;
 

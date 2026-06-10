@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0451281f328707a46b5012c2e2c5e575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highCollideVal: 12
+  highCollideVal: 8
   lowCollideVal: 1.5
   stabilizeRate: 0
   highestImpactSpeed: 0.1
@@ -3548,11 +3548,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5109853990592772183, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.31755003
+      value: 0.25279143
       objectReference: {fileID: 0}
     - target: {fileID: 5109853990592772183, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.2995206
+      value: 0.24368998
       objectReference: {fileID: 0}
     - target: {fileID: 5109853990592772183, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3560,7 +3560,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5109853990592772183, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.1316
+      value: 1.1353
       objectReference: {fileID: 0}
     - target: {fileID: 5109853990592772183, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3631,6 +3631,10 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
+      propertyPath: weight
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: gravity
       value: 40
       objectReference: {fileID: 0}
@@ -3648,7 +3652,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: jumpForce
-      value: 11.53
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 6395413868055242198, guid: 53412e82253d8474da4c40266e4502d9, type: 3}
       propertyPath: moveSpeed

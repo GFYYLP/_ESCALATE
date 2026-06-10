@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 1249978608438895914}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.094224, y: 0.52169, z: 89.36}
-  m_LocalScale: {x: 0.40255672, y: 0.48106292, z: 1}
+  m_LocalPosition: {x: -0.094297, y: 0.52169, z: 89.36}
+  m_LocalScale: {x: 0.5144095, y: 0.60937214, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2277612001119226240}
@@ -60,7 +60,7 @@ MonoBehaviour:
   collidedBody: {fileID: 0}
   collidedToSide: 0
   flipSign: 1
-  weight: 0.55
+  weight: 0.4
   afterImagePrefab: {fileID: 7985264341178807462, guid: 13e55965b5b6dca4f9c539ed8d6f6abc, type: 3}
   imgSpawnInterval: 0.05
   imgLifetime: 0.3

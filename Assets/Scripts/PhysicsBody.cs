@@ -21,7 +21,7 @@ public abstract class PhysicsBody : MonoBehaviour
     [HideInInspector] public bool collidedToSide=false;
     [HideInInspector] public float flipSign = 1;
     
-    [HideInInspector] public float   weight=0.55f;
+    [SerializeField] public float   weight=0.55f;
     
     //afterimage
     [SerializeField] private AfterImage afterImagePrefab;
