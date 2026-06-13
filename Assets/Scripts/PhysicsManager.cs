@@ -19,6 +19,7 @@ public class PhysicsManager : MonoBehaviour
     public float systemStability = 0f;
     public float corruptScore = 0f;
     public float stabilityRatio = 0f;
+    [SerializeField] private ProgressBar stabilityBar;
     
     void Awake()
     {
@@ -81,6 +82,7 @@ public class PhysicsManager : MonoBehaviour
             {
                 corruptScore = Mathf.Max(corruptScore, b.transform.position.y);
                 if (corruptScore != 0) stabilityRatio = systemStability / corruptScore;
+                stabilityBar.UpdateBar(stabilityRatio);
             }
         }
         
