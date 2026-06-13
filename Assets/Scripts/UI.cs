@@ -16,7 +16,7 @@ public class CounterUI : MonoBehaviour
         int scoreVal = Mathf.Max((int)player.transform.position.y, 0);
         
         bestScore = Mathf.Max(scoreVal, bestScore);
-        bestScoreText.text = scoreVal + ":" + bestScore.ToString();
+        bestScoreText.text = scoreVal + ":" + physicsManager.corruptScore.ToString();
     }
 
 }

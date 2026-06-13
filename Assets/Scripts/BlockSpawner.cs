@@ -9,6 +9,7 @@ public class BlockSpawner : MonoBehaviour
     [SerializeField] private Block blockPrefab;
     [SerializeField] private List<Sprite> sprites;
     [SerializeField] private float directorySpacing = 5f;
+    [SerializeField] private float kinematicSpawnDuration = 1f;
     
     private List<Vector2> directoryPositions;
     private int highestDirPos=0;
@@ -21,7 +22,8 @@ public class BlockSpawner : MonoBehaviour
 
     void Start()
     {
-        physicsManager.onHighCollision  += SpawnBlock;
+        physicsManager.onLowCollision  += SpawnBlock;
+        physicsManager.onHighCollision  += SpawnKinematicBlock;
         DoSpawn(new Vector2(0f, -9.0f), true);
         isFirstSpawn = false;
         lastSpawnTime = Time.time; 
@@ -37,6 +39,23 @@ public class BlockSpawner : MonoBehaviour
             DoSpawn(pos);
             lastSpawnTime = Time.time; 
         }
+        Debug.Log("2 AM");
+    }
+    
+    void SpawnKinematicBlock(Vector2 pos)
+    {
+        //check if cooldown has elapsed
+        //TODO: implement coroutine for better responsiveness if needed
+        
+        // if (Time.time - lastSpawnTime >= spawnCooldown)
+        // {
+            DoSpawn(pos, true);
+            lastSpawnTime = Time.time; 
+            
+            
+        //}
+        
+        Debug.Log("1 AM");
     }
 
     void DoSpawn(Vector2 pos, bool isKinematic = false)
@@ -45,7 +64,7 @@ public class BlockSpawner : MonoBehaviour
         
         var block = Instantiate(
             blockPrefab,
-            new Vector3(pos.x, isFirstSpawn ? pos.y : transform.position.y, 20f),
+            new Vector3(pos.x, isKinematic ? pos.y : transform.position.y, 20f),
             Quaternion.identity,
             transform
         );
@@ -57,14 +76,20 @@ public class BlockSpawner : MonoBehaviour
         {
             var sr = block.GetComponentInChildren<SpriteRenderer>();
             sr.sprite = sprites[0];
-            //block.transform.localScale = new Vector3(2f, 2f, 2f);
-        }
+            
+            Vector3 targetScale = block.transform.localScale;
 
-        if (isFirstSpawn)
-        {
-            float scale = 5f;
+            //spawning animation for kinematic blocks
+            if (!isFirstSpawn)
+            {
+                StartCoroutine(GrowIn(kinematicSpawnDuration, block.transform, targetScale));
+            }
+            else  //initial platforming immediately spawns with larger scale
+            {
+                float scale = 5f;
 
-            block.transform.localScale = new Vector3(scale*2f, scale, scale);
+                block.transform.localScale = new Vector3(scale*2f, scale, scale);
+            }
             
         }
     }
@@ -74,11 +99,32 @@ public class BlockSpawner : MonoBehaviour
         transform.position = new Vector3(0, Camera.main.transform.position.y + 6f, 0f);
         
         //spawn a new kinematic block every time the player transform.y increases by directory spacing value
-        if ((int)player.transform.position.y > highestDirPos)
+        // if ((int)player.transform.position.y > highestDirPos)
+        // {
+        //     highestDirPos = (int)player.transform.position.y;
+        //     
+        //     if (highestDirPos % directorySpacing == 0) DoSpawn(transform.position, true);
+        // }
+    }
+    
+    IEnumerator GrowIn(float duration, Transform currScale, Vector3 targetScale)
+    {
+        currScale.localScale = Vector3.zero;
+
+        float t = 0f;
+
+        while (t < duration)
         {
-            highestDirPos = (int)player.transform.position.y;
-            
-            if (highestDirPos % directorySpacing == 0) DoSpawn(transform.position, true);
+            t += Time.deltaTime;
+
+            float progress = t / duration;
+
+            currScale.localScale =
+                Vector3.Lerp(Vector3.zero, targetScale, progress);
+
+            yield return null;
         }
+
+        currScale.localScale = targetScale;
     }
 }

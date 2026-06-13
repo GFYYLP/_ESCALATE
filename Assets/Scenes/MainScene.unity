@@ -269,8 +269,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0451281f328707a46b5012c2e2c5e575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highCollideVal: 8
-  lowCollideVal: 1.5
+  highCollideVal: 15
+  lowCollideVal: 8
   stabilizeRate: 0
   highestImpactSpeed: 0.1
   systemStability: 0
@@ -2453,7 +2453,7 @@ MonoBehaviour:
   physicsManager: {fileID: 303124850}
   blockPrefab: {fileID: 400819145235546773, guid: 6042f6853effa5c40b6b6cd8772c9194, type: 3}
   sprites:
-  - {fileID: 21300000, guid: 719ddb2e3714fbc418627aa9ec9227eb, type: 3}
+  - {fileID: 21300000, guid: 4521ddc910179f04783090917a7e9052, type: 3}
   - {fileID: 21300000, guid: 577fdde09b403354ba970e66e378724e, type: 3}
   directorySpacing: 5
   spawnCooldown: 0.5

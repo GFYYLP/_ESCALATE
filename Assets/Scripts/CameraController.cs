@@ -32,6 +32,6 @@ public class CameraController : MonoBehaviour
             transform.position.z
         );
         
-        material.SetFloat("_SystemStability", physicsManager.systemStability);
+        material.SetFloat("_SystemStability", physicsManager.stabilityRatio);
     }
 }

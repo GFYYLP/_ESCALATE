@@ -78,10 +78,10 @@ Shader "Unlit/Grid"
                     {
                     case 0: //point ripple (on objects abrupt speedup)
                         {
-float radius = age * 0.8;
-float ring   = exp(-pow(dist - radius, 2.0) * 20.0);
-float falloff = ring * exp(-age * 3.0) * strength;
-displacement += normalize(toRipple) * falloff;
+                            float radius = age * 0.8;
+                            float ring   = exp(-pow(dist - radius, 2.0) * 20.0);
+                            float falloff = ring * exp(-age * 3.0) * strength;
+                            displacement += normalize(toRipple) * falloff;
                             break;
                         }
                     case 1: //directional ripple (follow along high-velocity objects)

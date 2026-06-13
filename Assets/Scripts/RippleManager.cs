@@ -82,7 +82,7 @@ public class RippleManager : MonoBehaviour
     {
         if (ripples.Count >= maxRipples)
             ripples.RemoveAt(0); // oldest is always at index 0
-        ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 0.5f, age = 0f, type = 3 });
+        ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 100.5f, age = 0f, type = 3 });
     }
     
     public void AddScanlineRipple(Vector2 pos)

@@ -18,6 +18,7 @@ public class PhysicsManager : MonoBehaviour
     public float highestImpactSpeed = 0f;
     public float systemStability = 0f;
     public float corruptScore = 0f;
+    public float stabilityRatio = 0f;
     
     void Awake()
     {
@@ -27,10 +28,10 @@ public class PhysicsManager : MonoBehaviour
 
     void Start()
     {
-        onLowCollision += rippleManager.AddBloomRipple;
+        onLowCollision += rippleManager.AddScanlineRipple;
         //onHighCollision += HandleLightHit;
         
-        onHighCollision += rippleManager.AddScanlineRipple;
+        onHighCollision += rippleManager.AddBloomRipple;
         onHighCollision += HandleBigHit;
     }
 
@@ -40,14 +41,14 @@ public class PhysicsManager : MonoBehaviour
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
-        systemStability += corruptScore * stabilizeRate * dt;
+        systemStability += stabilizeRate * dt * Time.time;
         
         //let each body update its own velocity THEN move candidate positions
         foreach (var b in bodies)
         {
             b.UpdateVelocity(dt);
             
-            if (b is Player && systemStability > 0f) systemStability -= b.Velocity.magnitude * dt;
+            //if (systemStability > 0f) systemStability -= corruptScore * dt;
         }
         foreach (var b in bodies) b.candidatePos = b.candidatePos + b.velocity * dt;
 
@@ -75,6 +76,12 @@ public class PhysicsManager : MonoBehaviour
             
             if (b.onGround && b.velocity.y < 0f) b.velocity.y = 0f;
             b.transform.position = b.candidatePos;
+
+            if (b is Player)
+            {
+                corruptScore = Mathf.Max(corruptScore, b.transform.position.y);
+                if (corruptScore != 0) stabilityRatio = systemStability / corruptScore;
+            }
         }
         
         //commit deletion
@@ -204,7 +211,7 @@ public class PhysicsManager : MonoBehaviour
         
         if (Mathf.Abs(impactSpeed) > highCollideVal)
             onHighCollision?.Invoke(a.candidatePos);  //either a or b should work given collision proximity
-        corruptScore += Mathf.Abs(impactSpeed) * Camera.main.transform.position.y * 0.5f;
+        // corruptScore += Mathf.Abs(impactSpeed) * Camera.main.transform.position.y * 0.5f;
         
         // aSpeed - bSpeed > 0 means a and b moves in opposite directions
         // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
