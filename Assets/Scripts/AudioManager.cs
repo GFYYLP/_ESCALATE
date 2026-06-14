@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource dashSound;
     [SerializeField] private AudioSource reflectSound;
     [SerializeField] private AudioSource warpSound;
+    [SerializeField] private AudioSource lowCollideSound;
     [SerializeField] private AudioSource highCollideSound;
     
     [SerializeField] private float musicVolume = 3f;
@@ -71,5 +72,10 @@ public class AudioManager : MonoBehaviour
     {
         if (highCollideSound != null)
             highCollideSound.Play();
+    }
+    public void PlayLowCollideSound()
+    {
+        if (lowCollideSound != null)
+            lowCollideSound.Play();
     }
 }

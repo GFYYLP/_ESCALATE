@@ -19,7 +19,6 @@ public class PhysicsManager : MonoBehaviour
     public float systemStability = 0f;
     public float corruptScore = 0f;
     public float stabilityRatio = 0f;
-    [SerializeField] private ProgressBar stabilityBar;
     
     void Awake()
     {
@@ -30,6 +29,7 @@ public class PhysicsManager : MonoBehaviour
     void Start()
     {
         onLowCollision += rippleManager.AddScanlineRipple;
+        onLowCollision += HandleLowHit;
         //onHighCollision += HandleLightHit;
         
         onHighCollision += rippleManager.AddBloomRipple;
@@ -82,7 +82,6 @@ public class PhysicsManager : MonoBehaviour
             {
                 corruptScore = Mathf.Max(corruptScore, b.transform.position.y);
                 if (corruptScore != 0) stabilityRatio = systemStability / corruptScore;
-                stabilityBar.UpdateBar(stabilityRatio);
             }
         }
         
@@ -226,10 +225,15 @@ public class PhysicsManager : MonoBehaviour
         if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare * verticalDamp;  // push b away from a
     }
     
+    void HandleLowHit(Vector2 param = new Vector2())
+    {
+        AudioManager.Instance.PlayLowCollideSound();
+        HitStop(0.1f);
+    }
+    
     void HandleBigHit(Vector2 param = new Vector2())
     {
         AudioManager.Instance.PlayHighCollideSound();
-        HitStop(0.1f);
     }
     
     IEnumerator HitStop(float duration)
