@@ -37,8 +37,11 @@ public class RippleManager : MonoBehaviour
     void Awake() => Instance = this;
 
 
-    public void RespondToBody(PhysicsBody body)
+    public void RespondToBody(PhysicsBody body, float corruptScore)
     {
+        //transition to white background/black grid as corruptScore increases)
+        gridMaterial.SetFloat("_CorruptScore", corruptScore);
+        
         rippleCooldown -= Time.deltaTime;
         if (rippleCooldown > 0f) return;
 

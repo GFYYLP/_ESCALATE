@@ -71,7 +71,7 @@ public abstract class PhysicsBody : MonoBehaviour
     protected virtual void OnDisable() =>
         PhysicsManager.Instance.Unregister(this);
     
-    public abstract void UpdateVelocity(float dt);
+    public abstract void UpdateVelocity(float dt, float corruptScore);
 
     public void UpdateGroundState(List<PhysicsBody> bodies)
     {

@@ -32,9 +32,6 @@ public class Player : PhysicsBody
     [SerializeField] private float reflectSensitivity    = 0.3f;
     [SerializeField] private float warpChargeCap = 20f;
     
-    //restitution response
-    
-    
     //state 
     private bool  isDashing;
     private bool  dashUsed;
@@ -51,7 +48,7 @@ public class Player : PhysicsBody
     private Vector2 dirVal = default;
     private Vector2 preWarpPos = default;
 
-    public override void UpdateVelocity(float dt)
+    public override void UpdateVelocity(float dt, float corruptScore)
     {
         float reflectCondition = ((nearBlock) ? 0.3f : 0f)
             + ((isDashing) ? 0.7f : 0f);
@@ -81,7 +78,7 @@ public class Player : PhysicsBody
         TryWarp();
         
         ApplyHorizontal(dt);
-        ApplyVertical(dt);
+        ApplyVertical(dt, corruptScore);
         
         nearBlock = false;  // reset each frame, AABBOverlap sets it if close
         
@@ -239,7 +236,7 @@ public class Player : PhysicsBody
 
     
 
-    void ApplyVertical(float dt)
+    void ApplyVertical(float dt, float corruptScore)
     {
         if (isDashing && !onGround) return;
 
@@ -268,7 +265,7 @@ public class Player : PhysicsBody
         float grav     = fastFall ? fastFallGravity : gravity;
         float cap      = fastFall ? maxFastFall     : maxFallSpeed;
 
-        velocity.y -= grav * dt;
+        velocity.y -= grav * dt * (1.0f + corruptScore);
         if (velocity.y < -cap) velocity.y = -cap;
     }
     

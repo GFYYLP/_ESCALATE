@@ -6,6 +6,7 @@ Shader "Unlit/Grid"
         _LineWidth   ("Line Width",   Float) = 0.02
         _GridColor   ("Grid Color",   Color) = (0.2, 0.2, 0.8, 1.0)
         _BgColor     ("Background",   Color) = (0.0, 0.0, 0.05, 1.0)
+        _CorruptScore ("Corrupt Score", Float) = 1.0
     }
 
     SubShader
@@ -23,6 +24,7 @@ Shader "Unlit/Grid"
             float  _LineWidth;
             float4 _GridColor;
             float4 _BgColor;
+            float _CorruptScore;
             
             struct Ripple
             {
@@ -221,10 +223,14 @@ Shader "Unlit/Grid"
                     step(min(fmod(abs(guv), _GridSpacing), \
                              _GridSpacing - fmod(abs(guv), _GridSpacing)).y, _LineWidth))
 
-                float4 col = _BgColor * tint;
-                col.r = lerp(col.r, _GridColor.r, GRID_LINE(uvR));
-                col.g = lerp(col.g, _GridColor.g, GRID_LINE(uvG));
-                col.b = lerp(col.b, _GridColor.b, GRID_LINE(uvB));
+                //transition bg color to white as corruption increases
+                float4 col = lerp(_BgColor, float4(1.0, 1.0, 1.0, 1.0), _CorruptScore);
+                col *= tint;
+                
+                float4 finalGridColor = lerp(_GridColor, float4(0.0, 0.0, 0.0, 1.0), _CorruptScore);
+                col.r = lerp(col.r, finalGridColor.r, GRID_LINE(uvR));
+                col.g = lerp(col.g, finalGridColor.g, GRID_LINE(uvG));
+                col.b = lerp(col.b, finalGridColor.b, GRID_LINE(uvB));
 
                 return col + scanlineColor + saturate(whiteBloom);
                 

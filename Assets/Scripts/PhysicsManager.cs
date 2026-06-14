@@ -15,10 +15,17 @@ public class PhysicsManager : MonoBehaviour
     [SerializeField] public float lowCollideVal = 0.1f;
     [SerializeField] private float stabilizeRate = 10f;
     
-    public float highestImpactSpeed = 0f;
-    public float systemStability = 0f;
-    public float corruptScore = 0f;
-    public float stabilityRatio = 0f;
+    //corrupt
+    [Header("Corrupt Impact")]
+    [SerializeField] private float highColCorruptVal = 0.03f;
+    [SerializeField] private float lowColCorruptVal = 0.05f;
+    [SerializeField] private float rippleCorruptVal = 0.001f;
+    [SerializeField] private float gravityCorruptVal = 0.1f;
+    
+    [HideInInspector] public float highestImpactSpeed = 0f;
+    [HideInInspector] public float systemStability = 0f;
+    [HideInInspector] public float corruptScore = 1f;
+    [HideInInspector] public float stabilityRatio = 0f;
     
     void Awake()
     {
@@ -47,9 +54,7 @@ public class PhysicsManager : MonoBehaviour
         //let each body update its own velocity THEN move candidate positions
         foreach (var b in bodies)
         {
-            b.UpdateVelocity(dt);
-            
-            //if (systemStability > 0f) systemStability -= corruptScore * dt;
+            b.UpdateVelocity(dt, corruptScore * gravityCorruptVal);
         }
         foreach (var b in bodies) b.candidatePos = b.candidatePos + b.velocity * dt;
 
@@ -80,8 +85,8 @@ public class PhysicsManager : MonoBehaviour
 
             if (b is Player)
             {
-                corruptScore = Mathf.Max(corruptScore, b.transform.position.y);
-                if (corruptScore != 0) stabilityRatio = systemStability / corruptScore;
+                corruptScore = Mathf.Max(corruptScore, Mathf.Max(b.transform.position.y, 1f));
+                stabilityRatio = systemStability / corruptScore;
             }
         }
         
@@ -104,7 +109,7 @@ public class PhysicsManager : MonoBehaviour
         //ripple manipulation
         foreach (var b in bodies)
         {
-            rippleManager.RespondToBody(b);
+            rippleManager.RespondToBody(b, corruptScore * rippleCorruptVal);
         }
 
         if (Input.GetKeyDown(KeyCode.V))
@@ -207,10 +212,12 @@ public class PhysicsManager : MonoBehaviour
         b.candidatePos -= normal *  penetration * bShare;
         
         //collision handling
-        if (Mathf.Abs(impactSpeed) > lowCollideVal)
+        float lowThreshold = lowCollideVal * (1f - (corruptScore * lowColCorruptVal));
+        if (Mathf.Abs(impactSpeed) > lowThreshold)
             onLowCollision?.Invoke(a.candidatePos);
-        
-        if (Mathf.Abs(impactSpeed) > highCollideVal)
+
+        float highThreshold = highCollideVal * (1f - (corruptScore * highColCorruptVal));
+        if (Mathf.Abs(impactSpeed) > highThreshold)
             onHighCollision?.Invoke(a.candidatePos);  //either a or b should work given collision proximity
         // corruptScore += Mathf.Abs(impactSpeed) * Camera.main.transform.position.y * 0.5f;
         
