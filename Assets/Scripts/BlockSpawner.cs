@@ -14,8 +14,10 @@ public class BlockSpawner : MonoBehaviour
     private List<Vector2> directoryPositions;
     private int highestDirPos=0;
     
-    [SerializeField] private float spawnCooldown = 0.5f; // Cooldown duration in seconds
+    [SerializeField] private float spawnCooldown = 0.5f; 
+    [SerializeField] private float kinematicSpawnCooldown = 0.5f;
     private float lastSpawnTime = -Mathf.Infinity;
+    private float lastKinematicSpawnTime = -Mathf.Infinity;
     private int spawnCounter = 0;
     
     private bool isFirstSpawn = true;
@@ -47,13 +49,11 @@ public class BlockSpawner : MonoBehaviour
         //check if cooldown has elapsed
         //TODO: implement coroutine for better responsiveness if needed
         
-        // if (Time.time - lastSpawnTime >= spawnCooldown)
-        // {
+        if (Time.time - lastKinematicSpawnTime >= kinematicSpawnCooldown)
+        {
             DoSpawn(pos, true);
-            lastSpawnTime = Time.time; 
-            
-            
-        //}
+            lastKinematicSpawnTime = Time.time; 
+        }
         
         Debug.Log("1 AM");
     }

@@ -26,11 +26,13 @@ public class PhysicsManager : MonoBehaviour
     [HideInInspector] public float systemStability = 0f;
     [HideInInspector] public float corruptScore = 1f;
     [HideInInspector] public float stabilityRatio = 0f;
+    [HideInInspector] public float sceneStartTime;
     
     void Awake()
     {
         Instance = this;
         rippleManager = GetComponent<RippleManager>();
+        sceneStartTime = Time.time;
     }
 
     void Start()
@@ -49,7 +51,8 @@ public class PhysicsManager : MonoBehaviour
     void FixedUpdate()
     {
         float dt = Time.fixedDeltaTime;
-        systemStability += stabilizeRate * dt * Time.time;
+        float elapsed = Time.time - sceneStartTime; 
+        systemStability += stabilizeRate * dt * elapsed;
         
         //let each body update its own velocity THEN move candidate positions
         foreach (var b in bodies)
