@@ -102,20 +102,12 @@ public class PhysicsManager : MonoBehaviour
             Destroy(b.gameObject);
     }
 
-    private bool paused = false;
-
     void Update()
     {
         //ripple manipulation
         foreach (var b in bodies)
         {
             rippleManager.RespondToBody(b, corruptScore * rippleCorruptVal);
-        }
-
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            paused = !paused;
-            Time.timeScale = paused ? 0f : 1f;
         }
     }
 
