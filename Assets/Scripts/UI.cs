@@ -1,37 +1,99 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CounterUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text bestScoreText;
+    [SerializeField] private Image scrollbar;
     [SerializeField] private PhysicsManager physicsManager;
     [SerializeField] private Player player;
     
-    [SerializeField] GameObject mainMenu;
-    [SerializeField] GameObject gameOver;
-
-    [SerializeField] Image scrollbar;
+    [SerializeField] private GameObject homeScreen;
+    [SerializeField] private GameObject settingScreen;
+    [SerializeField] private GameObject overScreen;
+    [SerializeField] private GameObject winScreen;
+    [SerializeField] private GameObject pauseScreen;
+    [SerializeField] private GameObject navScreen;
     
-    public void ShowMainMenu()
+    [SerializeField] private Button homeButton;
+    [SerializeField] private Button settingButton;
+    [SerializeField] private Button playButton;
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button returnButton;
+
+    private GameObject activeScreen;
+    
+    private void Awake()
     {
-        HideAll();
-        mainMenu.SetActive(true);
+        playButton.onClick.AddListener(OnPlayClicked); //hide all
+        restartButton.onClick.AddListener(OnRestartClicked);
+        returnButton.onClick.AddListener(OnReturnClicked);
+        
+        homeButton.onClick.AddListener(OnHomeClicked);
+        settingButton.onClick.AddListener(OnSettingClicked);
     }
 
-    public void ShowGameOver()
+    void Start()
     {
-        HideAll();
-        gameOver.SetActive(true);
+        OnHomeClicked();
+    }
+    
+    private void OnPlayClicked()
+    {
+        OnReturnClicked();  //resume previous screen
+        if (activeScreen == homeScreen) OnRestartClicked();
+    }
+    
+    private void OnHomeClicked()
+    {
+        homeScreen.SetActive(true);
+        activeScreen = homeScreen;
+        ShowNav();
+    }
+    
+    private void OnRestartClicked()
+    {
+        //reset scene states
+        SceneManager.LoadScene(
+            SceneManager.GetActiveScene().buildIndex
+        );
+        OnReturnClicked();
     }
 
-    private void HideAll()
+    private void ShowNav()
     {
-        mainMenu.SetActive(false);
-        // hud.SetActive(false);
-        gameOver.SetActive(false);
+        navScreen.SetActive(true);
+    }
+
+    private void OnSettingClicked()
+    {
+        settingScreen.SetActive(true);
+        activeScreen = settingScreen;
+        ShowNav();
+    }
+    
+    private void OnReturnClicked()
+    {
+        activeScreen.SetActive(false);
+    }
+
+    public void ShowOverScreen()
+    {
+        overScreen.SetActive(true);
+        activeScreen = overScreen;
+        ShowNav();
+    }
+    
+    public void ShowWinScreen()
+    {
+        winScreen.SetActive(true);
+        activeScreen = winScreen;
+        ShowNav();
     }
     
     private int bestScore;
@@ -45,9 +107,14 @@ public class CounterUI : MonoBehaviour
         bestScoreText.text = scoreVal + ":" + physicsManager.corruptScore.ToString();
 
         scrollbar.fillAmount = physicsManager.stabilityRatio;
-        // if (physicsManager.stabilityRatio >= 1.0f)
+        if (physicsManager.stabilityRatio >= 1.0f)
+        {
+            ShowOverScreen();
+        }
+        
+        // if (physicsManager.corruptScore >= 200.0f)
         // {
-        //     ShowGameOver();
+        //     ShowWinScreen();
         // }
     }
 
