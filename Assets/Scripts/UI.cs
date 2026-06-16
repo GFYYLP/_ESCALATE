@@ -188,7 +188,7 @@ public class CounterUI : MonoBehaviour
     {
         if (gameOver) return;
         gameOver = true;
-        SetPaused(true);
+        //SetPaused(true);
         ShowScreen(winScreen);
         ShowNav();
     }
@@ -199,7 +199,7 @@ public class CounterUI : MonoBehaviour
     {
         int scoreVal = Mathf.Max((int)player.transform.position.y, 0);
         bestScore = Mathf.Max(scoreVal, bestScore);
-        bestScoreText.text = scoreVal + " : " + physicsManager.corruptScore.ToString();
+        bestScoreText.text = scoreVal + " : " + ((int)physicsManager.corruptScore).ToString();
 
         if (Input.GetKeyDown(KeyCode.V) && gameStarted && !gameOver)
         {
@@ -218,8 +218,10 @@ public class CounterUI : MonoBehaviour
         if (!gameOver && physicsManager.stabilityRatio >= 1.0f)
             ShowOverScreen();
 
-        // if (!gameOver && physicsManager.corruptScore >= 200.0f)
-        //     ShowWinScreen();
+        if (!gameOver && physicsManager.corruptScore >= PhysicsManager.Instance.winScore)
+        {
+            ShowWinScreen();
+        }
     }
 
 

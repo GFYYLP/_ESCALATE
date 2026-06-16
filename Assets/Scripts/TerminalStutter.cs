@@ -13,19 +13,22 @@ using TMPro;
 public class TerminalStutter : MonoBehaviour
 {
     [TextArea(5, 100)]
-    [SerializeField] private string realText;
-    [SerializeField] private TMP_Text textBox;
+    private string realText;
+    private TMP_Text textBox;
+    
     [SerializeField] private int glitchFrames = 3;
     [SerializeField] private float frameDelay = 0.04f;
-    [SerializeField] private float minInterval = 3f;
-    [SerializeField] private float maxInterval = 8f;
+    [SerializeField] private float minInterval = 1f;
+    [SerializeField] private float maxInterval = 4f;
     
     private static readonly char[] garbageChars =
         "█▓▒░╬╫╪┼ŧ§¥µ#%&@?!*".ToCharArray();
 
     void Start()
     {
-        textBox.text = realText;
+        textBox = GetComponent<TMP_Text>();
+        realText = textBox.text;
+        
         StartCoroutine(GlitchLoop());
     }
 

@@ -147,32 +147,7 @@ public class Player : PhysicsBody
         velocity.x = Mathf.Clamp(velocity.x, -dashEndHCap, dashEndHCap);
         if (velocity.y > 0f) velocity.y = 0f;
     }
-    
-    public void TryLatch()
-    {
-        Block block = collidedBody as Block;
-        if (block == null) return;
 
-        if (collidedToSide)
-        {
-            // hold direction required for side contact
-            float inputX = Input.GetKey(KeyCode.RightArrow) ?  1f :
-                Input.GetKey(KeyCode.LeftArrow)  ? -1f : 0f;
-            Vector2 delta  = candidatePos - block.candidatePos;
-            bool holding = Mathf.Floor(dirVal.x) == -Mathf.Sign(delta.x);
-
-            if (holding)
-                //inherit block's movement
-                velocity.y = block.velocity.y;
-
-        }
-        else if (onGround)
-        {
-            //automatic top contact
-            velocity.x += block.velocity.x;
-        }
-    }
-    
     
     void ApplyHorizontal(float dt)
     {
@@ -265,7 +240,8 @@ public class Player : PhysicsBody
         float grav     = fastFall ? fastFallGravity : gravity;
         float cap      = fastFall ? maxFastFall     : maxFallSpeed;
 
-        velocity.y -= grav * dt * (1.0f + corruptScore);
+        float gravMultiplier = (corruptScore > PhysicsManager.Instance.winScore * 0.8f) ? 0f : 1.0f;  //no gravity when close to winning
+        velocity.y -= grav * dt * gravMultiplier;
         if (velocity.y < -cap) velocity.y = -cap;
     }
     

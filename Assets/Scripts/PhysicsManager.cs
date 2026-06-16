@@ -21,6 +21,7 @@ public class PhysicsManager : MonoBehaviour
     [SerializeField] private float lowColCorruptVal = 0.05f;
     [SerializeField] private float rippleCorruptVal = 0.001f;
     [SerializeField] private float gravityCorruptVal = 0.1f;
+    [SerializeField] public float winScore = 100f;
     
     [HideInInspector] public float highestImpactSpeed = 0f;
     [HideInInspector] public float systemStability = 0f;
