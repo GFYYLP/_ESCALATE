@@ -95,7 +95,7 @@ public abstract class PhysicsBody : MonoBehaviour
                 if (otherIsBelow && restingOnTop)
                 {
                     onGround = true;
-                    return;
+                    break;
                 }
             }
         }

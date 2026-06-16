@@ -13,6 +13,7 @@ public class AudioManager : MonoBehaviour
     private static float currentMusicVol= 0.5f;
     [SerializeField] private GameObject backgroundMusic;
     private AudioDistortionFilter distortion;
+    private AudioSource musicSource;
     
     [SerializeField] private AudioSource dashSound;
     [SerializeField] private AudioSource reflectSound;
@@ -30,6 +31,7 @@ public class AudioManager : MonoBehaviour
     {
         Instance = this;
         distortion = backgroundMusic.GetComponent<AudioDistortionFilter>();
+        musicSource = backgroundMusic.GetComponent<AudioSource>();
 
         soundVolume.onValueChanged.AddListener(OnSoundValueChange);
         musicVolume.onValueChanged.AddListener(OnMusicValueChange);
@@ -57,7 +59,8 @@ public class AudioManager : MonoBehaviour
     void OnMusicValueChange(float value)
     {
         currentMusicVol = value;
-        musicVolume.value = value;
+        if (musicSource != null)
+            musicSource.volume = value;
     }
     
     void Update()

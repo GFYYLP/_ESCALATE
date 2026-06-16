@@ -45,11 +45,11 @@ public class BlockSpawner : MonoBehaviour
     
     void SpawnKinematicBlock(Vector2 pos)
     {
-        //check if cooldown has elapsed
-        //TODO: implement coroutine for better responsiveness if needed
+        if (player.transform.position.y <= 2f) return;  //avoid spawning kinematic block near the inital platform
         
         if (Time.time - lastKinematicSpawnTime >= kinematicSpawnCooldown)
         {
+            
             DoSpawn(pos, true);
             lastKinematicSpawnTime = Time.time; 
         }

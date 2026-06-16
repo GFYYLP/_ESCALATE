@@ -62,7 +62,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
-    - _CorruptScore: 0.06934798
+    - _CorruptScore: 0.0019116498
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0

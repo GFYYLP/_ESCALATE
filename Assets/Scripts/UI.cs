@@ -23,14 +23,28 @@ public class CounterUI : MonoBehaviour
     [SerializeField] private Button playButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button returnButton;
+    [SerializeField] private Button quitButton;
+    [SerializeField] private Button pauseButton;
 
     [SerializeField] private TMP_Text playButtonLabel;
+
+    public static CounterUI Instance;
 
     private GameObject activeScreen;
     private GameObject previousScreen;
     private bool paused = false;
     private bool gameStarted = false;
     private bool gameOver = false;
+
+    public bool IsPlaying => gameStarted && !paused && !gameOver;
+
+    public void PauseFromButton()
+    {
+        if (!IsPlaying) return;
+        SetPaused(true);
+        ShowScreen(pauseScreen);
+        ShowNav();
+    }
     private static int bestScore = 0;
     private static bool restartRequested = false;
     
@@ -41,6 +55,7 @@ public class CounterUI : MonoBehaviour
         public bool showReturn;
         public bool showHome;
         public bool showSetting;
+        public bool showQuit;
         public string playLabel; // null = use default "Play"
     }
 
@@ -48,6 +63,8 @@ public class CounterUI : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         screenConfigs = new Dictionary<GameObject, ScreenButtonConfig>
         {
             [homeScreen] = new ScreenButtonConfig
@@ -57,6 +74,7 @@ public class CounterUI : MonoBehaviour
                 showReturn  = false,
                 showHome    = false, // already here
                 showSetting = true,
+                showQuit    = true,
             },
             [pauseScreen] = new ScreenButtonConfig
             {
@@ -65,6 +83,7 @@ public class CounterUI : MonoBehaviour
                 showReturn  = false,
                 showHome    = true,
                 showSetting = true,
+                showQuit    = false,
             },
             [settingScreen] = new ScreenButtonConfig
             {
@@ -73,6 +92,7 @@ public class CounterUI : MonoBehaviour
                 showReturn  = true,
                 showHome    = false,
                 showSetting = false, // already here
+                showQuit    = false,
             },
             [overScreen] = new ScreenButtonConfig
             {
@@ -81,6 +101,7 @@ public class CounterUI : MonoBehaviour
                 showReturn  = false,
                 showHome    = true,
                 showSetting = false,
+                showQuit    = false,
             },
             [winScreen] = new ScreenButtonConfig
             {
@@ -89,6 +110,7 @@ public class CounterUI : MonoBehaviour
                 showReturn  = false,
                 showHome    = true,
                 showSetting = false,
+                showQuit    = false,
             },
         };
 
@@ -97,6 +119,8 @@ public class CounterUI : MonoBehaviour
         returnButton.onClick.AddListener(OnReturnClicked);
         homeButton.onClick.AddListener(OnHomeClicked);
         settingButton.onClick.AddListener(OnSettingClicked);
+        quitButton.onClick.AddListener(OnQuitClicked);
+        pauseButton.onClick.AddListener(PauseFromButton);
     }
 
     private void Start()
@@ -173,6 +197,15 @@ public class CounterUI : MonoBehaviour
         SetPaused(true);
         ShowScreen(settingScreen);
         ShowNav();
+    }
+
+    private void OnQuitClicked()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
 
@@ -258,6 +291,7 @@ public class CounterUI : MonoBehaviour
             SetButtonVisible(returnButton,  true);
             SetButtonVisible(homeButton,    true);
             SetButtonVisible(settingButton, true);
+            SetButtonVisible(quitButton,    true);
             return;
         }
 
@@ -266,6 +300,7 @@ public class CounterUI : MonoBehaviour
         SetButtonVisible(returnButton,  cfg.showReturn);
         SetButtonVisible(homeButton,    cfg.showHome);
         SetButtonVisible(settingButton, cfg.showSetting);
+        SetButtonVisible(quitButton,    cfg.showQuit);
 
         if (cfg.showPlay && playButtonLabel != null)
             playButtonLabel.text = cfg.playLabel ?? "Play";
@@ -277,8 +312,17 @@ public class CounterUI : MonoBehaviour
             button.gameObject.SetActive(visible);
     }
 
-    private void ShowNav() => navScreen.SetActive(true);
-    private void HideNav() => navScreen.SetActive(false);
+    private void ShowNav()
+    {
+        navScreen.SetActive(true);
+        SetButtonVisible(pauseButton, false);
+    }
+
+    private void HideNav()
+    {
+        navScreen.SetActive(false);
+        SetButtonVisible(pauseButton, gameStarted && !gameOver);
+    }
 
     private void SetPaused(bool value)
     {
