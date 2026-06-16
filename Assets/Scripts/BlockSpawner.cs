@@ -41,7 +41,6 @@ public class BlockSpawner : MonoBehaviour
             DoSpawn(pos);
             lastSpawnTime = Time.time; 
         }
-        Debug.Log("2 AM");
     }
     
     void SpawnKinematicBlock(Vector2 pos)
@@ -54,8 +53,6 @@ public class BlockSpawner : MonoBehaviour
             DoSpawn(pos, true);
             lastKinematicSpawnTime = Time.time; 
         }
-        
-        Debug.Log("1 AM");
     }
 
     void DoSpawn(Vector2 pos, bool isKinematic = false)

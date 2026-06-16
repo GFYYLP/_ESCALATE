@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
+    [SerializeField] private Slider soundVolume;
+    [SerializeField] private Slider musicVolume;
     [SerializeField] private GameObject backgroundMusic;
     private AudioDistortionFilter distortion;
     
@@ -15,7 +18,6 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource lowCollideSound;
     [SerializeField] private AudioSource highCollideSound;
     
-    [SerializeField] private float musicVolume = 3f;
     [SerializeField] private float stabilizeRate = 3f;
     
     public static AudioManager Instance;
@@ -26,10 +28,29 @@ public class AudioManager : MonoBehaviour
     {
         Instance = this;
         distortion = backgroundMusic.GetComponent<AudioDistortionFilter>();
+
+        soundVolume.onValueChanged.AddListener(OnSoundValueChange);
+        musicVolume.onValueChanged.AddListener(OnMusicValueChange);
     }
 
     void Start()
     {
+        OnSoundValueChange(soundVolume.value);
+        OnMusicValueChange(musicVolume.value);
+    }
+
+    void OnSoundValueChange(float value)
+    {
+        dashSound.volume        = value;
+        reflectSound.volume     = value;
+        warpSound.volume        = value;
+        lowCollideSound.volume  = value;
+        highCollideSound.volume = value;
+    }
+
+    void OnMusicValueChange(float value)
+    {
+        musicVolume.value = value;
     }
     
     void Update()
@@ -42,7 +63,7 @@ public class AudioManager : MonoBehaviour
             Time.deltaTime * 0.2f
         );
 
-        distortion.distortionLevel = intensity;
+        //distortion.distortionLevel = intensity;
     }
 
     public void DistortMusic(float strength)
