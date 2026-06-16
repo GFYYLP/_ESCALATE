@@ -8,7 +8,9 @@ using UnityEngine.UI;
 public class AudioManager : MonoBehaviour
 {
     [SerializeField] private Slider soundVolume;
+    private static float currentSoundVol= 0.5f;
     [SerializeField] private Slider musicVolume;
+    private static float currentMusicVol= 0.5f;
     [SerializeField] private GameObject backgroundMusic;
     private AudioDistortionFilter distortion;
     
@@ -35,12 +37,16 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
+        soundVolume.value = currentSoundVol;
+        musicVolume.value = currentMusicVol;
+        
         OnSoundValueChange(soundVolume.value);
         OnMusicValueChange(musicVolume.value);
     }
 
     void OnSoundValueChange(float value)
     {
+        currentSoundVol = value;
         dashSound.volume        = value;
         reflectSound.volume     = value;
         warpSound.volume        = value;
@@ -50,6 +56,7 @@ public class AudioManager : MonoBehaviour
 
     void OnMusicValueChange(float value)
     {
+        currentMusicVol = value;
         musicVolume.value = value;
     }
     

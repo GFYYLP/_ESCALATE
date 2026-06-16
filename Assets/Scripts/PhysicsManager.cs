@@ -2,12 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PhysicsManager : MonoBehaviour
 {
     public static PhysicsManager Instance;
     public event Action<Vector2> onHighCollision;
     public event Action<Vector2> onLowCollision;
+    [SerializeField] private Toggle infiniteMode;
+    private static bool currInfToggle = false;
+    [SerializeField] private Toggle hardMode;
+    private static bool currHardToggle = false;
     
     private RippleManager rippleManager;
     private List<PhysicsBody> bodies = new List<PhysicsBody>();
@@ -21,7 +26,9 @@ public class PhysicsManager : MonoBehaviour
     [SerializeField] private float lowColCorruptVal = 0.05f;
     [SerializeField] private float rippleCorruptVal = 0.001f;
     [SerializeField] private float gravityCorruptVal = 0.1f;
-    [SerializeField] public float winScore = 100f;
+    [SerializeField] private float winThreshold = 150f;
+    [HideInInspector] public float winScore = 100f;
+    private float difficultyScale = 1.0f;
     
     [HideInInspector] public float highestImpactSpeed = 0f;
     [HideInInspector] public float systemStability = 0f;
@@ -35,6 +42,7 @@ public class PhysicsManager : MonoBehaviour
         rippleManager = GetComponent<RippleManager>();
         sceneStartTime = Time.time;
     }
+    
 
     void Start()
     {
@@ -44,6 +52,9 @@ public class PhysicsManager : MonoBehaviour
         
         onHighCollision += rippleManager.AddBloomRipple;
         onHighCollision += HandleBigHit;
+
+        infiniteMode.isOn = currInfToggle;
+        hardMode.isOn = currHardToggle;
     }
 
     public void Register(PhysicsBody b)   => bodies.Add(b);
@@ -89,7 +100,7 @@ public class PhysicsManager : MonoBehaviour
 
             if (b is Player)
             {
-                corruptScore = Mathf.Max(corruptScore, Mathf.Max(b.transform.position.y, 1f));
+                corruptScore = Mathf.Max(corruptScore, Mathf.Max(b.transform.position.y  * difficultyScale, 1f));
                 stabilityRatio = systemStability / corruptScore;
             }
         }
@@ -112,6 +123,19 @@ public class PhysicsManager : MonoBehaviour
         foreach (var b in bodies)
         {
             rippleManager.RespondToBody(b, corruptScore * rippleCorruptVal);
+        }
+
+        if (hardMode.isOn) difficultyScale = (3f);
+        else difficultyScale = 1f;
+        if (infiniteMode.isOn) winScore = 9999f;
+        else winScore = winThreshold;
+        
+        currHardToggle = hardMode.isOn;
+        currInfToggle = infiniteMode.isOn;
+        
+        void Update()
+        {
+            Debug.Log($"Hard: {hardMode.isOn}");
         }
     }
 

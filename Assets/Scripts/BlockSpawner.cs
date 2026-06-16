@@ -15,7 +15,7 @@ public class BlockSpawner : MonoBehaviour
     private int highestDirPos=0;
     
     [SerializeField] private float spawnCooldown = 0.5f; 
-    [SerializeField] private float kinematicSpawnCooldown = 0.5f;
+    [SerializeField] private float kinematicSpawnCooldown = 1.0f;
     private float lastSpawnTime = -Mathf.Infinity;
     private float lastKinematicSpawnTime = -Mathf.Infinity;
     private int spawnCounter = 0;

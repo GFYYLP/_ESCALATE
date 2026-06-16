@@ -31,7 +31,7 @@ public class CounterUI : MonoBehaviour
     private bool paused = false;
     private bool gameStarted = false;
     private bool gameOver = false;
-    private int bestScore = 0;
+    private static int bestScore = 0;
     private static bool restartRequested = false;
     
     private struct ScreenButtonConfig
@@ -71,7 +71,7 @@ public class CounterUI : MonoBehaviour
                 showPlay    = false,
                 showRestart = false,
                 showReturn  = true,
-                showHome    = true,
+                showHome    = false,
                 showSetting = false, // already here
             },
             [overScreen] = new ScreenButtonConfig
@@ -199,9 +199,10 @@ public class CounterUI : MonoBehaviour
     {
         int scoreVal = Mathf.Max((int)player.transform.position.y, 0);
         bestScore = Mathf.Max(scoreVal, bestScore);
-        bestScoreText.text = scoreVal + " : " + ((int)physicsManager.corruptScore).ToString();
 
-        if (Input.GetKeyDown(KeyCode.V) && gameStarted && !gameOver)
+        bestScoreText.text = scoreVal + " : " + ((int)bestScore);//((int)physicsManager.corruptScore).ToString();
+
+        if (Input.GetKeyDown(KeyCode.Escape) && gameStarted && !gameOver)
         {
             if (paused)
                 OnReturnClicked();

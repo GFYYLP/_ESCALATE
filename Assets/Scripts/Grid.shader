@@ -92,10 +92,6 @@ Shader "Unlit/Grid"
                             float  perp     = dot(toRipple, float2(-dir.y, dir.x));  //perpendicular distance from axis
                             
                             // falloff that elongates behind the object, sharp ahead
-                            // float  axialFalloff = exp(-max(along, 0.0) * 1.5) *  // weak ahead
-                            //                       exp(-max(-along, 0.0) * 0.3) *  // long tail behind
-                            //                       exp(-abs(perp) * 3.0)         *  // narrow band
-                            //                       exp(-age * 2.0);
                             float  s = max(_Ripples[r].strength, 0.01);
                             float  axialFalloff = exp(-max(along,  0.0) * (1.5 / s)) *
                                                   exp(-max(-along, 0.0) * (0.3 / s)) *

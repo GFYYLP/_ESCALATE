@@ -181,7 +181,13 @@ public class Player : PhysicsBody
 
         // Reflect dash velocity off the contact normal
         //Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
-        velocity          *= 3.0f;  
+        bool hasInput = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ||
+                        Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ||
+                        Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ||
+                        Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
+
+        float reflectMultiplier = hasInput ? 3.0f : 1.5f;  //unheld key gets lower boost (since movement key hinders the boost otherwise)
+        velocity          *= reflectMultiplier;  
         isDashing         = false;
         dashUsed          = false;  // refund dash
         nearBlock         = false;
