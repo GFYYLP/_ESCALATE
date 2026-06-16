@@ -64,7 +64,7 @@ public class PlayerVFX : MonoBehaviour
             dashTask.UpdateBar(1f);
         }
         
-        // dash: binary — available or not
+        // dash: binary, available or not
         //dashBar.UpdateBar(player.DashUsed ? 0f : 1f);
 
         // reflect: also mostly binary but use ReflectVal (0, 0.3, or 1.0)

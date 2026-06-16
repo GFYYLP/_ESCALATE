@@ -134,6 +134,8 @@ public class CounterUI : MonoBehaviour
 
     private void OnHomeClicked()
     {
+        gameOver = false;
+        gameStarted = false;
         SetPaused(true);
         ShowScreen(homeScreen);
         ShowNav();
@@ -216,10 +218,10 @@ public class CounterUI : MonoBehaviour
 
         scrollbar.fillAmount = physicsManager.stabilityRatio;
 
-        if (!gameOver && physicsManager.stabilityRatio >= 1.0f)
+        if (gameStarted && !gameOver && physicsManager.stabilityRatio >= 1.0f)
             ShowOverScreen();
 
-        if (!gameOver && physicsManager.corruptScore >= PhysicsManager.Instance.winScore)
+        if (gameStarted && !gameOver && physicsManager.corruptScore >= PhysicsManager.Instance.winScore)
         {
             ShowWinScreen();
         }
@@ -229,8 +231,8 @@ public class CounterUI : MonoBehaviour
 
     private void ShowScreen(GameObject screen)
     {
+        previousScreen = activeScreen;
         HideActiveScreen();
-        previousScreen = activeScreen; 
         screen.SetActive(true);
         activeScreen = screen;
         ApplyButtonConfig(screen);
