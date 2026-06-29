@@ -33,9 +33,6 @@ public class BlockSpawner : MonoBehaviour
 
     void SpawnBlock(Vector2 pos)
     {
-        //check if cooldown has elapsed
-        //TODO: implement coroutine for better responsiveness if needed
-        
         if (Time.time - lastSpawnTime >= spawnCooldown)
         {
             DoSpawn(pos);
@@ -45,11 +42,10 @@ public class BlockSpawner : MonoBehaviour
     
     void SpawnKinematicBlock(Vector2 pos)
     {
-        if (player.transform.position.y <= 2f) return;  //avoid spawning kinematic block near the inital platform
+        if (player.transform.position.y <= 2f) return;  //avoid spawning kinematic block near the initial platform
         
         if (Time.time - lastKinematicSpawnTime >= kinematicSpawnCooldown)
         {
-            
             DoSpawn(pos, true);
             lastKinematicSpawnTime = Time.time; 
         }
@@ -67,7 +63,7 @@ public class BlockSpawner : MonoBehaviour
         );
         block.gameObject.layer = LayerMask.NameToLayer("Ground");
         block.name = isKinematic? "Kinematic Block" : "Block [" + spawnCounter + "]";
-        block.isKinematic = isKinematic;//isFirstSpawn;
+        block.isKinematic = isKinematic;
 
         if (isKinematic)
         {
@@ -93,15 +89,8 @@ public class BlockSpawner : MonoBehaviour
 
     void Update()
     {
+        //spawner remains above camera frustum
         transform.position = new Vector3(0, Camera.main.transform.position.y + 6f, 0f);
-        
-        //spawn a new kinematic block every time the player transform.y increases by directory spacing value
-        // if ((int)player.transform.position.y > highestDirPos)
-        // {
-        //     highestDirPos = (int)player.transform.position.y;
-        //     
-        //     if (highestDirPos % directorySpacing == 0) DoSpawn(transform.position, true);
-        // }
     }
     
     IEnumerator GrowIn(float duration, Transform currScale, Vector3 targetScale)
@@ -109,7 +98,6 @@ public class BlockSpawner : MonoBehaviour
         currScale.localScale = Vector3.zero;
 
         float t = 0f;
-
         while (t < duration)
         {
             t += Time.deltaTime;

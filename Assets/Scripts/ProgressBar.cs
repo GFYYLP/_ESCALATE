@@ -81,7 +81,7 @@ public class ProgressBar : MonoBehaviour
 
         if (flashTimer > 0f)
         {
-            // rapid color index cycling — faster on strong flash
+            // rapid color index cycling, faster on strong flash
             float cycleRate = isStrongFlash ? 24f : 14f;
             int idx = Mathf.FloorToInt(Time.time * cycleRate) % flickerColors.Length;
             SetColor(flickerColors[idx]);
@@ -91,7 +91,7 @@ public class ProgressBar : MonoBehaviour
             SetColor(baseColor);
         }
 
-        // scale pop unchanged
+        // scale pop
         if (scalePopTimer > 0f)
         {
             float popT = scalePopTimer / POP_DURATION;

@@ -73,12 +73,11 @@ Shader "Unlit/Grid"
                     
                     float  dist     = length(toRipple);
                     float  age      = _Ripples[r].age;
-                    float  falloff  = exp(-dist * 2.0) * exp(-age * 3.0); 
                     float  strength = _Ripples[r].strength;
                     
                     switch (_Ripples[r].type)
                     {
-                    case 0: //point ripple (on objects abrupt speedup)
+                    case 0: //point ripple (on objects' abrupt speedup)
                         {
                             float radius = age * 0.8;
                             float ring   = exp(-pow(dist - radius, 2.0) * 20.0);
@@ -88,47 +87,48 @@ Shader "Unlit/Grid"
                         }
                     case 1: //directional ripple (follow along high-velocity objects)
                         {
-                            float  along    = dot(toRipple, dir);         // signed projection onto travel axis
-                            float  perp     = dot(toRipple, float2(-dir.y, dir.x));  //perpendicular distance from axis
+                            float  along = dot(toRipple, dir);         
+                            float  perp = dot(toRipple, float2(-dir.y, dir.x)); 
                             
-                            // falloff that elongates behind the object, sharp ahead
+                            //falloff that elongates behind the object, sharp ahead
                             float  s = max(_Ripples[r].strength, 0.01);
                             float  axialFalloff = exp(-max(along,  0.0) * (1.5 / s)) *
                                                   exp(-max(-along, 0.0) * (0.3 / s)) *
                                                   exp(-abs(perp)        * (3.0 / s)) *
                                                   exp(-age * 2.0);
                                                         
-                            // shear perpendicular to travel, dragging grid lines
-                            displacement += dir * along * strength * axialFalloff * 0.3;
+                            //dragging grid lines along the 2 axis
+                            // displacement += dir * along * strength * axialFalloff * 0.3;
+                            // displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
+                            displacement +=
+                            (
+                                dir      * along * 0.3 +
+                                float2(-dir.y, dir.x) * perp  * 0.15
+                            )
+                            * strength
+                            * axialFalloff;
                             
-                            //apply some perpendicular displacement too
-                            //we multiply by perp here to get a stronger effect further from the center, which emphasizes the shearing
-                            displacement += float2(-dir.y, dir.x) * perp * strength * axialFalloff * 0.15;
                             break;
                         }
                     case 2:  //scanline ripple (extreme impact)
                         {
-                            float2 toImpact     = uv - _Ripples[r].position;
-                            float  proximity    = 1.0 - age;
+                            float2 toImpact = uv - _Ripples[r].position;
+                            float  proximity = 1.0 - age;
                             
                             float  blockHalfWidth = 1.0;
                             float  lineWidth    = 0.04;  
                             float  scanSpacing  = 0.05; 
                             
-                            float  inColumn     = step(abs(toImpact.x), blockHalfWidth);
-                            float  spreadHeight = lerp(200.0, 10.0, proximity);
-                            float  inSpread     = step(abs(toImpact.y), spreadHeight);
-                            float  spreadT      = saturate(abs(toImpact.y) / max(spreadHeight, 0.001));  // 0 at center, 1 at edge of spread
+                            float  inColumn = step(abs(toImpact.x), blockHalfWidth);
+
+                            //which scanline index is this pixel on
+                            float  scanIndex = floor(uv.x / scanSpacing);
+                            float  scanLocal = fmod(abs(uv.x), scanSpacing);  // position within one indexed scanline
+                            float  onScanline = step(scanLocal, lineWidth);     // 1 if on a line, 0 if in gap
                             
-                            // which scanline index is this pixel on
-                            float  scanIndex    = floor(uv.x / scanSpacing);
-                            float  scanLocal    = fmod(abs(uv.x), scanSpacing);  // position within one scanline period
-                            float  onScanline   = step(scanLocal, lineWidth);     // 1 if on a line, 0 if in gap
-                            
-                            // per-line color  per thin-line index, not per grid column
+                            // per-line color per index
                             float  scanHash  = frac(sin(scanIndex * 127.1) * 43758.5);
                             float  shuffled  = fmod(abs(floor(scanHash * 6.0) + scanIndex * 1.618), 6.0);
-
                             float3 scanColor;
                             if      (shuffled < 1.0) scanColor = float3(1.0, 0.0, 0.2);
                             else if (shuffled < 2.0) scanColor = float3(1.0, 0.3, 0.0);
@@ -138,31 +138,23 @@ Shader "Unlit/Grid"
                             else                      scanColor = float3(1.0, 0.0, 0.8);
 
                             float  withinSilhouette = step(abs(toImpact.x), blockHalfWidth * proximity);
-                            float  scanOpacity  = proximity * (1.0 - spreadT * 0.7)  // fade out as it spreads
-                                                * inSpread * inColumn * onScanline
+                            float  scanOpacity  = proximity * inColumn * onScanline
                                                 * lerp(1.0, withinSilhouette, proximity);
                                                     
                             float  flicker  = frac(sin(scanIndex * 91.3 + floor(_Time.y * 24.0) * 127.1) * 43758.5);
                             float  onOff    = step(0.35, flicker);   // ~65% of lines visible at any frame, different each frame
-
                             scanOpacity *= onOff;
 
                             scanlineColor = float4(scanColor * scanOpacity, 0.0);
                             
                             break;
                         }
-                    case 3:  // dither bloom: mild collision / failed-repaint flash
+                    case 3:  // dither bloom: mild collision
                         {
                         float2 toImpact = uv - _Ripples[r].position;
                         float  dist     = length(toImpact);
 
-                        // soft shell that expands outward as the ripple ages,
-                        // plus a small solid core so it pops on contact
-                        float  radius    = age * 1.2;
-                        float  shell     = exp(-abs(dist - radius) * 5.0);
-                        float  core      = exp(-dist * 6.0) * (1.0 - age);
-                        float  fade      = exp(-age * 3.0) * strength;
-                        float  intensity = saturate((shell + core) * fade);
+                        float  intensity = saturate(exp(-dist * 6.0) * exp(-age * 3.0) * strength);
 
                         // chunky pixel grid + per-cell dither threshold
                         float  cell  = 0.05;
@@ -200,10 +192,8 @@ Shader "Unlit/Grid"
                 float  dispMag    = length(displacement);
                 float2 dispDir    = dispMag > 0.001 ? displacement / dispMag : float2(0, 0);
 
-                // aberration follows displacement direction, not perpendicular to it
+                // aberration follows displacement direction
                 float  aberrStr   = smoothstep(0.08, 0.5, dispMag) * 0.05;
-
-                // stronger separation on the dominant axis
                 float2 aberrVec   = dispDir * aberrStr;
                 aberrVec.y       *= 1.5;   //vertical hits get stronger vertical chromatic sep
 
@@ -224,9 +214,11 @@ Shader "Unlit/Grid"
                 col *= tint;
                 
                 float4 finalGridColor = lerp(_GridColor, float4(0.0, 0.0, 0.0, 1.0), _CorruptScore);
-                col.r = lerp(col.r, finalGridColor.r, GRID_LINE(uvR));
-                col.g = lerp(col.g, finalGridColor.g, GRID_LINE(uvG));
-                col.b = lerp(col.b, finalGridColor.b, GRID_LINE(uvB));
+                float  gridFade = 1.0 - saturate((_CorruptScore - 0.8) / 0.1); //grid dissipates nearing the end
+                
+                col.r = lerp(col.r, finalGridColor.r, GRID_LINE(uvR) * gridFade);
+                col.g = lerp(col.g, finalGridColor.g, GRID_LINE(uvG) * gridFade);
+                col.b = lerp(col.b, finalGridColor.b, GRID_LINE(uvB) * gridFade);
 
                 return col + scanlineColor + saturate(whiteBloom);
                 

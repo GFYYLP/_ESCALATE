@@ -55,17 +55,15 @@ Shader "Unlit/StaticNoise"
                 //non uniform horizontal bands
                 float  bandY        = floor(uv.y * screenHeight / 1.0);  // 1px bands
                 float  bandHash     = frac(sin(bandY * 127.1 + floor(_Time.y * 8.0) * 311.7) * 43758.5);
-
-                //some bands are heavily affected, others clean
-                float  dropoutT     = step(lerp(0.95, 0.3, _SystemStability), bandHash);
                 
-                // within a dropout band: horizontal shift + luminance spike
+                //horizontal shift + luminance spike within a dropout ban
                 float  shiftAmount  = (frac(sin(bandY * 91.3) * 29183.1) * 2.0 - 1.0)
                                     * _SystemStability * 0.02;                        // max 2% screen width shift
                 float2 shiftedUV    = uv + float2(shiftAmount, 0.0);
                 float3 shiftedColor = tex2D(_MainTex, shiftedUV).rgb;//screenTex.Sample(s, shiftedUV).rgb;
 
-                // luminance: dropout bands briefly overbright then dark: signal spiking
+                //dropout bands briefly overbright then dark for signal spiking
+                float  dropoutT     = step(lerp(0.95, 0.3, _SystemStability), bandHash);  //some bands are heavily affected, others clean
                 float  lumaMod      = lerp(1.0, bandHash > 0.5 ? 1.4 : 0.3, dropoutT * _SystemStability);
 
                 color.rgb           = lerp(color.rgb, shiftedColor * lumaMod, dropoutT);

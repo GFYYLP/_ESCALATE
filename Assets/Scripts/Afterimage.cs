@@ -26,7 +26,6 @@ public class AfterImage : MonoBehaviour
     void Update()
     {
         timer += Time.deltaTime;
-
         float t = timer / lifetime;
 
         // Fade alpha
@@ -36,7 +35,7 @@ public class AfterImage : MonoBehaviour
 
         if (timer >= lifetime)
         {
-            Destroy(gameObject); // replace with pooling later
+            Destroy(gameObject);
         }
     }
 }

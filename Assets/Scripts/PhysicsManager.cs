@@ -101,6 +101,10 @@ public class PhysicsManager : MonoBehaviour
             if (b is Player)
             {
                 corruptScore = Mathf.Max(corruptScore, Mathf.Max(b.transform.position.y  * difficultyScale, 1f));
+
+                if (corruptScore > winScore * 0.9f)
+                    systemStability = Mathf.Max(0f, systemStability - systemStability * dt * 5f);
+
                 stabilityRatio = systemStability / corruptScore;
             }
         }

@@ -246,8 +246,8 @@ public class Player : PhysicsBody
         float grav     = fastFall ? fastFallGravity : gravity;
         float cap      = fastFall ? maxFastFall     : maxFallSpeed;
 
-        float gravMultiplier = (corruptScore > PhysicsManager.Instance.winScore * 0.8f) ? 0f : 1.0f;  //no gravity when close to winning
-        velocity.y -= grav * dt * gravMultiplier;
+        float gravMultiplier = (PhysicsManager.Instance.corruptScore > PhysicsManager.Instance.winScore * 0.8f) ? 0f : 1.0f;  //no gravity when close to winning
+        velocity.y -= grav * dt * (1.0f + corruptScore);//gravMultiplier;
         if (velocity.y < -cap) velocity.y = -cap;
     }
     

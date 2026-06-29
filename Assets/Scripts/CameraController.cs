@@ -5,17 +5,11 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private Player player;
-
     [SerializeField] private PhysicsManager physicsManager;
     
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-    
+    //post process material
     public Material material;
-
+    
     void OnRenderImage(RenderTexture src, RenderTexture dst)
     {
         Graphics.Blit(src, dst, material);
@@ -24,8 +18,8 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        //vertically scrolls along side the player
         float verticalPos = Mathf.Max(0f, player.transform.position.y);
-
         transform.position = new Vector3(
             transform.position.x,
             verticalPos,
