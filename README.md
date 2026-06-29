@@ -6,6 +6,7 @@ A fast-paced 2D vertical platformer built in Unity, wrapped in a corrupted faili
 ![Status](https://img.shields.io/badge/status-finished-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-2D-blue)
 ![gameplay](Gameplay.gif)
+[![itch.io](https://img.shields.io/badge/itch.io-play-FA5C5C?logo=itch.io)](https://theselfwithasmile.itch.io/escalate)
 
 ---
 
@@ -71,7 +72,7 @@ Assets/Scripts/
 
 This was my first Unity project, built on a significant time constraint as a way to learn the engine end-to-end. The game itself is finished and playable, but some of the underlying code reflects an early-stage learning process rather than production-grade conventions. 
 
-The project nonetheless complements my foundational experience with graphics APIs (Vulkan and OpenGL, I discuss more about them in the following repo: ), hence the heavier logic and visual polish uncommonly seen for a first project.
+The project nonetheless complements my foundational experience with graphics APIs, hence the heavier logic and visual polish uncommonly seen for a first project.
 
 ## Status
 
