@@ -162,6 +162,7 @@ public abstract class PhysicsBody : MonoBehaviour
 
     private Vector3 targetScale = Vector3.one;
 
+   //sprite visually stretch to movement
     void UpdateVisual(float dt)
     {
         float speed = velocity.magnitude;
@@ -173,7 +174,7 @@ public abstract class PhysicsBody : MonoBehaviour
         else
         {
             Vector2 dir     = velocity.normalized;
-            // Small additive stretch: never more than +/-maxStretchAmount from 1
+            //small additive stretch
             float amount    = Mathf.Min(speed * stretchSensitivity, maxStretch - 1f);
         
             float scaleX = 1f + amount * Mathf.Abs(dir.x) 
@@ -181,7 +182,6 @@ public abstract class PhysicsBody : MonoBehaviour
             float scaleY = 1f + amount * Mathf.Abs(dir.y)
                            - amount * Mathf.Abs(dir.x) * 0.5f;
 
-            // Hard clamp
             scaleX = Mathf.Clamp(scaleX, 0.85f, 1.15f);
             scaleY = Mathf.Clamp(scaleY, 0.85f, 1.15f);
 

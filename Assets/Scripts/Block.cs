@@ -7,15 +7,12 @@ public class Block : PhysicsBody
 {
     [SerializeField] private float gravity     = 5f;
     [SerializeField] private float maxFallSpeed = 35f;
-    
-    
 
     public override void UpdateVelocity(float dt, float corruptScore)
     {
         if (!isKinematic)
         {
             velocity.y -= gravity * dt * (1.0f + corruptScore);
-            //velocity.y  = Mathf.Max(velocity.y, -maxFallSpeed * corruptScore * 0.1f);
         }
 
         if (candidatePos.y < -10f && velocity.y <= maxFallSpeed) pendingDestroy = true;

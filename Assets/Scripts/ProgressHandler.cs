@@ -19,8 +19,7 @@ public class ProgressHandler : MonoBehaviour
         physicsManager = FindObjectOfType<PhysicsManager>();
         player = FindObjectOfType<Player>();
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         float scoreRatio = player.Speed * 0.8f / physicsManager.highCollideVal;

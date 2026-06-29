@@ -57,7 +57,7 @@ public class TerminalStutter : MonoBehaviour
         var chars = source.ToCharArray();
         for (int i = 0; i < chars.Length; i++)
         {
-            if (chars[i] == '\n' || chars[i] == ' ') continue; // preserve layout
+            if (chars[i] == '\n' || chars[i] == ' ') continue; //  layout
             if (Random.value < 0.5f)
                 chars[i] = garbageChars[Random.Range(0, garbageChars.Length)];
         }

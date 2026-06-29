@@ -23,8 +23,6 @@ public class PlayerVFX : MonoBehaviour
     [SerializeField] private SpriteRenderer reflectTab;
     [SerializeField] private SpriteRenderer warpTab;
     Color dashColor = Color.blue;
-    Color reflectColor = Color.yellow;
-    Color warpColor = Color.magenta;
     
     private float timer;
     private Color defaultTint = new Color(0f, 0f, 0f, 0f);
@@ -64,45 +62,10 @@ public class PlayerVFX : MonoBehaviour
             dashTask.UpdateBar(1f);
         }
         
-        // dash: binary, available or not
-        //dashBar.UpdateBar(player.DashUsed ? 0f : 1f);
-
-        // reflect: also mostly binary but use ReflectVal (0, 0.3, or 1.0)
         reflectBar.UpdateBar(player.ReflectVal);
         reflectTask.UpdateBar(player.ReflectVal);
         
-        // warp: continuous charge
         warpBar.UpdateBar(player.WarpProgress());
         warpTask.UpdateBar(player.WarpProgress());
     }
-
-    IEnumerator PulseSprite(Color src, Color first, Color second)
-    {
-        float t = 0f;
-        float pulseDuration = 2f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / pulseDuration;
-            
-            //pulse src color
-            src = Color.Lerp(first, second, t);
-            
-            yield return null;
-        }
-    }
-
-    void SpawnAfterImage()
-    {
-        var img = Instantiate(afterImagePrefab);
-
-        img.Init(
-            playerSprite.sprite,
-            new Vector3(transform.position.x, transform.position.y, transform.position.z - 1f),
-            transform.rotation,
-            transform.localScale,
-            tint,
-            lifetime
-        );
-    }
-
 }

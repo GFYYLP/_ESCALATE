@@ -8,11 +8,9 @@ public class BlockSpawner : MonoBehaviour
     [SerializeField] private PhysicsManager physicsManager;
     [SerializeField] private Block blockPrefab;
     [SerializeField] private List<Sprite> sprites;
-    [SerializeField] private float directorySpacing = 5f;
     [SerializeField] private float kinematicSpawnDuration = 1f;
     
     private List<Vector2> directoryPositions;
-    private int highestDirPos=0;
     
     [SerializeField] private float spawnCooldown = 0.5f; 
     [SerializeField] private float kinematicSpawnCooldown = 1.0f;

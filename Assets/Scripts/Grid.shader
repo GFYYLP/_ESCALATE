@@ -142,7 +142,7 @@ Shader "Unlit/Grid"
                                                 * lerp(1.0, withinSilhouette, proximity);
                                                     
                             float  flicker  = frac(sin(scanIndex * 91.3 + floor(_Time.y * 24.0) * 127.1) * 43758.5);
-                            float  onOff    = step(0.35, flicker);   // ~65% of lines visible at any frame, different each frame
+                            float  onOff    = step(0.35, flicker);   //65% of lines visible at any frame
                             scanOpacity *= onOff;
 
                             scanlineColor = float4(scanColor * scanOpacity, 0.0);
@@ -153,7 +153,6 @@ Shader "Unlit/Grid"
                         {
                         float2 toImpact = uv - _Ripples[r].position;
                         float  dist     = length(toImpact);
-
                         float  intensity = saturate(exp(-dist * 6.0) * exp(-age * 3.0) * strength);
 
                         // chunky pixel grid + per-cell dither threshold
@@ -163,13 +162,12 @@ Shader "Unlit/Grid"
 
                         // white pixels switch on where intensity beats the cell threshold
                         float  on    = step(bayer, intensity);
-                        // a fraction of cells flicker per frame for the "unstable" look
-                        float  flick = step(0.3, frac(sin(dot(pix, float2(45.2, 13.7))
+                        float  flick = step(0.3, frac(sin(dot(pix, float2(45.2, 13.7))  // a fraction of cells flicker per frame
                                            + floor(_Time.y * 30.0)) * 9182.7));
 
                         whiteBloom += float4(1, 1, 1, 1) * on * intensity * flick;
 
-                        // mark this region for grid quantization
+                        //mark this region for grid quantization
                         pixelate += intensity;
                         break;
                         }

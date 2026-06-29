@@ -56,7 +56,7 @@ public class CounterUI : MonoBehaviour
         public bool showHome;
         public bool showSetting;
         public bool showQuit;
-        public string playLabel; // null = use default "Play"
+        public string playLabel; //null = use default "Play"
     }
 
     private Dictionary<GameObject, ScreenButtonConfig> screenConfigs;
@@ -72,7 +72,7 @@ public class CounterUI : MonoBehaviour
                 showPlay    = true,  playLabel = "Play",
                 showRestart = false,
                 showReturn  = false,
-                showHome    = false, // already here
+                showHome    = false,
                 showSetting = true,
                 showQuit    = true,
             },
@@ -91,7 +91,7 @@ public class CounterUI : MonoBehaviour
                 showRestart = false,
                 showReturn  = true,
                 showHome    = false,
-                showSetting = false, // already here
+                showSetting = false, 
                 showQuit    = false,
             },
             [overScreen] = new ScreenButtonConfig
@@ -201,14 +201,12 @@ public class CounterUI : MonoBehaviour
 
     private void OnQuitClicked()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+        #else
+                Application.Quit();
+        #endif
     }
-
-
 
     public void ShowOverScreen()
     {
@@ -228,14 +226,13 @@ public class CounterUI : MonoBehaviour
         ShowNav();
     }
 
-
-
+    
     public void Update()
     {
         int scoreVal = Mathf.Max((int)player.transform.position.y, 0);
         bestScore = Mathf.Max(scoreVal, bestScore);
 
-        bestScoreText.text = scoreVal + " : " + ((int)bestScore);//((int)physicsManager.corruptScore).ToString();
+        bestScoreText.text = scoreVal + " : " + ((int)bestScore);
 
         if (Input.GetKeyDown(KeyCode.Escape) && gameStarted && !gameOver)
         {
@@ -280,12 +277,12 @@ public class CounterUI : MonoBehaviour
         }
     }
 
-    /// Reads the config for the given screen and shows/hides each nav button accordingly.
+    ///reads the config for the given screen and shows/hides each nav button accordingly.
     private void ApplyButtonConfig(GameObject screen)
     {
         if (!screenConfigs.TryGetValue(screen, out ScreenButtonConfig cfg))
         {
-            // Unknown screen: show everything as a safe fallback
+            //show everything as a safe fallback
             SetButtonVisible(playButton,    true);
             SetButtonVisible(restartButton, true);
             SetButtonVisible(returnButton,  true);

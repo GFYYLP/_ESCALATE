@@ -48,7 +48,6 @@ public class PhysicsManager : MonoBehaviour
     {
         onLowCollision += rippleManager.AddScanlineRipple;
         onLowCollision += HandleLowHit;
-        //onHighCollision += HandleLightHit;
         
         onHighCollision += rippleManager.AddBloomRipple;
         onHighCollision += HandleBigHit;
@@ -158,24 +157,21 @@ public class PhysicsManager : MonoBehaviour
         {
             float proximityX = (a.size.x + b.size.x) * 0.5f + proximityThreshold - Mathf.Abs(delta.x);
             float proximityY = (a.size.y + b.size.y) * 0.5f + proximityThreshold - Mathf.Abs(delta.y);
-
-            float currProximity;
-            // Derive actual contact normal from overlap axes
+            
+            //derive actual contact normal from overlap axes
             Vector2 normal;
             if (Mathf.Abs(overlapX) < Mathf.Abs(overlapY))
             {
                 normal = new Vector2(Mathf.Sign(delta.x), 0f);
-                currProximity = proximityX;
             }
             else
             {
                 normal = new Vector2(0f, Mathf.Sign(delta.y));
-                currProximity = proximityY;
             }
 
-            a.nearBlock = true;//currProximity/proximityThreshold;
+            a.nearBlock = true;
             a.nearNormal = normal;
-            b.nearBlock = true;//currProximity/proximityThreshold;
+            b.nearBlock = true;
             b.nearNormal = -normal;
         }
 
@@ -214,12 +210,12 @@ public class PhysicsManager : MonoBehaviour
             penetration = overlapY;
         }
 
-        // Push apart by half each (equal mass assumption)
-        // Kinematic bodies (immovable) get zero push share
+        //push apart by half each
+        //kinematic bodies get zero push share
         float totalInvMass = (a.isKinematic ? 0f : 1f) + (b.isKinematic ? 0f : 1f);
         if (totalInvMass == 0f) return;
 
-        // Velocity exchange along normal
+        //velocity exchange along normal
         float aSpeed      = Vector2.Dot(a.velocity, normal);
         float bSpeed      = Vector2.Dot(b.velocity, normal);
         float impactSpeed = aSpeed - bSpeed;
@@ -243,14 +239,12 @@ public class PhysicsManager : MonoBehaviour
         float highThreshold = highCollideVal * (1f - (corruptScore * highColCorruptVal));
         if (Mathf.Abs(impactSpeed) > highThreshold)
             onHighCollision?.Invoke(a.candidatePos);  //either a or b should work given collision proximity
-        // corruptScore += Mathf.Abs(impactSpeed) * Camera.main.transform.position.y * 0.5f;
         
         // aSpeed - bSpeed > 0 means a and b moves in opposite directions
-        // We want to resolve when a is moving TOWARD b, i.e. impactSpeed < 0
+        //we want to resolve when a is moving TOWARD
         if (impactSpeed >= 0f) return;
         
-        // Scale vertical impulse transfer down significantly
-        float verticalDamp = Mathf.Abs(normal.y) > 0.5f ? 0.2f : 1f;
+        float verticalDamp = Mathf.Abs(normal.y) > 0.5f ? 0.2f : 1f;  //scale vertical impulse transfer down 
 
         if (!a.isKinematic) a.Velocity += normal * Mathf.Abs(impactSpeed) * a.weight * aShare;  // push a away from b
         if (!b.isKinematic) b.Velocity -= normal * Mathf.Abs(impactSpeed) * b.weight * bShare * verticalDamp;  // push b away from a

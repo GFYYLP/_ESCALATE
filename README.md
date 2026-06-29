@@ -5,8 +5,8 @@ A fast-paced 2D vertical platformer built in Unity, wrapped in a corrupted faili
 ![Unity](https://img.shields.io/badge/Unity-2022.3.62f3-black?logo=unity)
 ![Status](https://img.shields.io/badge/status-finished-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-2D-blue)
-![gameplay](Gameplay.gif)
 [![itch.io](https://img.shields.io/badge/itch.io-play-FA5C5C?logo=itch.io)](https://theselfwithasmile.itch.io/escalate)
+![gameplay](Gameplay.gif)
 
 ---
 

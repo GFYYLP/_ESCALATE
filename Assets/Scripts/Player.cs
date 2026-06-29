@@ -11,7 +11,8 @@ public class Player : PhysicsBody
     [SerializeField] private float airAccel       = 65f;
     [SerializeField] private float groundFriction = 80f;
     [SerializeField] private float airFriction    = 40f;
-
+    [SerializeField] private float maxVelocity = 40f;
+    
     //jump 
     [SerializeField] private float jumpForce         = 11f;
     [SerializeField] private float jumpCutMultiplier = 0.5f;
@@ -50,29 +51,8 @@ public class Player : PhysicsBody
 
     public override void UpdateVelocity(float dt, float corruptScore)
     {
-        float reflectCondition = ((nearBlock) ? 0.3f : 0f)
-            + ((isDashing) ? 0.7f : 0f);
-        reflectVal = reflectCondition;
-        
-        // Read 8-directional input from arrow keys or WASD
-        float x = 0f, y = 0f;
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) x += 1f;
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))  x -= 1f;
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))    y += 1f;
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))  y -= 1f;
-
-        // Default to last horizontal direction if no input
-        if (x == 0f && y == 0f)
-            x = lastDir;
-        
-        //flip sprite
-        if (x != 0f) flipSign = Mathf.Sign(-x);
-
-        dirVal = new Vector2(x, y).normalized;
-        dirVal.y   *= 0.75f;
-        
+        UpdateDir();
         UpdateTimers(dt);
-        //TryLatch();
         TryDash();
         TryReflect();
         TryWarp();
@@ -80,19 +60,11 @@ public class Player : PhysicsBody
         ApplyHorizontal(dt);
         ApplyVertical(dt, corruptScore);
         
-        nearBlock = false;  // reset each frame, AABBOverlap sets it if close
+        nearBlock = false; 
         
         //cap velocity
-        const float maxVelocity = 40f;
         velocity.x = Mathf.Clamp(velocity.x, -maxVelocity, maxVelocity);
         velocity.y = Mathf.Clamp(velocity.y, -maxVelocity*0.5f, maxVelocity*0.5f);  //less vertical freedom
-        
-        if (Input.GetKey(KeyCode.R))
-        {
-            velocity = new Vector2();
-            candidatePos = new Vector2(0f, 1.5f);
-        }
-        
     }
 
     public void LateUpdate()
@@ -100,9 +72,32 @@ public class Player : PhysicsBody
         preWarpPos = default; //reset warping state;
     }
 
+    void UpdateDir()
+    {
+        //read 8-directional input from arrow keys or WASD
+        float x = 0f, y = 0f;
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) x += 1f;
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))  x -= 1f;
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))    y += 1f;
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))  y -= 1f;
+
+        //default to last horizontal direction if no input
+        if (x == 0f && y == 0f) x = lastDir;
+        
+        //flip sprite
+        if (x != 0f) flipSign = Mathf.Sign(-x);
+
+        dirVal = new Vector2(x, y).normalized;
+        dirVal.y   *= 0.75f;
+    }
+
 
     void UpdateTimers(float dt)
     {
+        float reflectCondition = ((nearBlock) ? 0.3f : 0f)
+                                 + ((isDashing) ? 0.7f : 0f);
+        reflectVal = reflectCondition;
+        
         if (Input.GetKeyDown(KeyCode.Z))
             jumpBufferTimer = jumpBufferTime;
         else
@@ -179,7 +174,7 @@ public class Player : PhysicsBody
         
         if (!Input.GetKeyDown(KeyCode.Z) ) return;
 
-        // Reflect dash velocity off the contact normal
+        //reflect dash velocity off the contact normal
         //Vector2 reflected = Vector2.Reflect(velocity, nearNormal);
         bool hasInput = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ||
                         Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ||
@@ -207,14 +202,12 @@ public class Player : PhysicsBody
         Vector2 safePos = target;
 
         preWarpPos = candidatePos;
-        candidatePos       = safePos;
+        candidatePos = safePos;
 
         warpCharge = 0f;
         
         AudioManager.Instance.PlayWarpSound();
     }
-    
-
     
 
     void ApplyVertical(float dt, float corruptScore)
@@ -251,7 +244,7 @@ public class Player : PhysicsBody
         if (velocity.y < -cap) velocity.y = -cap;
     }
     
-    // Public data
+    //public data
     public bool IsDashing => isDashing;
     public float ReflectVal => reflectVal;
     public Vector2 PreWarpPos => preWarpPos;

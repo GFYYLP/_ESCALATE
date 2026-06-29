@@ -58,7 +58,7 @@ Shader "Unlit/StaticNoise"
                 
                 //horizontal shift + luminance spike within a dropout ban
                 float  shiftAmount  = (frac(sin(bandY * 91.3) * 29183.1) * 2.0 - 1.0)
-                                    * _SystemStability * 0.02;                        // max 2% screen width shift
+                                    * _SystemStability * 0.02;  // max 2% screen width shift
                 float2 shiftedUV    = uv + float2(shiftAmount, 0.0);
                 float3 shiftedColor = tex2D(_MainTex, shiftedUV).rgb;//screenTex.Sample(s, shiftedUV).rgb;
 

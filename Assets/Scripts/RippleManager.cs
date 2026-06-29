@@ -39,7 +39,7 @@ public class RippleManager : MonoBehaviour
 
     public void RespondToBody(PhysicsBody body, float corruptScore)
     {
-        //transition to white background/black grid as corruptScore increases)
+        //transition to white background/black grid as corruptScore increases
         gridMaterial.SetFloat("_CorruptScore", corruptScore);
         
         rippleCooldown -= Time.deltaTime;
@@ -77,21 +77,21 @@ public class RippleManager : MonoBehaviour
     public void AddDirRipple(Vector2 pos, float strength, Vector2 dir)
     {
         if (ripples.Count >= maxRipples)
-            ripples.RemoveAt(0); // oldest is always at index 0
+            ripples.RemoveAt(0);
         ripples.Add(new Ripple { position = pos, dir = dir, strength = strength, age = 0f, type = 1 });
     }
     
     public void AddBloomRipple(Vector2 pos)
     {
         if (ripples.Count >= maxRipples)
-            ripples.RemoveAt(0); // oldest is always at index 0
+            ripples.RemoveAt(0); 
         ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 100.5f, age = 0f, type = 3 });
     }
     
     public void AddScanlineRipple(Vector2 pos)
     {
         if (ripples.Count >= maxRipples)
-            ripples.RemoveAt(0); // oldest is always at index 0
+            ripples.RemoveAt(0); 
         ripples.Add(new Ripple { position = pos, dir = Vector2.zero, strength = 0f, age = 0f, type = 2 });
     }
     
@@ -111,7 +111,6 @@ public class RippleManager : MonoBehaviour
         {
             var r = ripples[i];
             
-            //if (r.type == 2) r.age += Time.deltaTime * 0.1f;
             r.age += Time.deltaTime;
             
             if (r.age > lifetime[r.type])  // ripple lifetime

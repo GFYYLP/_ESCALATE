@@ -22,14 +22,14 @@ public class ProgressBar : MonoBehaviour
     private float scalePopTimer = 0f;
     const float FLASH_DURATION  = 0.12f;
     const float POP_DURATION    = 0.1f;
-    const float TICK_THRESHOLD  = 0.19f;   // charge tick every ~20%
+    const float TICK_THRESHOLD  = 0.19f;  
     
     static readonly Color[] flickerColors = {
-        new Color(1f, 0f, 0.2f),    // red
-        new Color(0f, 1f, 0.8f),    // cyan
-        new Color(0.8f, 0f, 1f),    // magenta
-        new Color(1f, 0.8f, 0f),    // yellow
-        new Color(0f, 0.8f, 1f),    // blue
+        new Color(1f, 0f, 0.2f),   
+        new Color(0f, 1f, 0.8f),  
+        new Color(0.8f, 0f, 1f),  
+        new Color(1f, 0.8f, 0f),  
+        new Color(0f, 0.8f, 1f),   
         Color.white,
     };
 
@@ -41,7 +41,7 @@ public class ProgressBar : MonoBehaviour
         graphic = GetComponent<Graphic>();
     }
 
-    // Call every frame. Returns current percent.
+    //returns current percent.
     public int UpdateBar(float ratio)
     {
         ratio = Mathf.Clamp01(ratio);
@@ -81,7 +81,7 @@ public class ProgressBar : MonoBehaviour
 
         if (flashTimer > 0f)
         {
-            // rapid color index cycling, faster on strong flash
+            //rapid color index cycling, faster on strong flash
             float cycleRate = isStrongFlash ? 24f : 14f;
             int idx = Mathf.FloorToInt(Time.time * cycleRate) % flickerColors.Length;
             SetColor(flickerColors[idx]);
@@ -91,7 +91,7 @@ public class ProgressBar : MonoBehaviour
             SetColor(baseColor);
         }
 
-        // scale pop
+        //scale pop
         if (scalePopTimer > 0f)
         {
             float popT = scalePopTimer / POP_DURATION;
